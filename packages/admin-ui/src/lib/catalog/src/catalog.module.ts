@@ -73,6 +73,7 @@ import { ProductVariantsTableComponent } from './components/product-variants-tab
 import { UpdateProductOptionDialogComponent } from './components/update-product-option-dialog/update-product-option-dialog.component';
 import { VariantPriceDetailComponent } from './components/variant-price-detail/variant-price-detail.component';
 import { VariantPriceStrategyDetailComponent } from './components/variant-price-strategy-detail/variant-price-strategy-detail.component';
+import { PriceVariantListComponent } from './components/price-variant-list/price-variant-list.component';
 
 const CATALOG_COMPONENTS = [
     ProductListComponent,
@@ -108,6 +109,7 @@ const CATALOG_COMPONENTS = [
     CreateProductOptionGroupDialogComponent,
     ProductVariantQuickJumpComponent,
     CreateFacetValueDialogComponent,
+    PriceVariantListComponent,
 ];
 
 @NgModule({
@@ -203,6 +205,13 @@ export class CatalogModule {
                     },
                 ],
             }),
+        });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'product-list',
+            tab: _('catalog.price-variants'),
+            route: 'price-variants',
+            component: PriceVariantListComponent,
         });
         pageService.registerPageTab({
             priority: 0,
