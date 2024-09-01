@@ -1,0 +1,11 @@
+type Query {
+    "Get all product price variants"
+    productPriceVariants: ProductVariantPriceVariantList!
+    "Get a product price variant by ID"
+    productPriceVariant(id: ID!): ProductVariantPriceVariant
+}
+
+type Mutation {
+    "Add a new price variant"
+    addPriceVariant(name: String!): ProductVariantPriceVariant!
+}

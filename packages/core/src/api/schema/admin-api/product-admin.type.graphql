@@ -19,3 +19,16 @@ type ProductVariant implements Node {
     stockMovements(options: StockMovementListOptions): StockMovementList!
     channels: [Channel!]!
 }
+
+type ProductVariantPriceVariant implements Node {
+    id: ID!
+    name: String!
+    productVariant: [ProductVariantPrice!]!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+type ProductVariantPriceVariantList implements PaginatedList {
+    items: [ProductVariantPriceVariant!]!
+    totalItems: Int!
+}

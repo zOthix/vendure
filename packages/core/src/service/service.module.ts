@@ -50,6 +50,7 @@ import { PaymentMethodService } from './services/payment-method.service';
 import { PaymentService } from './services/payment.service';
 import { ProductOptionGroupService } from './services/product-option-group.service';
 import { ProductOptionService } from './services/product-option.service';
+import { ProductPriceVariantService } from './services/product-price-variant.service';
 import { ProductVariantService } from './services/product-variant.service';
 import { ProductService } from './services/product.service';
 import { PromotionService } from './services/promotion.service';
@@ -103,6 +104,7 @@ const services = [
     TaxRateService,
     UserService,
     ZoneService,
+    ProductPriceVariantService,
 ];
 
 const helpers = [
