@@ -80,6 +80,15 @@ export const createRoutes = (pageService: PageService): Route[] => [
         },
     },
     {
+        path: 'products/price-variants/:id',
+        component: PageComponent,
+        data: {
+            locationId: 'price-variant-detail',
+            breadcrumb: { label: _('breadcrumb.products'), link: ['../', 'products'] },
+        },
+        children: pageService.getPageTabRoutes('price-variant-detail'),
+    },
+    {
         path: 'facets',
         component: PageComponent,
         data: {

@@ -9,6 +9,7 @@ import {
     GetFacetDetailDocument,
     GetProductDetailDocument,
     GetProductVariantDetailDocument,
+    GetProductVariantPriceVariantDetailDocument,
     PageService,
     SharedModule,
 } from '@vendure/admin-ui/core';
@@ -74,6 +75,7 @@ import { UpdateProductOptionDialogComponent } from './components/update-product-
 import { VariantPriceDetailComponent } from './components/variant-price-detail/variant-price-detail.component';
 import { VariantPriceStrategyDetailComponent } from './components/variant-price-strategy-detail/variant-price-strategy-detail.component';
 import { PriceVariantListComponent } from './components/price-variant-list/price-variant-list.component';
+import { PriceVariantDetailComponent } from './components/price-variant-detail/price-variant-detail.component';
 
 const CATALOG_COMPONENTS = [
     ProductListComponent,
@@ -110,6 +112,7 @@ const CATALOG_COMPONENTS = [
     ProductVariantQuickJumpComponent,
     CreateFacetValueDialogComponent,
     PriceVariantListComponent,
+    PriceVariantDetailComponent,
 ];
 
 @NgModule({
@@ -212,6 +215,27 @@ export class CatalogModule {
             tab: _('catalog.price-variants'),
             route: 'price-variants',
             component: PriceVariantListComponent,
+        });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'price-variant-detail',
+            tab: _('catalog.price-variants'),
+            route: '',
+            component: detailComponentWithResolver({
+                component: PriceVariantDetailComponent,
+                query: GetProductVariantPriceVariantDetailDocument,
+                entityKey: 'productPriceVariant',
+                getBreadcrumbs: entity => [
+                    {
+                        label: _('catalog.price-variants'),
+                        link: ['/catalog', 'products', 'price-variants'],
+                    },
+                    {
+                        label: entity ? entity.name : _('catalog.create-new-price-variant'),
+                        link: [entity?.id],
+                    },
+                ],
+            }),
         });
         pageService.registerPageTab({
             priority: 0,
