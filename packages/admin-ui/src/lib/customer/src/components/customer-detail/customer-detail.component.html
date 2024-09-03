@@ -112,6 +112,16 @@
                         <input id="phoneNumber" type="text" formControlName="phoneNumber" />
                     </vdr-form-field>
                     <vdr-form-field
+                        [label]="'customer.price_variant' | translate"
+                        for="price_variant"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <!-- <input id="password" type="password" formControlName="password" /> -->
+                        <select id="priceVariant" formControlName="priceVariant">
+                            <option value="1">Wholesale</option>
+                        </select>
+                    </vdr-form-field>
+                    <vdr-form-field
                         [label]="'customer.password' | translate"
                         for="password"
                         *ngIf="isNew$ | async"

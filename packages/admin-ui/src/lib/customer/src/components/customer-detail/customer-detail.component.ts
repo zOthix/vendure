@@ -91,6 +91,7 @@ export class CustomerDetailComponent
             emailAddress: ['', [Validators.required, Validators.email]],
             password: '',
             customFields: this.formBuilder.group(getCustomFieldsDefaults(this.customFields)),
+            priceVariant: '',
         }),
         addresses: new UntypedFormArray([]),
     });
@@ -475,6 +476,7 @@ export class CustomerDetailComponent
                 emailAddress: entity.emailAddress,
                 password: '',
                 customFields: {},
+                priceVariant: '',
             });
         }
 
