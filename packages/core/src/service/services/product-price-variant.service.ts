@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { MutationAddPriceVariantArgs } from '@vendure/common/lib/generated-types';
+import { MutationCreatePriceVariantArgs, UpdatePriceVariantInput } from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../api/common/request-context';
-import { Translated } from '../../common';
+import { assertFound } from '../../common';
 import { TransactionalConnection } from '../../connection/transactional-connection';
 import { ProductVariantPrice } from '../../entity';
+import { ProductVariantPriceToPriceVariant } from '../../entity/product-variant/product-variant-price-price-variant.entity';
 import { ProductVariantPriceVariant } from '../../entity/product-variant/product-variant-price-variant.entity';
 import { ListQueryBuilder } from '../helpers/list-query-builder/list-query-builder';
 import { TranslatableSaver } from '../helpers/translatable-saver/translatable-saver';
@@ -47,19 +48,48 @@ export class ProductPriceVariantService {
 
     async create(
         ctx: RequestContext,
-        input: MutationAddPriceVariantArgs,
+        input: MutationCreatePriceVariantArgs,
     ): Promise<ProductVariantPriceVariant> {
-        const productVariantPriceRepository = this.connection.getRepository(ctx, ProductVariantPrice);
-        const productVariantPriceList = await productVariantPriceRepository.find();
-        const entity = new ProductVariantPriceVariant(input);
+        const newProductVariantPriceVariant = new ProductVariantPriceVariant(input);
+        const savedEntity = await this.connection
+            .getRepository(ctx, ProductVariantPriceVariant)
+            .save(newProductVariantPriceVariant as any);
+        const productVariantPriceList = await this.connection.getRepository(ctx, ProductVariantPrice).find({
+            relations: ['productVariantPriceVariant'],
+        });
+        const productVariantPriceToPriceVariantRepository = this.connection.getRepository(
+            ctx,
+            ProductVariantPriceToPriceVariant,
+        );
+        const x = await productVariantPriceToPriceVariantRepository.find({
+            relations: ['productVariantPriceVariant', 'productVariantPrice'],
+        });
+        const conjunctionObjectList = [];
         for (const productVariantPrice of productVariantPriceList) {
-            if (productVariantPrice.priceVariant) {
-                productVariantPrice.priceVariant.push(entity);
-            } else {
-                productVariantPrice.priceVariant = [entity];
-            }
+            const conjunction = new ProductVariantPriceToPriceVariant({
+                productVariantPrice,
+                productVariantPriceVariant: savedEntity,
+                price: productVariantPrice.price,
+            });
+            conjunctionObjectList.push(conjunction);
         }
-        await productVariantPriceRepository.save(productVariantPriceList);
-        return await this.connection.getRepository(ctx, ProductVariantPriceVariant).save(entity as any);
+        await productVariantPriceToPriceVariantRepository.save(conjunctionObjectList as any);
+        return savedEntity;
+    }
+
+    async update(
+        ctx: RequestContext,
+        input: UpdatePriceVariantInput,
+    ): Promise<ProductVariantPriceVariant | undefined> {
+        const productPriceVariantRepository = this.connection.getRepository(ctx, ProductVariantPriceVariant);
+        const entity = await productPriceVariantRepository.findOneBy({
+            id: input.id as number,
+        });
+        if (!entity) {
+            return;
+        }
+        entity.name = input.name ? input.name : entity.name;
+        await productPriceVariantRepository.save(entity as any);
+        return assertFound(this.findOne(ctx, entity.id));
     }
 }

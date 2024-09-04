@@ -1,7 +1,8 @@
 import { CurrencyCode } from '@vendure/common/lib/generated-types';
 import { DeepPartial, ID } from '@vendure/common/lib/shared-types';
-import { Column, Entity, Index, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 
+import { ProductVariantPriceToPriceVariant } from '../../../dist/entity/product-variant/product-variant-price-price-variant.entity';
 import { HasCustomFields } from '../../config/custom-field/custom-field-types';
 import { VendureEntity } from '../base/base.entity';
 import { CustomProductVariantPriceFields } from '../custom-entity-fields';
@@ -35,11 +36,8 @@ export class ProductVariantPrice extends VendureEntity implements HasCustomField
     @ManyToOne(type => ProductVariant, variant => variant.productVariantPrices, { onDelete: 'CASCADE' })
     variant: ProductVariant;
 
-    @ManyToMany(type => ProductVariantPriceVariant, variant => variant.productVariant, {
-        onDelete: 'CASCADE',
-    })
-    @JoinTable()
-    priceVariant: ProductVariantPriceVariant[];
+    @OneToMany(type => ProductVariantPriceToPriceVariant, variant => variant.productVariantPrice)
+    productVariantPriceVariant: ProductVariantPriceVariant[];
 
     @Column(type => CustomProductVariantPriceFields)
     customFields: CustomProductVariantPriceFields;

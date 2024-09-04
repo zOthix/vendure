@@ -23,7 +23,7 @@ type ProductVariant implements Node {
 type ProductVariantPriceVariant implements Node {
     id: ID!
     name: String!
-    productVariant: [ProductVariantPrice!]!
+    productVariantPrice: [ProductVariantPrice!]!
     createdAt: DateTime!
     updatedAt: DateTime!
 }
