@@ -28,6 +28,7 @@ import { CustomerStatusLabelComponent } from './components/customer-status-label
 import { SelectCustomerGroupDialogComponent } from './components/select-customer-group-dialog/select-customer-group-dialog.component';
 import { createRoutes } from './customer.routes';
 import { CustomerGroupDetailComponent } from './components/customer-group-detail/customer-group-detail.component';
+import { CustomerUnapprovedListComponent } from './components/customer-unapproved-list/customer-unapproved-list.component';
 
 @NgModule({
     imports: [SharedModule, RouterModule.forChild([])],
@@ -53,6 +54,7 @@ import { CustomerGroupDetailComponent } from './components/customer-group-detail
         AddressDetailDialogComponent,
         CustomerHistoryEntryHostComponent,
         CustomerGroupDetailComponent,
+        CustomerUnapprovedListComponent,
     ],
     exports: [AddressCardComponent],
 })
@@ -74,6 +76,14 @@ export class CustomerModule {
             route: '',
             component: CustomerListComponent,
         });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'customer-unapproved-list',
+            tab: _('customer.customers'),
+            route: '',
+            component: CustomerUnapprovedListComponent,
+        });
+
         pageService.registerPageTab({
             priority: 0,
             location: 'customer-detail',

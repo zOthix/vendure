@@ -3,6 +3,7 @@ import {
     CreateCustomerResult,
     DeletionResponse,
     MutationAddNoteToCustomerArgs,
+    MutationApproveCustomerArgs,
     MutationCreateCustomerAddressArgs,
     MutationCreateCustomerArgs,
     MutationDeleteCustomerAddressArgs,
@@ -39,6 +40,16 @@ export class CustomerResolver {
         private customerGroupService: CustomerGroupService,
         private orderService: OrderService,
     ) {}
+
+    @Query()
+    @Allow(Permission.ReadCustomer)
+    async unapprovedCustomers(
+        @Ctx() ctx: RequestContext,
+        @Args() args: QueryCustomersArgs,
+        @Relations({ entity: Customer, omit: ['orders'] }) relations: RelationPaths<Customer>,
+    ): Promise<PaginatedList<Customer>> {
+        return this.customerService.findAllUnapprovedCustomers(ctx, args.options || undefined, relations);
+    }
 
     @Query()
     @Allow(Permission.ReadCustomer)
@@ -80,6 +91,14 @@ export class CustomerResolver {
     ): Promise<ErrorResultUnion<UpdateCustomerResult, Customer>> {
         const { input } = args;
         return this.customerService.update(ctx, input);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCustomer)
+    async approveCustomer(@Ctx() ctx: RequestContext, @Args() args: MutationApproveCustomerArgs) {
+        const { id } = args;
+        return this.customerService.approveCustomer(ctx, id);
     }
 
     @Transaction()

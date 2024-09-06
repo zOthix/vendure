@@ -131,6 +131,32 @@ export class CustomerService {
             .then(result => result ?? undefined);
     }
 
+    async findAllUnapprovedCustomers(
+        ctx: RequestContext,
+        options: ListQueryOptions<Customer> | undefined,
+        relations: RelationPaths<Customer> = [],
+    ): Promise<PaginatedList<Customer>> {
+        const customPropertyMap: { [name: string]: string } = {};
+        const hasPostalCodeFilter = this.listQueryBuilder.filterObjectHasProperty<CustomerFilterParameter>(
+            options?.filter,
+            'postalCode',
+        );
+        if (hasPostalCodeFilter) {
+            relations.push('addresses');
+            customPropertyMap.postalCode = 'addresses.postalCode';
+        }
+        return this.listQueryBuilder
+            .build(Customer, options, {
+                relations,
+                channelId: ctx.channelId,
+                where: { deletedAt: IsNull(), user: { verified: false } },
+                ctx,
+                customPropertyMap,
+            })
+            .getManyAndCount()
+            .then(([items, totalItems]) => ({ items, totalItems }));
+    }
+
     /**
      * @description
      * Returns the Customer entity associated with the given userId, if one exists.
@@ -366,6 +392,32 @@ export class CustomerService {
         });
         await this.eventBus.publish(new CustomerEvent(ctx, customer, 'updated', input));
         return assertFound(this.findOne(ctx, customer.id));
+    }
+
+    async approveCustomer(ctx: RequestContext, id: ID) {
+        const customer = await this.findOne(ctx, id);
+        if (!customer) {
+            throw new InternalServerError('error.cannot-locate-customer-for-user');
+        }
+
+        if (customer && customer.user) {
+            customer.user.verified = true;
+            await this.connection.getRepository(ctx, User).save(customer.user);
+            if (ctx.channelId) {
+                await this.channelService.assignToChannels(ctx, Customer, customer.id, [ctx.channelId]);
+            }
+            await this.historyService.createHistoryEntryForCustomer({
+                customerId: customer.id,
+                ctx,
+                type: HistoryEntryType.CUSTOMER_VERIFIED,
+                data: {
+                    strategy: NATIVE_AUTH_STRATEGY_NAME,
+                },
+            });
+            const user = assertFound(this.findOneByUserId(ctx, customer.user.id));
+            await this.eventBus.publish(new AccountVerifiedEvent(ctx, customer));
+            return user;
+        }
     }
 
     /**
