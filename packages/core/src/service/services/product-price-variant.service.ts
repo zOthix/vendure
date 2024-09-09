@@ -70,7 +70,7 @@ export class ProductPriceVariantService {
             ctx,
             ProductVariantPriceToPriceVariant,
         );
-        const x = await productVariantPriceToPriceVariantRepository.find({
+        await productVariantPriceToPriceVariantRepository.find({
             relations: ['productVariantPriceVariant', 'productVariantPrice'],
         });
         const conjunctionObjectList = [];

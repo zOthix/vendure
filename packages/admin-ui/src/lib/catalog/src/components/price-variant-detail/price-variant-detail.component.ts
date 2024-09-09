@@ -1,18 +1,16 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
 import {
-    Asset,
     DataService,
     GetProductVariantPriceVariantDetailDocument,
     GetProductVariantPriceVariantDetailQuery,
-    ModalService,
     NotificationService,
     TypedBaseDetailComponent,
+    UpdatePriceVariantInput,
 } from '@vendure/admin-ui/core';
 import { gql } from 'apollo-angular';
-
-import { ProductDetailService } from '../../providers/product-detail/product-detail.service';
+import { map, mergeMap, of, take } from 'rxjs';
 
 export const GET_PRODUCT_VARIANT_PRICE_VARIANT_DETAIL = gql`
     query GetProductVariantPriceVariantDetail($id: ID!) {
@@ -41,9 +39,7 @@ export class PriceVariantDetailComponent
         name: ['', Validators.required],
     });
     constructor(
-        private productDetailService: ProductDetailService,
         private formBuilder: FormBuilder,
-        private modalService: ModalService,
         private notificationService: NotificationService,
         protected dataService: DataService,
         private changeDetector: ChangeDetectorRef,
@@ -95,6 +91,38 @@ export class PriceVariantDetailComponent
     }
 
     save() {
-        console.log('Save called.');
+        this.entity$
+            .pipe(
+                take(1),
+                mergeMap(({ id }) => {
+                    const variantForm = this.detailForm;
+                    if (variantForm && variantForm.dirty) {
+                        const variantInput: UpdatePriceVariantInput = {
+                            id,
+                            name: variantForm.value.name,
+                        };
+                        return this.dataService.product
+                            .updatePriceVariant(variantInput)
+                            .pipe(map(res => res.updatePriceVariant));
+                    }
+                    return of(null);
+                }),
+            )
+            .subscribe(
+                result => {
+                    if (result) {
+                        this.notificationService.success(_('common.notify-update-success'), {
+                            entity: 'Price variant',
+                        });
+                        this.detailForm.markAsPristine();
+                        this.changeDetector.markForCheck();
+                    }
+                },
+                err => {
+                    this.notificationService.error(_('common.notify-update-error'), {
+                        entity: 'Price variant',
+                    });
+                },
+            );
     }
 }
