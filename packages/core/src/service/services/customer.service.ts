@@ -43,6 +43,7 @@ import { assertFound, idsAreEqual, normalizeEmailAddress } from '../../common/ut
 import { NATIVE_AUTH_STRATEGY_NAME } from '../../config/auth/native-authentication-strategy';
 import { ConfigService } from '../../config/config.service';
 import { TransactionalConnection } from '../../connection/transactional-connection';
+import { ProductVariantPriceVariant } from '../../entity';
 import { Address } from '../../entity/address/address.entity';
 import { NativeAuthenticationMethod } from '../../entity/authentication-method/native-authentication-method.entity';
 import { Channel } from '../../entity/channel/channel.entity';
@@ -344,6 +345,7 @@ export class CustomerService {
                     .getRepository(ctx, Customer)
                     .createQueryBuilder('customer')
                     .leftJoin('customer.channels', 'channel')
+                    .leftJoin('customer.priceVariant', 'productVariantPriceVariant')
                     .where('channel.id = :channelId', { channelId: ctx.channelId })
                     .andWhere('customer.emailAddress = :emailAddress', {
                         emailAddress: input.emailAddress,
@@ -375,6 +377,16 @@ export class CustomerService {
                         customer.user.id,
                         input.emailAddress,
                     );
+                }
+
+                if (customer.priceVariant) {
+                    const priceVariantEntity = await this.connection.getEntityOrThrow(
+                        ctx,
+                        ProductVariantPriceVariant,
+                        input.priceVariant as number,
+                    );
+                    customer.priceVariant = priceVariantEntity;
+                    input.priceVariant = priceVariantEntity.id;
                 }
             }
         }

@@ -9,6 +9,7 @@ import { Channel } from '../channel/channel.entity';
 import { CustomCustomerFields } from '../custom-entity-fields';
 import { CustomerGroup } from '../customer-group/customer-group.entity';
 import { Order } from '../order/order.entity';
+import { ProductVariantPriceVariant } from '../product-variant/product-variant-price-variant.entity';
 import { User } from '../user/user.entity';
 
 /**
@@ -50,6 +51,10 @@ export class Customer extends VendureEntity implements ChannelAware, HasCustomFi
 
     @OneToMany(type => Order, order => order.customer)
     orders: Order[];
+
+    @OneToOne(type => ProductVariantPriceVariant, { eager: true })
+    @JoinColumn()
+    priceVariant?: ProductVariantPriceVariant;
 
     @OneToOne(type => User, { eager: true })
     @JoinColumn()

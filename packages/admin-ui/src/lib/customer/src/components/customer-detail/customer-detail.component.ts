@@ -13,6 +13,7 @@ import {
     EditNoteDialogComponent,
     GetAvailableCountriesQuery,
     GetCustomerHistoryQuery,
+    GetPriceVariantListQuery,
     getCustomFieldsDefaults,
     ModalService,
     NotificationService,
@@ -99,6 +100,7 @@ export class CustomerDetailComponent
     orders$: Observable<CustomerWithOrders['orders']['items']>;
     ordersCount$: Observable<number>;
     history$: Observable<NonNullable<GetCustomerHistoryQuery['customer']>['history']['items'] | undefined>;
+    priceVariantOptions$: Observable<GetPriceVariantListQuery['productPriceVariants']['items']>;
     fetchHistory = new Subject<void>();
     defaultShippingAddressId: string;
     defaultBillingAddressId: string;
@@ -123,6 +125,11 @@ export class CustomerDetailComponent
         this.availableCountries$ = this.dataService.settings
             .getAvailableCountries()
             .mapSingle(result => result.countries.items)
+            .pipe(shareReplay(1));
+
+        this.priceVariantOptions$ = this.dataService.product
+            .getPriceVariantList()
+            .mapSingle(result => result.productPriceVariants.items)
             .pipe(shareReplay(1));
 
         const customerWithUpdates$ = this.entity$.pipe(merge(this.orderListUpdates$));
@@ -269,6 +276,7 @@ export class CustomerDetailComponent
                             lastName: formValue.lastName,
                             phoneNumber: formValue.phoneNumber,
                             customFields,
+                            priceVariant: formValue.priceVariant,
                         };
                         saveOperations.push(
                             this.dataService.customer
@@ -476,7 +484,7 @@ export class CustomerDetailComponent
                 emailAddress: entity.emailAddress,
                 password: '',
                 customFields: {},
-                priceVariant: '',
+                priceVariant: entity.priceVariant?.id ?? null,
             });
         }
 

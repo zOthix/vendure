@@ -41,6 +41,7 @@ input UpdateCustomerInput {
     lastName: String
     phoneNumber: String
     emailAddress: String
+    priceVariant: ID
 }
 
 input CustomerFilterParameter {

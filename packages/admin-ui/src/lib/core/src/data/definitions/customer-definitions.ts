@@ -44,6 +44,10 @@ export const CUSTOMER_FRAGMENT = gql`
         addresses {
             ...Address
         }
+        priceVariant {
+            name
+            id
+        }
     }
     ${ADDRESS_FRAGMENT}
 `;
@@ -281,4 +285,13 @@ export const DELETE_CUSTOMER_NOTE = gql`
             message
         }
     }
+`;
+
+export const APPROVE_CUSTOMER = gql`
+    mutation ApproveCustomer($id: ID!) {
+        approveCustomer(id: $id) {
+            ...Customer
+        }
+    }
+    ${CUSTOMER_FRAGMENT}
 `;

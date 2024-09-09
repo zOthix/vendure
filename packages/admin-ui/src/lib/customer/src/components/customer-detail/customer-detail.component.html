@@ -112,13 +112,14 @@
                         <input id="phoneNumber" type="text" formControlName="phoneNumber" />
                     </vdr-form-field>
                     <vdr-form-field
-                        [label]="'customer.price_variant' | translate"
-                        for="price_variant"
+                        [label]="'customer.price-variant' | translate"
+                        for="priceVariant"
                         [readOnlyToggle]="!(isNew$ | async)"
                     >
-                        <!-- <input id="password" type="password" formControlName="password" /> -->
                         <select id="priceVariant" formControlName="priceVariant">
-                            <option value="1">Wholesale</option>
+                            <option *ngFor="let variant of priceVariantOptions$ | async" [value]="variant.id">
+                                {{ variant.name }}
+                            </option>
                         </select>
                     </vdr-form-field>
                     <vdr-form-field
@@ -198,7 +199,7 @@
                         [hiddenByDefault]="true"
                     >
                         <ng-template let-order="item">
-                            {{ order.createdAt | localeDate : 'short' }}
+                            {{ order.createdAt | localeDate: 'short' }}
                         </ng-template>
                     </vdr-dt2-column>
                     <vdr-dt2-column [heading]="'common.code' | translate" id="code" [optional]="false">
@@ -225,7 +226,7 @@
                     </vdr-dt2-column>
                     <vdr-dt2-column [heading]="'order.total' | translate" id="total">
                         <ng-template let-order="item">
-                            {{ order.totalWithTax | localeCurrency : order.currencyCode }}
+                            {{ order.totalWithTax | localeCurrency: order.currencyCode }}
                         </ng-template>
                     </vdr-dt2-column>
                     <vdr-dt2-column [heading]="'common.updated-at' | translate" id="updated-at">
@@ -235,7 +236,7 @@
                     </vdr-dt2-column>
                     <vdr-dt2-column [heading]="'order.placed-at' | translate" id="placed-at">
                         <ng-template let-order="item">
-                            {{ order.orderPlacedAt | localeDate : 'short' }}
+                            {{ order.orderPlacedAt | localeDate: 'short' }}
                         </ng-template>
                     </vdr-dt2-column>
                     <vdr-dt2-custom-field-column
