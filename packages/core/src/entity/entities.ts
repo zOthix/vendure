@@ -1,3 +1,5 @@
+import { ProductVariantPriceToPriceVariant } from '../../dist/entity/product-variant/product-variant-price-price-variant.entity';
+
 import { Address } from './address/address.entity';
 import { Administrator } from './administrator/administrator.entity';
 import { Asset } from './asset/asset.entity';
@@ -147,4 +149,5 @@ export const coreEntitiesMap = {
     Seller,
     Zone,
     ProductVariantPriceVariant,
+    ProductVariantPriceToPriceVariant,
 };

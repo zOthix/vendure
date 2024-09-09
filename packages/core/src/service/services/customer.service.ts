@@ -43,7 +43,7 @@ import { assertFound, idsAreEqual, normalizeEmailAddress } from '../../common/ut
 import { NATIVE_AUTH_STRATEGY_NAME } from '../../config/auth/native-authentication-strategy';
 import { ConfigService } from '../../config/config.service';
 import { TransactionalConnection } from '../../connection/transactional-connection';
-import { ProductVariantPriceVariant } from '../../entity';
+import { FacetValue, ProductVariantPriceVariant } from '../../entity';
 import { Address } from '../../entity/address/address.entity';
 import { NativeAuthenticationMethod } from '../../entity/authentication-method/native-authentication-method.entity';
 import { Channel } from '../../entity/channel/channel.entity';
@@ -333,6 +333,9 @@ export class CustomerService {
     ): Promise<ErrorResultUnion<UpdateCustomerResult, Customer>> {
         const hasEmailAddress = (i: any): i is UpdateCustomerInput & { emailAddress: string } =>
             Object.hasOwnProperty.call(i, 'emailAddress');
+        const hasPriceVariant = (i: any): i is UpdateCustomerInput & { priceVariant: ID } =>
+            'priceVariant' in i;
+        const hasCategory = (i: any): i is UpdateCustomerInput & { category: ID } => 'category' in i;
 
         const customer = await this.connection.getEntityOrThrow(ctx, Customer, input.id, {
             channelId: ctx.channelId,
@@ -345,7 +348,6 @@ export class CustomerService {
                     .getRepository(ctx, Customer)
                     .createQueryBuilder('customer')
                     .leftJoin('customer.channels', 'channel')
-                    .leftJoin('customer.priceVariant', 'productVariantPriceVariant')
                     .where('channel.id = :channelId', { channelId: ctx.channelId })
                     .andWhere('customer.emailAddress = :emailAddress', {
                         emailAddress: input.emailAddress,
@@ -378,17 +380,21 @@ export class CustomerService {
                         input.emailAddress,
                     );
                 }
-
-                if (customer.priceVariant) {
-                    const priceVariantEntity = await this.connection.getEntityOrThrow(
-                        ctx,
-                        ProductVariantPriceVariant,
-                        input.priceVariant as number,
-                    );
-                    customer.priceVariant = priceVariantEntity;
-                    input.priceVariant = priceVariantEntity.id;
-                }
             }
+        }
+
+        if (hasPriceVariant(input)) {
+            const priceVariantEntity = await this.connection.getEntityOrThrow(
+                ctx,
+                ProductVariantPriceVariant,
+                input.priceVariant,
+            );
+            customer.priceVariant = priceVariantEntity;
+        }
+
+        if (hasCategory(input)) {
+            const category = await this.connection.getEntityOrThrow(ctx, FacetValue, input.category);
+            customer.category = category;
         }
 
         const updatedCustomer = patchEntity(customer, input);

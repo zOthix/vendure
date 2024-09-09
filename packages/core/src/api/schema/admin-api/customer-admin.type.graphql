@@ -2,4 +2,6 @@ type Customer implements Node {
     groups: [CustomerGroup!]!
     history(options: HistoryEntryListOptions): HistoryEntryList!
     priceVariant: ProductVariantPriceVariant
+    category: FacetValue
+    payWithoutCreditCard: Boolean
 }

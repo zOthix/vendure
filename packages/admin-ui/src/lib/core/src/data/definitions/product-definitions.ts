@@ -910,3 +910,12 @@ export const UPDATE_PRICE_VARIANT = gql`
         }
     }
 `;
+
+export const GET_CATEGORY_LIST = gql`
+    query GetCategoryList {
+        facetValuesCategory {
+            name
+            id
+        }
+    }
+`;

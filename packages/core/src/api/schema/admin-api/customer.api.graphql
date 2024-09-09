@@ -42,6 +42,8 @@ input UpdateCustomerInput {
     phoneNumber: String
     emailAddress: String
     priceVariant: ID
+    category: ID
+    payWithoutCreditCard: Boolean
 }
 
 input CustomerFilterParameter {

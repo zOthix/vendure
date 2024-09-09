@@ -38,6 +38,17 @@
                 <time [dateTime]="lastLogin">{{ lastLogin | timeAgo }}</time>
             </vdr-labeled-data>
         </vdr-card>
+        <vdr-card *ngIf="!(isNew$ | async)" [title]="'customer.pay-without-credit-card' | translate">
+            <clr-toggle-wrapper>
+                <input
+                    [(ngModel)]="payWithoutCreditCard"
+                    (change)="togglePayWithoutCreditCard($event)"
+                    type="checkbox"
+                    clrToggle
+                    id="payWithoutCreditCard"
+                />
+            </clr-toggle-wrapper>
+        </vdr-card>
         <vdr-card
             [title]="'customer.customer-groups' | translate"
             *ngIf="(entity$ | async)?.groups as groups"
@@ -115,10 +126,23 @@
                         [label]="'customer.price-variant' | translate"
                         for="priceVariant"
                         [readOnlyToggle]="!(isNew$ | async)"
+                        *ngIf="!(isNew$ | async)"
                     >
                         <select id="priceVariant" formControlName="priceVariant">
                             <option *ngFor="let variant of priceVariantOptions$ | async" [value]="variant.id">
                                 {{ variant.name }}
+                            </option>
+                        </select>
+                    </vdr-form-field>
+                    <vdr-form-field
+                        [label]="'customer.category' | translate"
+                        for="category"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                        *ngIf="!(isNew$ | async)"
+                    >
+                        <select id="category" formControlName="category">
+                            <option *ngFor="let category of categories$ | async" [value]="category.id">
+                                {{ category.name }}
                             </option>
                         </select>
                     </vdr-form-field>

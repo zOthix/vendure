@@ -35,6 +35,7 @@ export const CUSTOMER_FRAGMENT = gql`
         lastName
         phoneNumber
         emailAddress
+        payWithoutCreditCard
         user {
             id
             identifier
@@ -45,6 +46,10 @@ export const CUSTOMER_FRAGMENT = gql`
             ...Address
         }
         priceVariant {
+            name
+            id
+        }
+        category {
             name
             id
         }

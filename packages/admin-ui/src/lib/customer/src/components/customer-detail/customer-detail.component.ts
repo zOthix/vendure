@@ -23,6 +23,7 @@ import {
     UpdateCustomerAddressMutation,
     UpdateCustomerInput,
     UpdateCustomerMutation,
+    GetCategoryListQuery,
 } from '@vendure/admin-ui/core';
 import { notNullOrUndefined } from '@vendure/common/lib/shared-utils';
 import { gql } from 'apollo-angular';
@@ -93,6 +94,8 @@ export class CustomerDetailComponent
             password: '',
             customFields: this.formBuilder.group(getCustomFieldsDefaults(this.customFields)),
             priceVariant: '',
+            category: '',
+            payWithoutCreditCard: false,
         }),
         addresses: new UntypedFormArray([]),
     });
@@ -101,6 +104,8 @@ export class CustomerDetailComponent
     ordersCount$: Observable<number>;
     history$: Observable<NonNullable<GetCustomerHistoryQuery['customer']>['history']['items'] | undefined>;
     priceVariantOptions$: Observable<GetPriceVariantListQuery['productPriceVariants']['items']>;
+    categories$: Observable<GetCategoryListQuery['facetValuesCategory']>;
+    payWithoutCreditCard: boolean;
     fetchHistory = new Subject<void>();
     defaultShippingAddressId: string;
     defaultBillingAddressId: string;
@@ -132,6 +137,11 @@ export class CustomerDetailComponent
             .mapSingle(result => result.productPriceVariants.items)
             .pipe(shareReplay(1));
 
+        this.categories$ = this.dataService.product
+            .getCategoryList()
+            .mapSingle(result => result.facetValuesCategory)
+            .pipe(shareReplay(1));
+
         const customerWithUpdates$ = this.entity$.pipe(merge(this.orderListUpdates$));
         this.orders$ = customerWithUpdates$.pipe(map(customer => customer.orders.items));
         this.ordersCount$ = this.entity$.pipe(map(customer => customer.orders.totalItems));
@@ -147,6 +157,12 @@ export class CustomerDetailComponent
                     .mapStream(data => data.customer?.history.items),
             ),
         );
+
+        customerWithUpdates$.subscribe(customer => {
+            if (customer) {
+                this.payWithoutCreditCard = customer.payWithoutCreditCard ?? false;
+            }
+        });
     }
 
     ngOnDestroy() {
@@ -206,6 +222,12 @@ export class CustomerDetailComponent
     setOrderCurrentPage(page: number) {
         this.currentOrdersPage = +page;
         this.fetchOrdersList();
+    }
+
+    togglePayWithoutCreditCard(event: Event) {
+        const input = event.target as HTMLInputElement;
+        this.payWithoutCreditCard = input.checked;
+        this.detailForm.get('customer')?.markAsDirty();
     }
 
     create() {
@@ -277,6 +299,8 @@ export class CustomerDetailComponent
                             phoneNumber: formValue.phoneNumber,
                             customFields,
                             priceVariant: formValue.priceVariant,
+                            category: formValue.category,
+                            payWithoutCreditCard: this.payWithoutCreditCard,
                         };
                         saveOperations.push(
                             this.dataService.customer
@@ -485,6 +509,8 @@ export class CustomerDetailComponent
                 password: '',
                 customFields: {},
                 priceVariant: entity.priceVariant?.id ?? null,
+                category: entity.category?.id ?? null,
+                payWithoutCreditCard: this.payWithoutCreditCard,
             });
         }
 

@@ -22,6 +22,7 @@ import {
     DELETE_TAG,
     GET_ASSET,
     GET_ASSET_LIST,
+    GET_CATEGORY_LIST,
     GET_PRICE_VARIANT_LIST,
     GET_PRODUCT_LIST,
     GET_PRODUCT_OPTION_GROUP,
@@ -493,5 +494,9 @@ export class ProductDataService {
         >(UPDATE_PRICE_VARIANT, {
             input,
         });
+    }
+
+    getCategoryList() {
+        return this.baseDataService.query<Codegen.GetCategoryListQuery>(GET_CATEGORY_LIST);
     }
 }
