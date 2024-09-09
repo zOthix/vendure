@@ -8,6 +8,7 @@ import {
     ASSIGN_PRODUCTS_TO_CHANNEL,
     ASSIGN_VARIANTS_TO_CHANNEL,
     CREATE_ASSETS,
+    CREATE_PRICE_VARIANT,
     CREATE_PRODUCT,
     CREATE_PRODUCT_OPTION_GROUP,
     CREATE_PRODUCT_VARIANTS,
@@ -21,6 +22,7 @@ import {
     DELETE_TAG,
     GET_ASSET,
     GET_ASSET_LIST,
+    GET_PRICE_VARIANT_LIST,
     GET_PRODUCT_LIST,
     GET_PRODUCT_OPTION_GROUP,
     GET_PRODUCT_OPTION_GROUPS,
@@ -39,6 +41,7 @@ import {
     REMOVE_VARIANTS_FROM_CHANNEL,
     SEARCH_PRODUCTS,
     UPDATE_ASSET,
+    UPDATE_PRICE_VARIANT,
     UPDATE_PRODUCT,
     UPDATE_PRODUCT_OPTION,
     UPDATE_PRODUCT_OPTION_GROUP,
@@ -468,5 +471,27 @@ export class ProductDataService {
                 id,
             },
         );
+    }
+
+    getPriceVariantList() {
+        return this.baseDataService.query<Codegen.GetPriceVariantListQuery>(GET_PRICE_VARIANT_LIST);
+    }
+
+    createPriceVariant(name: string) {
+        return this.baseDataService.mutate<
+            Codegen.CreatePriceVariantMutation,
+            Codegen.CreatePriceVariantMutationVariables
+        >(CREATE_PRICE_VARIANT, {
+            input: name,
+        });
+    }
+
+    updatePriceVariant(input: Codegen.UpdatePriceVariantInput) {
+        return this.baseDataService.mutate<
+            Codegen.UpdatePriceVariantMutation,
+            Codegen.UpdatePriceVariantMutationVariables
+        >(UPDATE_PRICE_VARIANT, {
+            input,
+        });
     }
 }

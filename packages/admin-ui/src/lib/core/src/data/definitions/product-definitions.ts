@@ -881,3 +881,32 @@ export const DELETE_TAG = gql`
         }
     }
 `;
+
+export const GET_PRICE_VARIANT_LIST = gql`
+    query GetPriceVariantList {
+        productPriceVariants {
+            items {
+                name
+                id
+            }
+        }
+    }
+`;
+
+export const CREATE_PRICE_VARIANT = gql`
+    mutation CreatePriceVariant($input: String!) {
+        createPriceVariant(name: $input) {
+            name
+            id
+        }
+    }
+`;
+
+export const UPDATE_PRICE_VARIANT = gql`
+    mutation UpdatePriceVariant($input: UpdatePriceVariantInput!) {
+        updatePriceVariant(input: $input) {
+            name
+            id
+        }
+    }
+`;
