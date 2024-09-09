@@ -8,8 +8,8 @@ const PRODUCT_PRICE_VARIANT_LIST_QUERY_PRODUCT_VARIANT_PRICE_VARIANT_FRAGMENT = 
 `;
 
 export const PRODUCT_PRICE_VARIANT_LIST_QUERY = gql`
-    query ProductPriceVariantList {
-        productPriceVariants {
+    query ProductPriceVariantList($options: ProductVariantPriceVariantListOptions) {
+        productPriceVariants(options: $options) {
             items {
                 ...ProductPriceVariantListQueryFragment
             }

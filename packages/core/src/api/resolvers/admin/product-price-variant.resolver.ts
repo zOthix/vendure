@@ -1,8 +1,9 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
     MutationCreatePriceVariantArgs,
-    MutationUpdatePriceVariantArgs,
     QueryProductPriceVariantArgs,
+    MutationUpdatePriceVariantArgs,
+    ProductVariantPriceVariantListOptions,
 } from '@vendure/common/lib/generated-types';
 import { PaginatedList } from '@vendure/common/lib/shared-types';
 
@@ -15,15 +16,16 @@ import { Ctx } from '../../decorators/request-context.decorator';
 export class ProductPriceVariantResolver {
     constructor(private productPriceVariantService: ProductPriceVariantService) {}
 
-    @Query('productPriceVariants')
-    async getAllPriceVariants(
+    @Query()
+    async productPriceVariants(
         @Ctx() ctx: RequestContext,
+        @Args() args: { options: ProductVariantPriceVariantListOptions },
     ): Promise<PaginatedList<ProductVariantPriceVariant>> {
-        return this.productPriceVariantService.findAll(ctx);
+        return this.productPriceVariantService.findAll(ctx, args.options);
     }
 
-    @Query('productPriceVariant')
-    async getPriceVariantById(
+    @Query()
+    async productPriceVariant(
         @Ctx() ctx: RequestContext,
         @Args() args: QueryProductPriceVariantArgs,
     ): Promise<ProductVariantPriceVariant | null> {

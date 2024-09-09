@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { MutationCreatePriceVariantArgs, UpdatePriceVariantInput } from '@vendure/common/lib/generated-types';
+import {
+    MutationCreatePriceVariantArgs,
+    ProductVariantPriceVariantListOptions,
+    UpdatePriceVariantInput,
+} from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../api/common/request-context';
-import { assertFound } from '../../common';
+import { assertFound, ListQueryOptions } from '../../common';
 import { TransactionalConnection } from '../../connection/transactional-connection';
 import { ProductVariantPrice } from '../../entity';
 import { ProductVariantPriceToPriceVariant } from '../../entity/product-variant/product-variant-price-price-variant.entity';
@@ -33,9 +37,14 @@ export class ProductPriceVariantService {
         });
     }
 
-    async findAll(ctx: RequestContext): Promise<PaginatedList<ProductVariantPriceVariant>> {
+    async findAll(
+        ctx: RequestContext,
+        options: ListQueryOptions<ProductVariantPriceVariant> | undefined,
+    ): Promise<PaginatedList<ProductVariantPriceVariant>> {
         return this.listQueryBuilder
-            .build(ProductVariantPriceVariant)
+            .build(ProductVariantPriceVariant, options, {
+                ctx,
+            })
             .getManyAndCount()
             .then(async ([variants, totalItems]) => {
                 const items = variants.map(variant => variant);
