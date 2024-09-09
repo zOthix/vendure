@@ -18,8 +18,8 @@ import {
 } from '@vendure/common/lib/generated-types';
 import { PaginatedList } from '@vendure/common/lib/shared-types';
 
-import { EntityNotFoundError } from '../../../common/error/errors';
 import { ErrorResultUnion } from '../../../common/error/error-result';
+import { EntityNotFoundError } from '../../../common/error/errors';
 import { Translated } from '../../../common/types/locale-types';
 import { ConfigService } from '../../../config/config.service';
 import { Facet } from '../../../entity/facet/facet.entity';
@@ -68,6 +68,12 @@ export class FacetResolver {
         @Relations(FacetValue) relations: RelationPaths<FacetValue>,
     ): Promise<PaginatedList<Translated<FacetValue>>> {
         return this.facetValueService.findAllList(ctx, args.options || undefined, relations);
+    }
+
+    @Query()
+    @Allow(Permission.ReadCatalog, Permission.ReadProduct, Permission.ReadFacet)
+    facetValuesCategory(@Ctx() ctx: RequestContext): Promise<FacetValue[]> {
+        return this.facetValueService.findAllCategoryList(ctx);
     }
 
     @Transaction()
