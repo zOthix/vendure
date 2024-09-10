@@ -565,12 +565,7 @@ export class ProductVariantService {
         }
         if (input.priceVariants) {
             for (const priceVariant of input.priceVariants) {
-                await this.createOrUpdatePriceVariant(
-                    ctx,
-                    input.id,
-                    priceVariant.price ?? 0,
-                    priceVariant.name,
-                );
+                await this.createOrUpdatePriceVariant(ctx, input.id, priceVariant.price, priceVariant.name);
             }
         }
         return updatedVariant.id;
