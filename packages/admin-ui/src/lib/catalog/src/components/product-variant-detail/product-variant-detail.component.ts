@@ -9,7 +9,6 @@ import {
     DataService,
     findTranslation,
     getCustomFieldsDefaults,
-    GetPriceVariantListQuery,
     GetProductVariantDetailDocument,
     GetProductVariantDetailQuery,
     GlobalFlag,
