@@ -14,6 +14,14 @@ export const PRODUCT_VARIANT_DETAIL_QUERY_PRODUCT_VARIANT_FRAGMENT = gql`
         prices {
             price
             currencyCode
+            productVariantPriceVariant {
+                id
+                price
+                variant: productVariantPriceVariant {
+                    id
+                    name
+                }
+            }
         }
         priceWithTax
         stockOnHand
