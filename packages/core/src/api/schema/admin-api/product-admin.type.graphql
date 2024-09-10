@@ -5,6 +5,7 @@ type Product implements Node {
 type ProductVariantPrice {
     currencyCode: CurrencyCode!
     price: Money!
+    productVariantPriceVariant: [ProductVariantPriceToPriceVariant]!
 }
 
 type ProductVariant implements Node {
@@ -31,4 +32,10 @@ type ProductVariantPriceVariant implements Node {
 type ProductVariantPriceVariantList implements PaginatedList {
     items: [ProductVariantPriceVariant!]!
     totalItems: Int!
+}
+
+type ProductVariantPriceToPriceVariant implements Node {
+    id: ID!
+    price: Money!
+    productVariantPriceVariant: ProductVariantPriceVariant!
 }
