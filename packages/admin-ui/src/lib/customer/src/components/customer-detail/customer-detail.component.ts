@@ -298,8 +298,8 @@ export class CustomerDetailComponent
                             lastName: formValue.lastName,
                             phoneNumber: formValue.phoneNumber,
                             customFields,
-                            priceVariant: formValue.priceVariant,
-                            category: formValue.category,
+                            priceVariantId: formValue.priceVariant,
+                            categoryId: formValue.category,
                             payWithoutCreditCard: this.payWithoutCreditCard,
                         };
                         saveOperations.push(

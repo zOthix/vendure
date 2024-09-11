@@ -41,8 +41,8 @@ input UpdateCustomerInput {
     lastName: String
     phoneNumber: String
     emailAddress: String
-    priceVariant: ID
-    category: ID
+    priceVariantId: ID
+    categoryId: ID
     payWithoutCreditCard: Boolean
 }
 

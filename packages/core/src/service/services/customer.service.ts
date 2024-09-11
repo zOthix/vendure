@@ -333,9 +333,10 @@ export class CustomerService {
     ): Promise<ErrorResultUnion<UpdateCustomerResult, Customer>> {
         const hasEmailAddress = (i: any): i is UpdateCustomerInput & { emailAddress: string } =>
             Object.hasOwnProperty.call(i, 'emailAddress');
-        const hasPriceVariant = (i: any): i is UpdateCustomerInput & { priceVariant: ID } =>
-            'priceVariant' in i;
-        const hasCategory = (i: any): i is UpdateCustomerInput & { category: ID } => 'category' in i;
+        const hasPriceVariant = (i: any): i is UpdateCustomerInput & { priceVariantId: ID } =>
+            Object.hasOwnProperty.call(i, 'priceVariantId');
+        const hasCategory = (i: any): i is UpdateCustomerInput & { categoryId: ID } =>
+            Object.hasOwnProperty.call(i, 'categoryId');
 
         const customer = await this.connection.getEntityOrThrow(ctx, Customer, input.id, {
             channelId: ctx.channelId,
@@ -382,18 +383,16 @@ export class CustomerService {
                 }
             }
         }
-
         if (hasPriceVariant(input)) {
             const priceVariantEntity = await this.connection.getEntityOrThrow(
                 ctx,
                 ProductVariantPriceVariant,
-                input.priceVariant,
+                input.priceVariantId,
             );
             customer.priceVariant = priceVariantEntity;
         }
-
         if (hasCategory(input)) {
-            const category = await this.connection.getEntityOrThrow(ctx, FacetValue, input.category);
+            const category = await this.connection.getEntityOrThrow(ctx, FacetValue, input.categoryId);
             customer.category = category;
         }
 

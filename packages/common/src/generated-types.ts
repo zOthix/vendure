@@ -6449,7 +6449,7 @@ export type UpdateCustomerGroupInput = {
 };
 
 export type UpdateCustomerInput = {
-  category?: InputMaybe<Scalars['ID']['input']>;
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   emailAddress?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
@@ -6457,7 +6457,7 @@ export type UpdateCustomerInput = {
   lastName?: InputMaybe<Scalars['String']['input']>;
   payWithoutCreditCard?: InputMaybe<Scalars['Boolean']['input']>;
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
-  priceVariant?: InputMaybe<Scalars['ID']['input']>;
+  priceVariantId?: InputMaybe<Scalars['ID']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
