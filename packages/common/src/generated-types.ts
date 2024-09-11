@@ -1351,6 +1351,7 @@ export type CustomFields = {
   ProductOptionGroup: Array<CustomFieldConfig>;
   ProductVariant: Array<CustomFieldConfig>;
   ProductVariantPrice: Array<CustomFieldConfig>;
+  ProductVariantPriceVariant: Array<CustomFieldConfig>;
   Promotion: Array<CustomFieldConfig>;
   Region: Array<CustomFieldConfig>;
   Seller: Array<CustomFieldConfig>;
@@ -1365,6 +1366,7 @@ export type CustomFields = {
 export type Customer = Node & {
   __typename?: 'Customer';
   addresses?: Maybe<Array<Address>>;
+  category?: Maybe<FacetValue>;
   createdAt: Scalars['DateTime']['output'];
   customFields?: Maybe<Scalars['JSON']['output']>;
   emailAddress: Scalars['String']['output'];
@@ -1374,7 +1376,9 @@ export type Customer = Node & {
   id: Scalars['ID']['output'];
   lastName: Scalars['String']['output'];
   orders: OrderList;
+  payWithoutCreditCard?: Maybe<Scalars['Boolean']['output']>;
   phoneNumber?: Maybe<Scalars['String']['output']>;
+  priceVariant?: Maybe<ProductVariantPriceVariant>;
   title?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   user?: Maybe<User>;
@@ -1398,6 +1402,7 @@ export type CustomerFilterParameter = {
   firstName?: InputMaybe<StringOperators>;
   id?: InputMaybe<IdOperators>;
   lastName?: InputMaybe<StringOperators>;
+  payWithoutCreditCard?: InputMaybe<BooleanOperators>;
   phoneNumber?: InputMaybe<StringOperators>;
   postalCode?: InputMaybe<StringOperators>;
   title?: InputMaybe<StringOperators>;
@@ -2685,6 +2690,8 @@ export type Mutation = {
   adjustDraftOrderLine: UpdateOrderItemsResult;
   /** Applies the given coupon code to the draft Order */
   applyCouponCodeToDraftOrder: ApplyCouponCodeResult;
+  /** Approve a customer */
+  approveCustomer: Customer;
   /** Assign assets to channel */
   assignAssetsToChannel: Array<Asset>;
   /** Assigns Collections to the specified Channel */
@@ -2734,6 +2741,8 @@ export type Mutation = {
   createFacetValues: Array<FacetValue>;
   /** Create existing PaymentMethod */
   createPaymentMethod: PaymentMethod;
+  /** Add a new price variant */
+  createPriceVariant: ProductVariantPriceVariant;
   /** Create a new Product */
   createProduct: Product;
   /** Create a new ProductOption within a ProductOptionGroup */
@@ -2948,6 +2957,8 @@ export type Mutation = {
   updateOrderNote: HistoryEntry;
   /** Update an existing PaymentMethod */
   updatePaymentMethod: PaymentMethod;
+  /** Update an existing price variant */
+  updatePriceVariant?: Maybe<ProductVariantPriceVariant>;
   /** Update an existing Product */
   updateProduct: Product;
   /** Create a new ProductOption within a ProductOptionGroup */
@@ -3032,6 +3043,11 @@ export type MutationAdjustDraftOrderLineArgs = {
 export type MutationApplyCouponCodeToDraftOrderArgs = {
   couponCode: Scalars['String']['input'];
   orderId: Scalars['ID']['input'];
+};
+
+
+export type MutationApproveCustomerArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -3161,6 +3177,11 @@ export type MutationCreateFacetValuesArgs = {
 
 export type MutationCreatePaymentMethodArgs = {
   input: CreatePaymentMethodInput;
+};
+
+
+export type MutationCreatePriceVariantArgs = {
+  name: Scalars['String']['input'];
 };
 
 
@@ -3724,6 +3745,11 @@ export type MutationUpdateOrderNoteArgs = {
 
 export type MutationUpdatePaymentMethodArgs = {
   input: UpdatePaymentMethodInput;
+};
+
+
+export type MutationUpdatePriceVariantArgs = {
+  input: UpdatePriceVariantInput;
 };
 
 
@@ -4788,6 +4814,7 @@ export type ProductVariantPrice = {
   currencyCode: CurrencyCode;
   customFields?: Maybe<Scalars['JSON']['output']>;
   price: Scalars['Money']['output'];
+  productVariantPriceVariant: Array<Maybe<ProductVariantPriceToPriceVariant>>;
 };
 
 /**
@@ -4798,6 +4825,58 @@ export type ProductVariantPriceInput = {
   currencyCode: CurrencyCode;
   delete?: InputMaybe<Scalars['Boolean']['input']>;
   price: Scalars['Money']['input'];
+};
+
+export type ProductVariantPriceToPriceVariant = Node & {
+  __typename?: 'ProductVariantPriceToPriceVariant';
+  id: Scalars['ID']['output'];
+  price: Scalars['Money']['output'];
+  productVariantPriceVariant: ProductVariantPriceVariant;
+};
+
+export type ProductVariantPriceVariant = Node & {
+  __typename?: 'ProductVariantPriceVariant';
+  createdAt: Scalars['DateTime']['output'];
+  customFields?: Maybe<Scalars['JSON']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  productVariantPrice: Array<ProductVariantPrice>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ProductVariantPriceVariantFilterParameter = {
+  _and?: InputMaybe<Array<ProductVariantPriceVariantFilterParameter>>;
+  _or?: InputMaybe<Array<ProductVariantPriceVariantFilterParameter>>;
+  createdAt?: InputMaybe<DateOperators>;
+  id?: InputMaybe<IdOperators>;
+  name?: InputMaybe<StringOperators>;
+  updatedAt?: InputMaybe<DateOperators>;
+};
+
+export type ProductVariantPriceVariantList = PaginatedList & {
+  __typename?: 'ProductVariantPriceVariantList';
+  items: Array<ProductVariantPriceVariant>;
+  totalItems: Scalars['Int']['output'];
+};
+
+export type ProductVariantPriceVariantListOptions = {
+  /** Allows the results to be filtered */
+  filter?: InputMaybe<ProductVariantPriceVariantFilterParameter>;
+  /** Specifies whether multiple top-level "filter" fields should be combined with a logical AND or OR operation. Defaults to AND. */
+  filterOperator?: InputMaybe<LogicalOperator>;
+  /** Skips the first n results, for use in pagination */
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  /** Specifies which properties to sort the results by */
+  sort?: InputMaybe<ProductVariantPriceVariantSortParameter>;
+  /** Takes n results, for use in pagination */
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type ProductVariantPriceVariantSortParameter = {
+  createdAt?: InputMaybe<SortOrder>;
+  id?: InputMaybe<SortOrder>;
+  name?: InputMaybe<SortOrder>;
+  updatedAt?: InputMaybe<SortOrder>;
 };
 
 export type ProductVariantSortParameter = {
@@ -5017,6 +5096,7 @@ export type Query = {
   entityDuplicators: Array<EntityDuplicatorDefinition>;
   facet?: Maybe<Facet>;
   facetValues: FacetValueList;
+  facetValuesCategory: Array<Maybe<FacetValue>>;
   facets: FacetList;
   fulfillmentHandlers: Array<ConfigurableOperationDefinition>;
   globalSettings: GlobalSettings;
@@ -5041,6 +5121,10 @@ export type Query = {
   product?: Maybe<Product>;
   productOptionGroup?: Maybe<ProductOptionGroup>;
   productOptionGroups: Array<ProductOptionGroup>;
+  /** Get a product price variant by ID */
+  productPriceVariant?: Maybe<ProductVariantPriceVariant>;
+  /** Get all product price variants */
+  productPriceVariants: ProductVariantPriceVariantList;
   /** Get a ProductVariant by id */
   productVariant?: Maybe<ProductVariant>;
   /** List ProductVariants either all or for the specific product. */
@@ -5072,6 +5156,7 @@ export type Query = {
   taxRates: TaxRateList;
   testEligibleShippingMethods: Array<ShippingMethodQuote>;
   testShippingMethod: TestShippingMethodResult;
+  unapprovedCustomers: CustomerList;
   zone?: Maybe<Zone>;
   zones: ZoneList;
 };
@@ -5235,6 +5320,16 @@ export type QueryProductOptionGroupsArgs = {
 };
 
 
+export type QueryProductPriceVariantArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryProductPriceVariantsArgs = {
+  options?: InputMaybe<ProductVariantPriceVariantListOptions>;
+};
+
+
 export type QueryProductVariantArgs = {
   id: Scalars['ID']['input'];
 };
@@ -5353,6 +5448,11 @@ export type QueryTestEligibleShippingMethodsArgs = {
 
 export type QueryTestShippingMethodArgs = {
   input: TestShippingMethodInput;
+};
+
+
+export type QueryUnapprovedCustomersArgs = {
+  options?: InputMaybe<CustomerListOptions>;
 };
 
 
@@ -6349,12 +6449,15 @@ export type UpdateCustomerGroupInput = {
 };
 
 export type UpdateCustomerInput = {
+  category?: InputMaybe<Scalars['ID']['input']>;
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   emailAddress?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   lastName?: InputMaybe<Scalars['String']['input']>;
+  payWithoutCreditCard?: InputMaybe<Scalars['Boolean']['input']>;
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
+  priceVariant?: InputMaybe<Scalars['ID']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -6424,6 +6527,11 @@ export type UpdatePaymentMethodInput = {
   translations?: InputMaybe<Array<PaymentMethodTranslationInput>>;
 };
 
+export type UpdatePriceVariantInput = {
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateProductInput = {
   assetIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   customFields?: InputMaybe<Scalars['JSON']['input']>;
@@ -6448,6 +6556,11 @@ export type UpdateProductOptionInput = {
   translations?: InputMaybe<Array<ProductOptionGroupTranslationInput>>;
 };
 
+export type UpdateProductPriceVariantInput = {
+  name: Scalars['String']['input'];
+  price: Scalars['Money']['input'];
+};
+
 export type UpdateProductVariantInput = {
   assetIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   customFields?: InputMaybe<Scalars['JSON']['input']>;
@@ -6459,6 +6572,7 @@ export type UpdateProductVariantInput = {
   outOfStockThreshold?: InputMaybe<Scalars['Int']['input']>;
   /** Sets the price for the ProductVariant in the Channel's default currency */
   price?: InputMaybe<Scalars['Money']['input']>;
+  priceVariants?: InputMaybe<Array<UpdateProductPriceVariantInput>>;
   /** Allows multiple prices to be set for the ProductVariant in different currencies. */
   prices?: InputMaybe<Array<ProductVariantPriceInput>>;
   sku?: InputMaybe<Scalars['String']['input']>;
