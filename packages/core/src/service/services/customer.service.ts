@@ -100,7 +100,7 @@ export class CustomerService {
     ): Promise<PaginatedList<Customer>> {
         const customPropertyMap: { [name: string]: string } = {};
         const hasPostalCodeFilter = this.listQueryBuilder.filterObjectHasProperty<CustomerFilterParameter>(
-            options?.filter,
+            options?.filter as CustomerFilterParameter,
             'postalCode',
         );
         if (hasPostalCodeFilter) {
@@ -139,7 +139,7 @@ export class CustomerService {
     ): Promise<PaginatedList<Customer>> {
         const customPropertyMap: { [name: string]: string } = {};
         const hasPostalCodeFilter = this.listQueryBuilder.filterObjectHasProperty<CustomerFilterParameter>(
-            options?.filter,
+            options?.filter as CustomerFilterParameter,
             'postalCode',
         );
         if (hasPostalCodeFilter) {

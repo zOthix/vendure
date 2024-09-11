@@ -79,6 +79,7 @@
             <button
                 class="button-small bg-weight-150"
                 (click)="approveCustomer(customer.id, customer.firstName, customer.lastName)"
+                [disabled]="customer.user.verified === true"
             >
                 <span>{{ 'customer.approve-customer' | translate }}</span>
                 <clr-icon shape="assign-user"></clr-icon>

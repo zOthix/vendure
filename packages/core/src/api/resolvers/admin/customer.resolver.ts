@@ -21,6 +21,7 @@ import {
 } from '@vendure/common/lib/generated-types';
 import { PaginatedList } from '@vendure/common/lib/shared-types';
 
+import { ListQueryOptions } from '../../../common';
 import { ErrorResultUnion } from '../../../common/error/error-result';
 import { Address } from '../../../entity/address/address.entity';
 import { Customer } from '../../../entity/customer/customer.entity';
@@ -48,7 +49,11 @@ export class CustomerResolver {
         @Args() args: QueryCustomersArgs,
         @Relations({ entity: Customer, omit: ['orders'] }) relations: RelationPaths<Customer>,
     ): Promise<PaginatedList<Customer>> {
-        return this.customerService.findAllUnapprovedCustomers(ctx, args.options || undefined, relations);
+        return this.customerService.findAllUnapprovedCustomers(
+            ctx,
+            (args.options as ListQueryOptions<Customer>) || undefined,
+            relations,
+        );
     }
 
     @Query()
@@ -58,7 +63,11 @@ export class CustomerResolver {
         @Args() args: QueryCustomersArgs,
         @Relations({ entity: Customer, omit: ['orders'] }) relations: RelationPaths<Customer>,
     ): Promise<PaginatedList<Customer>> {
-        return this.customerService.findAll(ctx, args.options || undefined, relations);
+        return this.customerService.findAll(
+            ctx,
+            (args.options as ListQueryOptions<Customer>) || undefined,
+            relations,
+        );
     }
 
     @Query()
