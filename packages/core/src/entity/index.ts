@@ -64,3 +64,4 @@ export * from './user/user.entity';
 export * from './zone/zone.entity';
 export * from './entity-id.decorator';
 export * from './money.decorator';
+export * from './product-variant/product-variant-price-variant.entity';

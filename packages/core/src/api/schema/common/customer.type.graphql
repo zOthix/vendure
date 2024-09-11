@@ -10,6 +10,7 @@ type Customer implements Node {
     addresses: [Address!]
     orders(options: OrderListOptions): OrderList!
     user: User
+    payWithoutCreditCard: Boolean
 }
 
 type CustomerList implements PaginatedList {

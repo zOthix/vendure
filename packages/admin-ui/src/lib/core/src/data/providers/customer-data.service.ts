@@ -3,6 +3,7 @@ import { LogicalOperator } from '../../common/generated-types';
 import {
     ADD_CUSTOMERS_TO_GROUP,
     ADD_NOTE_TO_CUSTOMER,
+    APPROVE_CUSTOMER,
     CREATE_CUSTOMER,
     CREATE_CUSTOMER_ADDRESS,
     CREATE_CUSTOMER_GROUP,
@@ -221,6 +222,15 @@ export class CustomerDataService {
             Codegen.DeleteCustomerNoteMutation,
             Codegen.DeleteCustomerNoteMutationVariables
         >(DELETE_CUSTOMER_NOTE, {
+            id,
+        });
+    }
+
+    approveCustomer(id: string) {
+        return this.baseDataService.mutate<
+            Codegen.ApproveCustomerMutation,
+            Codegen.ApproveCustomerMutationVariables
+        >(APPROVE_CUSTOMER, {
             id,
         });
     }

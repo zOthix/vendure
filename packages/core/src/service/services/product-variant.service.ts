@@ -37,6 +37,7 @@ import {
 import { FacetValue } from '../../entity/facet-value/facet-value.entity';
 import { Product } from '../../entity/product/product.entity';
 import { ProductOption } from '../../entity/product-option/product-option.entity';
+import { ProductVariantPriceToPriceVariant } from '../../entity/product-variant/product-variant-price-price-variant.entity';
 import { ProductVariantTranslation } from '../../entity/product-variant/product-variant-translation.entity';
 import { ProductVariant } from '../../entity/product-variant/product-variant.entity';
 import { EventBus } from '../../event-bus/event-bus';
@@ -130,6 +131,9 @@ export class ProductVariantService {
                 relations: [
                     ...(relations || ['product', 'featuredAsset', 'product.featuredAsset']),
                     'taxCategory',
+                    'productVariantPrices',
+                    'productVariantPrices.productVariantPriceVariant',
+                    'productVariantPrices.productVariantPriceVariant.productVariantPriceVariant',
                 ],
                 where: { deletedAt: IsNull() },
             })
@@ -152,6 +156,9 @@ export class ProductVariantService {
                     'taxCategory',
                     'assets',
                     'featuredAsset',
+                    'productVariantPrices',
+                    'productVariantPrices.productVariantPriceVariant',
+                    'productVariantPrices.productVariantPriceVariant.productVariantPriceVariant',
                 ],
             })
             .then(variants => this.applyPricesAndTranslateVariants(ctx, variants));
@@ -556,7 +563,43 @@ export class ProductVariantService {
                 }
             }
         }
+        if (input.priceVariants) {
+            for (const priceVariant of input.priceVariants) {
+                await this.createOrUpdatePriceVariant(ctx, input.id, priceVariant.price, priceVariant.name);
+            }
+        }
         return updatedVariant.id;
+    }
+
+    async createOrUpdatePriceVariant(
+        ctx: RequestContext,
+        productVariantId: ID,
+        price: number,
+        priceVariant: string,
+    ): Promise<ProductVariantPrice | null> {
+        const productVariantPriceToPriceVariantRepo = this.connection.getRepository(
+            ctx,
+            ProductVariantPriceToPriceVariant,
+        );
+        const variantPrice = await this.connection
+            .getRepository(ctx, ProductVariantPrice)
+            .createQueryBuilder('pvp')
+            .leftJoinAndSelect('pvp.productVariantPriceVariant', 'pvpv')
+            .leftJoinAndSelect('pvpv.productVariantPriceVariant', 'priceVariant')
+            .where('priceVariant.name = :variant', { variant: priceVariant })
+            .andWhere('pvp.variant = :id', { id: productVariantId })
+            .getOne();
+
+        if (variantPrice) {
+            const priceToVariant = variantPrice.productVariantPriceVariant.find(
+                variant => variant.productVariantPriceVariant.name === priceVariant,
+            );
+            if (priceToVariant) {
+                priceToVariant.price = price;
+                await productVariantPriceToPriceVariantRepo.save(priceToVariant);
+            }
+        }
+        return variantPrice;
     }
 
     /**

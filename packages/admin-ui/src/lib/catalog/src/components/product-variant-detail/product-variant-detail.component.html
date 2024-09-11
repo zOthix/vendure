@@ -26,7 +26,8 @@
                     (detailForm.invalid ||
                         stockLevelsForm.invalid ||
                         pricesForm.invalid ||
-                        (detailForm.pristine && stockLevelsForm.pristine && pricesForm.pristine)) &&
+                        priceVariantsForm.invalid ||
+                        (detailForm.pristine && stockLevelsForm.pristine && pricesForm.pristine && priceVariantsForm.pristine)) &&
                     !assetsChanged()
                 "
             >
@@ -55,7 +56,7 @@
             <vdr-card *ngIf="variant.options.length" [title]="'catalog.product-options' | translate">
                 <div class="options">
                     <vdr-chip
-                        *ngFor="let option of variant.options | sort : 'groupId'"
+                        *ngFor="let option of variant.options | sort: 'groupId'"
                         [colorFrom]="optionGroupCode(option.groupId)"
                         [invert]="true"
                     >
@@ -221,6 +222,26 @@
                         </vdr-dropdown>
                     </div>
                 </ng-container>
+            </vdr-card>
+            <vdr-card [title]="'catalog.price-variants' | translate">
+                <div
+                    class="form-grid prices"
+                    *ngFor="let price of priceVariantsForm.controls; let i = index"
+                    [formGroup]="price"
+                >
+                    <vdr-form-field
+                        [label]="price.get('variantName')?.value"
+                        for="price_price.get('variantName')?.value"
+                    >
+                        <div class="price-wrapper">
+                            <vdr-currency-input
+                                [currencyCode]="price.value.currencyCode"
+                                [readonly]="!(updatePermissions | hasPermission)"
+                                formControlName="price"
+                            />
+                        </div>
+                    </vdr-form-field>
+                </div>
             </vdr-card>
             <vdr-card [title]="'catalog.stock-levels' | translate">
                 <div class="form-grid">

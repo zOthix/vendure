@@ -101,6 +101,13 @@ export class ProductVariantDetailComponent
             delete: FormControl<boolean | null>;
         }>
     >([]);
+    priceVariantsForm = this.formBuilder.array<
+        FormGroup<{
+            price: FormControl<number | null>;
+            currencyCode: FormControl<CurrencyCode | null>;
+            variantName: FormControl<string | null>;
+        }>
+    >([]);
     assetChanges: SelectedAssets = {};
     taxCategories$: Observable<Array<ItemOf<GetProductVariantDetailQuery, 'taxCategories'>>>;
     unusedStockLocation$: Observable<Array<ItemOf<GetProductVariantDetailQuery, 'stockLocations'>>>;
@@ -248,6 +255,16 @@ export class ProductVariantDetailComponent
                                 delete: control.value.delete === true,
                             }));
                     }
+                    if (this.priceVariantsForm.dirty) {
+                        input.priceVariants = this.priceVariantsForm.controls
+                            .filter(control => control.dirty)
+                            .map(control => ({
+                                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                                price: control.value.price!,
+                                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                                name: control.value.variantName!,
+                            }));
+                    }
                     return this.dataService.mutate(ProductVariantUpdateMutationDocument, {
                         input: [input],
                     });
@@ -258,6 +275,7 @@ export class ProductVariantDetailComponent
                     this.detailForm.markAsPristine();
                     this.stockLevelsForm.markAsPristine();
                     this.pricesForm.markAsPristine();
+                    this.priceVariantsForm.markAsPristine();
                     this.assetChanges = {};
                     this.notificationService.success(_('common.notify-update-success'), {
                         entity: 'ProductVariant',
@@ -363,6 +381,17 @@ export class ProductVariantDetailComponent
                     delete: false as boolean,
                 }),
             );
+            this.priceVariantsForm.clear();
+            for (const variant of price.productVariantPriceVariant) {
+                const variantName = variant?.variant.name ?? '';
+                this.priceVariantsForm.push(
+                    this.formBuilder.group({
+                        price: variant?.price ?? price.price,
+                        currencyCode: price.currencyCode,
+                        variantName: variantName,
+                    }),
+                );
+            }
         }
         if (this.customFields.length) {
             this.setCustomFieldFormValues(

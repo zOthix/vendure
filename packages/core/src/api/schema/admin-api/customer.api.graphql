@@ -1,4 +1,5 @@
 type Query {
+    unapprovedCustomers(options: CustomerListOptions): CustomerList!
     customers(options: CustomerListOptions): CustomerList!
     customer(id: ID!): Customer
 }
@@ -25,6 +26,9 @@ type Mutation {
     "Update an existing Address"
     deleteCustomerAddress(id: ID!): Success!
 
+    "Approve a customer"
+    approveCustomer(id: ID!): Customer!
+
     addNoteToCustomer(input: AddNoteToCustomerInput!): Customer!
     updateCustomerNote(input: UpdateCustomerNoteInput!): HistoryEntry!
     deleteCustomerNote(id: ID!): DeletionResponse!
@@ -37,6 +41,9 @@ input UpdateCustomerInput {
     lastName: String
     phoneNumber: String
     emailAddress: String
+    priceVariantId: ID
+    categoryId: ID
+    payWithoutCreditCard: Boolean
 }
 
 input CustomerFilterParameter {

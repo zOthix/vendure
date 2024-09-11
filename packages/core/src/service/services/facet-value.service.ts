@@ -164,6 +164,17 @@ export class FacetValueService {
             });
     }
 
+    async findAllCategoryList(ctx: RequestContext): Promise<FacetValue[]> {
+        const categories = await this.connection
+            .getRepository(ctx, FacetValue)
+            .createQueryBuilder('fv')
+            .leftJoinAndSelect('fv.facet', 'facet')
+            .where('facet.code ILIKE :code', { code: 'Category' })
+            .getMany();
+
+        return categories;
+    }
+
     async create(
         ctx: RequestContext,
         facet: Facet,

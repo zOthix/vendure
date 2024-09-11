@@ -156,6 +156,13 @@ export class BaseNavComponent implements OnInit, OnDestroy {
                         routerLink: ['/customer', 'groups'],
                         icon: 'users',
                     },
+                    {
+                        requiresPermission: allow(Permission.ReadCustomer),
+                        id: 'customers-unapproved',
+                        label: _('nav.customers-unapproved'),
+                        routerLink: ['/customer', 'unapproved'],
+                        icon: 'lock',
+                    },
                 ],
             },
             {
@@ -299,7 +306,7 @@ export class BaseNavComponent implements OnInit, OnDestroy {
                                     ({
                                         type: jobs.length === 0 ? 'none' : 'info',
                                         propagateToSection: jobs.length > 0,
-                                    } as NavMenuBadge),
+                                    }) as NavMenuBadge,
                             ),
                         ),
                     },

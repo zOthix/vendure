@@ -9,6 +9,7 @@ import {
     GetFacetDetailDocument,
     GetProductDetailDocument,
     GetProductVariantDetailDocument,
+    GetProductVariantPriceVariantDetailDocument,
     PageService,
     SharedModule,
 } from '@vendure/admin-ui/core';
@@ -73,6 +74,8 @@ import { ProductVariantsTableComponent } from './components/product-variants-tab
 import { UpdateProductOptionDialogComponent } from './components/update-product-option-dialog/update-product-option-dialog.component';
 import { VariantPriceDetailComponent } from './components/variant-price-detail/variant-price-detail.component';
 import { VariantPriceStrategyDetailComponent } from './components/variant-price-strategy-detail/variant-price-strategy-detail.component';
+import { PriceVariantListComponent } from './components/price-variant-list/price-variant-list.component';
+import { PriceVariantDetailComponent } from './components/price-variant-detail/price-variant-detail.component';
 
 const CATALOG_COMPONENTS = [
     ProductListComponent,
@@ -108,6 +111,8 @@ const CATALOG_COMPONENTS = [
     CreateProductOptionGroupDialogComponent,
     ProductVariantQuickJumpComponent,
     CreateFacetValueDialogComponent,
+    PriceVariantListComponent,
+    PriceVariantDetailComponent,
 ];
 
 @NgModule({
@@ -200,6 +205,34 @@ export class CatalogModule {
                     {
                         label: `${entity?.name} (${entity?.sku})`,
                         link: ['variants', entity?.id],
+                    },
+                ],
+            }),
+        });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'product-list',
+            tab: _('catalog.price-variants'),
+            route: 'price-variants',
+            component: PriceVariantListComponent,
+        });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'price-variant-detail',
+            tab: _('catalog.price-variants'),
+            route: '',
+            component: detailComponentWithResolver({
+                component: PriceVariantDetailComponent,
+                query: GetProductVariantPriceVariantDetailDocument,
+                entityKey: 'productPriceVariant',
+                getBreadcrumbs: entity => [
+                    {
+                        label: _('catalog.price-variants'),
+                        link: ['/catalog', 'products', 'price-variants'],
+                    },
+                    {
+                        label: entity ? entity.name : _('catalog.create-new-price-variant'),
+                        link: [entity?.id],
                     },
                 ],
             }),

@@ -140,6 +140,11 @@ input ProductVariantPriceInput {
     delete: Boolean
 }
 
+input UpdateProductPriceVariantInput {
+    name: String!
+    price: Money!
+}
+
 input CreateProductVariantInput {
     productId: ID!
     translations: [ProductVariantTranslationInput!]!
@@ -180,6 +185,7 @@ input UpdateProductVariantInput {
     outOfStockThreshold: Int
     useGlobalOutOfStockThreshold: Boolean
     trackInventory: GlobalFlag
+    priceVariants: [UpdateProductPriceVariantInput!]
 }
 
 input AssignProductsToChannelInput {

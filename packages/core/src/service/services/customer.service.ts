@@ -43,6 +43,7 @@ import { assertFound, idsAreEqual, normalizeEmailAddress } from '../../common/ut
 import { NATIVE_AUTH_STRATEGY_NAME } from '../../config/auth/native-authentication-strategy';
 import { ConfigService } from '../../config/config.service';
 import { TransactionalConnection } from '../../connection/transactional-connection';
+import { FacetValue, ProductVariantPriceVariant } from '../../entity';
 import { Address } from '../../entity/address/address.entity';
 import { NativeAuthenticationMethod } from '../../entity/authentication-method/native-authentication-method.entity';
 import { Channel } from '../../entity/channel/channel.entity';
@@ -99,7 +100,7 @@ export class CustomerService {
     ): Promise<PaginatedList<Customer>> {
         const customPropertyMap: { [name: string]: string } = {};
         const hasPostalCodeFilter = this.listQueryBuilder.filterObjectHasProperty<CustomerFilterParameter>(
-            options?.filter,
+            options?.filter as CustomerFilterParameter,
             'postalCode',
         );
         if (hasPostalCodeFilter) {
@@ -129,6 +130,32 @@ export class CustomerService {
                 where: { deletedAt: IsNull() },
             })
             .then(result => result ?? undefined);
+    }
+
+    async findAllUnapprovedCustomers(
+        ctx: RequestContext,
+        options: ListQueryOptions<Customer> | undefined,
+        relations: RelationPaths<Customer> = [],
+    ): Promise<PaginatedList<Customer>> {
+        const customPropertyMap: { [name: string]: string } = {};
+        const hasPostalCodeFilter = this.listQueryBuilder.filterObjectHasProperty<CustomerFilterParameter>(
+            options?.filter as CustomerFilterParameter,
+            'postalCode',
+        );
+        if (hasPostalCodeFilter) {
+            relations.push('addresses');
+            customPropertyMap.postalCode = 'addresses.postalCode';
+        }
+        return this.listQueryBuilder
+            .build(Customer, options, {
+                relations,
+                channelId: ctx.channelId,
+                where: { deletedAt: IsNull(), user: { verified: false } },
+                ctx,
+                customPropertyMap,
+            })
+            .getManyAndCount()
+            .then(([items, totalItems]) => ({ items, totalItems }));
     }
 
     /**
@@ -306,6 +333,10 @@ export class CustomerService {
     ): Promise<ErrorResultUnion<UpdateCustomerResult, Customer>> {
         const hasEmailAddress = (i: any): i is UpdateCustomerInput & { emailAddress: string } =>
             Object.hasOwnProperty.call(i, 'emailAddress');
+        const hasPriceVariant = (i: any): i is UpdateCustomerInput & { priceVariantId: ID } =>
+            Object.hasOwnProperty.call(i, 'priceVariantId');
+        const hasCategory = (i: any): i is UpdateCustomerInput & { categoryId: ID } =>
+            Object.hasOwnProperty.call(i, 'categoryId');
 
         const customer = await this.connection.getEntityOrThrow(ctx, Customer, input.id, {
             channelId: ctx.channelId,
@@ -352,6 +383,18 @@ export class CustomerService {
                 }
             }
         }
+        if (hasPriceVariant(input)) {
+            const priceVariantEntity = await this.connection.getEntityOrThrow(
+                ctx,
+                ProductVariantPriceVariant,
+                input.priceVariantId,
+            );
+            customer.priceVariant = priceVariantEntity;
+        }
+        if (hasCategory(input)) {
+            const category = await this.connection.getEntityOrThrow(ctx, FacetValue, input.categoryId);
+            customer.category = category;
+        }
 
         const updatedCustomer = patchEntity(customer, input);
         await this.connection.getRepository(ctx, Customer).save(updatedCustomer, { reload: false });
@@ -366,6 +409,32 @@ export class CustomerService {
         });
         await this.eventBus.publish(new CustomerEvent(ctx, customer, 'updated', input));
         return assertFound(this.findOne(ctx, customer.id));
+    }
+
+    async approveCustomer(ctx: RequestContext, id: ID) {
+        const customer = await this.findOne(ctx, id);
+        if (!customer) {
+            throw new InternalServerError('error.cannot-locate-customer-for-user');
+        }
+
+        if (customer && customer.user) {
+            customer.user.verified = true;
+            await this.connection.getRepository(ctx, User).save(customer.user);
+            if (ctx.channelId) {
+                await this.channelService.assignToChannels(ctx, Customer, customer.id, [ctx.channelId]);
+            }
+            await this.historyService.createHistoryEntryForCustomer({
+                customerId: customer.id,
+                ctx,
+                type: HistoryEntryType.CUSTOMER_VERIFIED,
+                data: {
+                    strategy: NATIVE_AUTH_STRATEGY_NAME,
+                },
+            });
+            const user = assertFound(this.findOneByUserId(ctx, customer.user.id));
+            await this.eventBus.publish(new AccountVerifiedEvent(ctx, customer));
+            return user;
+        }
     }
 
     /**
