@@ -27,6 +27,7 @@ type ProductVariantPriceVariant implements Node {
     productVariantPrice: [ProductVariantPrice!]!
     createdAt: DateTime!
     updatedAt: DateTime!
+    customer: [Customer]!
 }
 
 type ProductVariantPriceVariantList implements PaginatedList {

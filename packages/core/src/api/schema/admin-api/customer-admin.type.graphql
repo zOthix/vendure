@@ -3,4 +3,5 @@ type Customer implements Node {
     history(options: HistoryEntryListOptions): HistoryEntryList!
     priceVariant: ProductVariantPriceVariant
     category: FacetValue
+    payWithoutCreditCard: Boolean
 }

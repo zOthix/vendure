@@ -1,5 +1,3 @@
-import { ProductVariantPriceToPriceVariant } from '../../dist/entity/product-variant/product-variant-price-price-variant.entity';
-
 import { Address } from './address/address.entity';
 import { Administrator } from './administrator/administrator.entity';
 import { Asset } from './asset/asset.entity';
@@ -39,6 +37,7 @@ import { ProductOption } from './product-option/product-option.entity';
 import { ProductOptionGroupTranslation } from './product-option-group/product-option-group-translation.entity';
 import { ProductOptionGroup } from './product-option-group/product-option-group.entity';
 import { ProductVariantAsset } from './product-variant/product-variant-asset.entity';
+import { ProductVariantPriceToPriceVariant } from './product-variant/product-variant-price-price-variant.entity';
 import { ProductVariantPriceVariant } from './product-variant/product-variant-price-variant.entity';
 import { ProductVariantPrice } from './product-variant/product-variant-price.entity';
 import { ProductVariantTranslation } from './product-variant/product-variant-translation.entity';

@@ -4838,6 +4838,7 @@ export type ProductVariantPriceVariant = Node & {
   __typename?: 'ProductVariantPriceVariant';
   createdAt: Scalars['DateTime']['output'];
   customFields?: Maybe<Scalars['JSON']['output']>;
+  customer: Array<Maybe<Customer>>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   productVariantPrice: Array<ProductVariantPrice>;

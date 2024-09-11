@@ -14,6 +14,8 @@ export * from './components/customer-history/customer-history.component';
 export * from './components/customer-list/customer-list-bulk-actions';
 export * from './components/customer-list/customer-list.component';
 export * from './components/customer-status-label/customer-status-label.component';
+export * from './components/customer-unapproved-list/customer-unapproved-list-bulk-actions';
+export * from './components/customer-unapproved-list/customer-unapproved-list.component';
 export * from './components/select-customer-group-dialog/select-customer-group-dialog.component';
 export * from './customer.module';
 export * from './customer.routes';
