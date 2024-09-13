@@ -35,7 +35,9 @@ export class ProductVariantPrice extends VendureEntity implements HasCustomField
     @ManyToOne(type => ProductVariant, variant => variant.productVariantPrices, { onDelete: 'CASCADE' })
     variant: ProductVariant;
 
-    @OneToMany(type => ProductVariantPriceToPriceVariant, variant => variant.productVariantPrice)
+    @OneToMany(type => ProductVariantPriceToPriceVariant, variant => variant.productVariantPrice, {
+        eager: true,
+    })
     productVariantPriceVariant: ProductVariantPriceToPriceVariant[];
 
     @Column(type => CustomProductVariantPriceFields)

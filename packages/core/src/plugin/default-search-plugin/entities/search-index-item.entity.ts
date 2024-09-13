@@ -54,6 +54,9 @@ export class SearchIndexItem {
     @Money()
     priceWithTax: number;
 
+    @Column('simple-json', { nullable: true })
+    priceVariants?: Array<{ id: ID; name: string; price: number }>;
+
     @Column('simple-array')
     facetIds: string[];
 

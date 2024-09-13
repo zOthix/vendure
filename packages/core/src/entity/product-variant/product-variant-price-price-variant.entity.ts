@@ -16,7 +16,7 @@ export class ProductVariantPriceToPriceVariant extends VendureEntity {
     @Money()
     price: number;
 
-    @ManyToOne(() => ProductVariantPriceVariant, variant => variant.productVariantPrice)
+    @ManyToOne(() => ProductVariantPriceVariant, variant => variant.productVariantPrice, { eager: true })
     productVariantPriceVariant: ProductVariantPriceVariant;
 
     @ManyToOne(() => ProductVariantPrice, variant => variant.productVariantPriceVariant)

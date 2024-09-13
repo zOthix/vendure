@@ -9,7 +9,7 @@ import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 import { RequestContext } from '../../api/common/request-context';
 import { assertFound, ListQueryOptions } from '../../common';
 import { TransactionalConnection } from '../../connection/transactional-connection';
-import { ProductVariantPrice } from '../../entity';
+import { ProductVariant, ProductVariantPrice } from '../../entity';
 import { ProductVariantPriceToPriceVariant } from '../../entity/product-variant/product-variant-price-price-variant.entity';
 import { ProductVariantPriceVariant } from '../../entity/product-variant/product-variant-price-variant.entity';
 import { ListQueryBuilder } from '../helpers/list-query-builder/list-query-builder';
@@ -100,5 +100,46 @@ export class ProductPriceVariantService {
         entity.name = input.name ? input.name : entity.name;
         await productPriceVariantRepository.save(entity as any);
         return assertFound(this.findOne(ctx, entity.id));
+    }
+
+    async attachPriceVariantsToProductVariant(
+        ctx: RequestContext,
+        productVariant: ProductVariant,
+    ): Promise<ProductVariantPriceToPriceVariant[] | null> {
+        const productVariantPrice = productVariant.productVariantPrices.find(i => i.id);
+        if (!productVariantPrice) {
+            return null;
+        }
+        const productPriceVariantList = await this.connection
+            .getRepository(ctx, ProductVariantPriceVariant)
+            .find();
+        const productVariantPriceToPriceVariantRepository = this.connection.getRepository(
+            ctx,
+            ProductVariantPriceToPriceVariant,
+        );
+        const attachedVariantIds = productVariantPrice.productVariantPriceVariant.map(
+            i => i.productVariantPriceVariant.id,
+        );
+        const entitiesToSave = productPriceVariantList
+            .filter(variant => !attachedVariantIds.includes(variant.id))
+            .map(
+                variant =>
+                    new ProductVariantPriceToPriceVariant({
+                        price: productVariantPrice.price || 0,
+                        productVariantPriceVariant: variant,
+                        productVariantPrice,
+                    }),
+            );
+        if (entitiesToSave.length > 0) {
+            await productVariantPriceToPriceVariantRepository.save(entitiesToSave);
+        }
+        return productVariantPrice.productVariantPriceVariant.map(
+            variant =>
+                new ProductVariantPriceToPriceVariant({
+                    price: variant.price || 0,
+                    productVariantPriceVariant: variant.productVariantPriceVariant,
+                    productVariantPrice,
+                }),
+        );
     }
 }

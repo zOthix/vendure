@@ -19,6 +19,7 @@ import { FacetValue } from '../../../entity/facet-value/facet-value.entity';
 import { Product } from '../../../entity/product/product.entity';
 import { ProductVariant } from '../../../entity/product-variant/product-variant.entity';
 import { Job } from '../../../job-queue/job';
+import { ProductPriceVariantService } from '../../../service';
 import { EntityHydrator } from '../../../service/helpers/entity-hydrator/entity-hydrator.service';
 import { ProductPriceApplicator } from '../../../service/helpers/product-price-applicator/product-price-applicator';
 import { ProductVariantService } from '../../../service/services/product-variant.service';
@@ -63,6 +64,7 @@ export const variantRelations = [
     'product.facetValues.facet',
     'collections',
     'collections.translations',
+    'productVariantPrices.productVariantPriceVariant',
 ];
 export const workerLoggerCtx = 'DefaultSearchPlugin Worker';
 
@@ -77,6 +79,7 @@ export class IndexerController {
         private configService: ConfigService,
         private requestContextCache: RequestContextCacheService,
         private productVariantService: ProductVariantService,
+        private productPriceVariantService: ProductPriceVariantService,
         @Inject(PLUGIN_INIT_OPTIONS) private options: DefaultSearchPluginInitOptions,
     ) {}
 
@@ -415,6 +418,10 @@ export class IndexerController {
                 productMap.set(variant.productId, product);
             }
             const availableLanguageCodes = unique(ctx.channel.availableLanguageCodes);
+            const priceVariants = await this.productPriceVariantService.attachPriceVariantsToProductVariant(
+                ctx,
+                variant,
+            );
             for (const languageCode of availableLanguageCodes) {
                 const productTranslation = this.getTranslation(product, languageCode);
                 const variantTranslation = this.getTranslation(variant, languageCode);
@@ -465,6 +472,11 @@ export class IndexerController {
                         collectionIds: variant.collections.map(c => c.id.toString()),
                         collectionSlugs:
                             collectionTranslations.map(c => c?.slug).filter(notNullOrUndefined) ?? [],
+                        priceVariants: priceVariants?.map(i => ({
+                            name: i.productVariantPriceVariant.name,
+                            id: i.productVariantPriceVariant.id,
+                            price: i.price,
+                        })),
                     });
                     if (this.options.indexStockStatus) {
                         item.inStock =
