@@ -6,6 +6,7 @@ import { RequestContext } from '../../../api/common/request-context';
 import { Injector } from '../../../common';
 import { UserInputError } from '../../../common/error/errors';
 import { TransactionalConnection } from '../../../connection/transactional-connection';
+import { Customer } from '../../../entity';
 import { PLUGIN_INIT_OPTIONS } from '../constants';
 import { SearchIndexItem } from '../entities/search-index-item.entity';
 import { DefaultSearchPluginInitOptions, SearchInput } from '../types';
@@ -87,6 +88,7 @@ export class PostgresSearchStrategy implements SearchStrategy {
         const take = input.take || 25;
         const skip = input.skip || 0;
         const sort = input.sort;
+        let priceVariantId: ID;
         const qb = this.connection
             .getRepository(ctx, SearchIndexItem)
             .createQueryBuilder('si')
@@ -119,11 +121,30 @@ export class PostgresSearchStrategy implements SearchStrategy {
             qb.andWhere('"si"."enabled" = :enabled', { enabled: true });
         }
 
+        qb.addSelect('jsonb_agg(si.priceVariants)', 'priceVariants');
+
+        // Get the price variant of the user so that the
+        // products have the correct price for each variant.
+        const userId = ctx.activeUserId;
+        const customer = await this.connection
+            .getRepository(ctx, Customer)
+            .createQueryBuilder('customer')
+            .leftJoinAndSelect('customer.user', 'user')
+            .leftJoinAndSelect('customer.priceVariant', 'priceVariant')
+            .leftJoinAndSelect('customer.category', 'category')
+            .where('user.id = :id', { id: userId })
+            .getOne();
+        if (customer && customer.priceVariant) {
+            priceVariantId = customer.priceVariant.id || -1;
+        }
+
         return qb
             .limit(take)
             .offset(skip)
             .getRawMany()
-            .then(res => res.map(r => mapToSearchResult(r, ctx.channel.defaultCurrencyCode)));
+            .then(res =>
+                res.map(r => mapToSearchResult(r, ctx.channel.defaultCurrencyCode, priceVariantId as number)),
+            );
     }
 
     async getTotalCount(ctx: RequestContext, input: SearchInput, enabledOnly: boolean): Promise<number> {

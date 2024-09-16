@@ -16,12 +16,16 @@ import { SearchIndexItem } from '../entities/search-index-item.entity';
 /**
  * Maps a raw database result to a SearchResult.
  */
-export function mapToSearchResult(raw: any, currencyCode: CurrencyCode): SearchResult {
-    const price =
+export function mapToSearchResult(
+    raw: any,
+    currencyCode: CurrencyCode,
+    priceVariantId?: number,
+): SearchResult {
+    let price =
         raw.minPrice !== undefined
             ? ({ min: raw.minPrice, max: raw.maxPrice } as PriceRange)
             : ({ value: raw.si_price } as SinglePrice);
-    const priceWithTax =
+    let priceWithTax =
         raw.minPriceWithTax !== undefined
             ? ({ min: raw.minPriceWithTax, max: raw.maxPriceWithTax } as PriceRange)
             : ({ value: raw.si_priceWithTax } as SinglePrice);
@@ -40,6 +44,28 @@ export function mapToSearchResult(raw: any, currencyCode: CurrencyCode): SearchR
               preview: raw.si_productVariantPreview,
               focalPoint: parseFocalPoint(raw.si_productVariantPreviewFocalPoint),
           };
+
+    if (priceVariantId) {
+        const prices = raw.priceVariants.flatMap(
+            (arr: Array<{ name: string; id: number; price: number }>) => {
+                const variant = arr.find(v => v.id === priceVariantId);
+                return variant ? variant.price : [];
+            },
+        );
+
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+
+        price =
+            minPrice !== maxPrice
+                ? ({ min: minPrice, max: maxPrice } as PriceRange)
+                : ({ value: maxPrice } as SinglePrice);
+
+        priceWithTax =
+            minPrice !== maxPrice
+                ? ({ min: minPrice, max: maxPrice } as PriceRange)
+                : ({ value: maxPrice } as SinglePrice);
+    }
 
     const enabled = raw.productEnabled != null ? !!Number(raw.productEnabled) : raw.si_enabled;
     return {
