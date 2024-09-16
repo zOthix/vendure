@@ -137,11 +137,12 @@ export class PostgresSearchStrategy implements SearchStrategy {
         if (customer && customer.priceVariant) {
             priceVariantId = customer.priceVariant.id || -1;
         }
-
-        if (customer && customer.category) {
+        if (customer && customer.category && customer.category !== null) {
             qb.andWhere(":id = ANY(string_to_array(si.facetValueIds, ','))", {
                 id: customer.category.id,
             });
+        } else {
+            qb.andWhere('1=0');
         }
 
         return qb
