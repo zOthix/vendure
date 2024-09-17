@@ -383,7 +383,7 @@ export class CustomerService {
                 }
             }
         }
-        if (hasPriceVariant(input)) {
+        if (hasPriceVariant(input) && input.priceVariantId !== null) {
             const priceVariantEntity = await this.connection.getEntityOrThrow(
                 ctx,
                 ProductVariantPriceVariant,
@@ -391,7 +391,7 @@ export class CustomerService {
             );
             customer.priceVariant = priceVariantEntity;
         }
-        if (hasCategory(input)) {
+        if (hasCategory(input) && input.categoryId !== null) {
             const category = await this.connection.getEntityOrThrow(ctx, FacetValue, input.categoryId);
             customer.category = category;
         }
