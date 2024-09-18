@@ -19,7 +19,7 @@ import { SearchIndexItem } from '../entities/search-index-item.entity';
 export function mapToSearchResult(
     raw: any,
     currencyCode: CurrencyCode,
-    priceVariantId?: number,
+    priceVariantId?: ID | undefined,
 ): SearchResult {
     let price =
         raw.minPrice !== undefined

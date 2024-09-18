@@ -7,6 +7,7 @@ import { Injector } from '../../../common';
 import { UserInputError } from '../../../common/error/errors';
 import { TransactionalConnection } from '../../../connection/transactional-connection';
 import { Customer } from '../../../entity';
+import { CustomerService } from '../../../service';
 import { PLUGIN_INIT_OPTIONS } from '../constants';
 import { SearchIndexItem } from '../entities/search-index-item.entity';
 import { DefaultSearchPluginInitOptions, SearchInput } from '../types';
@@ -30,10 +31,12 @@ export class PostgresSearchStrategy implements SearchStrategy {
     private readonly minTermLength = 2;
     private connection: TransactionalConnection;
     private options: DefaultSearchPluginInitOptions;
+    private customerService: CustomerService;
 
     async init(injector: Injector) {
         this.connection = injector.get(TransactionalConnection);
         this.options = injector.get(PLUGIN_INIT_OPTIONS);
+        this.customerService = injector.get(CustomerService);
     }
 
     async getFacetValueIds(
@@ -123,35 +126,29 @@ export class PostgresSearchStrategy implements SearchStrategy {
 
         qb.addSelect('jsonb_agg(si.priceVariants)', 'priceVariants');
 
-        // Get the price variant of the user so that the
-        // products have the correct price for each variant.
-        const userId = ctx.activeUserId;
-        const customer = await this.connection
-            .getRepository(ctx, Customer)
-            .createQueryBuilder('customer')
-            .leftJoinAndSelect('customer.user', 'user')
-            .leftJoinAndSelect('customer.priceVariant', 'priceVariant')
-            .leftJoinAndSelect('customer.category', 'category')
-            .where('user.id = :id', { id: userId })
-            .getOne();
-        if (customer && customer.priceVariant) {
-            priceVariantId = customer.priceVariant.id || -1;
-        }
-        if (customer && customer.category && customer.category !== null) {
-            qb.andWhere(":id = ANY(string_to_array(si.facetValueIds, ','))", {
-                id: customer.category.id,
-            });
-        } else {
-            qb.andWhere('1=0');
+        // Get the price variant and category of the customer
+        // so that the products have the correct price
+        // for each variant. And are also filtered by category
+        if (ctx.activeUserId) {
+            const customer = await this.customerService.getCustomerPriceVariantAndCategory(ctx);
+            if (customer && customer.priceVariant && customer.priceVariant !== null) {
+                priceVariantId = customer.priceVariant.id;
+            }
+            if (customer && customer.category && customer.category !== null) {
+                qb.andWhere(":id = ANY(string_to_array(si.facetValueIds, ','))", {
+                    id: customer.category.id,
+                });
+            }
+            if (!customer) {
+                qb.andWhere('1=0');
+            }
         }
 
         return qb
             .limit(take)
             .offset(skip)
             .getRawMany()
-            .then(res =>
-                res.map(r => mapToSearchResult(r, ctx.channel.defaultCurrencyCode, priceVariantId as number)),
-            );
+            .then(res => res.map(r => mapToSearchResult(r, ctx.channel.defaultCurrencyCode, priceVariantId)));
     }
 
     async getTotalCount(ctx: RequestContext, input: SearchInput, enabledOnly: boolean): Promise<number> {
