@@ -49,7 +49,7 @@ export function mapToSearchResult(
         const prices = raw.priceVariants.flatMap(
             (arr: Array<{ name: string; id: number; price: number }>) => {
                 const variant = arr.find(v => v.id === priceVariantId);
-                return variant ? variant.price : [];
+                return variant ? variant.price : 0;
             },
         );
 
