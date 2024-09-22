@@ -7,6 +7,8 @@ import { InternalServerError } from '../../../common/error/errors';
 import { ConfigService } from '../../../config/config.service';
 import { Order } from '../../../entity/order/order.entity';
 import { ProductVariant } from '../../../entity/product-variant/product-variant.entity';
+import { CustomerService } from '../../services/customer.service';
+import { ProductPriceVariantService } from '../../services/product-price-variant.service';
 import { TaxRateService } from '../../services/tax-rate.service';
 import { ZoneService } from '../../services/zone.service';
 
@@ -43,6 +45,8 @@ export class ProductPriceApplicator {
     constructor(
         private configService: ConfigService,
         private taxRateService: TaxRateService,
+        private customerService: CustomerService,
+        private productPriceVariantService: ProductPriceVariantService,
         private zoneService: ZoneService,
         private requestCache: RequestContextCacheService,
     ) {}
@@ -88,14 +92,41 @@ export class ProductPriceApplicator {
             `applicableTaxRate-${activeTaxZone.id}-${variant.taxCategory.id}`,
             () => this.taxRateService.getApplicableTaxRate(ctx, activeTaxZone, variant.taxCategory),
         );
-
-        const { price, priceIncludesTax } = await productVariantPriceCalculationStrategy.calculate({
-            inputPrice: channelPrice?.price ?? 0,
-            taxCategory: variant.taxCategory,
-            productVariant: variant,
-            activeTaxZone,
-            ctx,
-        });
+        let price = 0;
+        let priceIncludesTax = false;
+        if (ctx.activeUserId) {
+            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
+                ctx,
+                ctx.activeUserId,
+            );
+            if (customer && customer.priceVariant) {
+                const { priceVariant } = customer;
+                const priceVariantPrice = await this.productPriceVariantService.getPrice(
+                    ctx,
+                    variant,
+                    priceVariant.id,
+                );
+                const calculated = await productVariantPriceCalculationStrategy.calculate({
+                    inputPrice: priceVariantPrice ?? 0,
+                    taxCategory: variant.taxCategory,
+                    productVariant: variant,
+                    activeTaxZone,
+                    ctx,
+                });
+                price = calculated.price;
+                priceIncludesTax = calculated.priceIncludesTax;
+            }
+        } else {
+            const calculated = await productVariantPriceCalculationStrategy.calculate({
+                inputPrice: channelPrice?.price ?? 0,
+                taxCategory: variant.taxCategory,
+                productVariant: variant,
+                activeTaxZone,
+                ctx,
+            });
+            price = calculated.price;
+            priceIncludesTax = calculated.priceIncludesTax;
+        }
 
         variant.listPrice = price;
         variant.listPriceIncludesTax = priceIncludesTax;

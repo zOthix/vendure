@@ -144,4 +144,16 @@ export class ProductPriceVariantService {
                 }),
         );
     }
+
+    async getPrice(ctx: RequestContext, productVariant: ProductVariant, priceVariantId: ID): Promise<number> {
+        const variant = await this.connection.getRepository(ctx, ProductVariant).findOne({
+            where: {
+                id: productVariant.id,
+            },
+        });
+        if (!variant) {
+            return 0;
+        }
+        return variant.priceVariantPrice(ctx.channelId, priceVariantId);
+    }
 }
