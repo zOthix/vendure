@@ -98,6 +98,34 @@ export class ProductVariant
         );
     }
 
+    priceVariantPrice(channelId: ID, priceVariantId: ID): number {
+        const price = this.productVariantPrices.find(i => i.channelId === channelId);
+        if (!price) {
+            return 0;
+        }
+        const priceVariant = price.productVariantPriceVariant.find(
+            i => i.productVariantPriceVariant.id === priceVariantId,
+        );
+        if (!priceVariant) {
+            return 0;
+        }
+        return priceVariant.price;
+    }
+
+    priceVariantPriceWithTax(channelId: ID, priceVariantId: ID): number {
+        const price = this.productVariantPrices.find(i => i.channelId === channelId);
+        if (!price) {
+            return 0;
+        }
+        const priceVariant = price.productVariantPriceVariant.find(
+            i => i.productVariantPriceVariant.id === priceVariantId,
+        );
+        if (!priceVariant) {
+            return 0;
+        }
+        return this.taxRateApplied.grossPriceOf(priceVariant.price);
+    }
+
     /**
      * Calculated at run-time
      */

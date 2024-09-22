@@ -130,7 +130,10 @@ export class PostgresSearchStrategy implements SearchStrategy {
         // so that the products have the correct price
         // for each variant. And are also filtered by category
         if (ctx.activeUserId) {
-            const customer = await this.customerService.getCustomerPriceVariantAndCategory(ctx);
+            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
+                ctx,
+                ctx.activeUserId,
+            );
             if (customer && customer.priceVariant && customer.priceVariant !== null) {
                 priceVariantId = customer.priceVariant.id;
             }

@@ -1026,4 +1026,22 @@ export class CustomerService {
             }
         }
     }
+
+    async getCustomerPriceVariantAndCategory(ctx: RequestContext, userId: ID) {
+        if (userId) {
+            const customer = await this.connection
+                .getRepository(ctx, Customer)
+                .createQueryBuilder('customer')
+                .leftJoin('customer.channels', 'channel')
+                .leftJoinAndSelect('customer.user', 'user')
+                .leftJoinAndSelect('customer.priceVariant', 'priceVariant')
+                .leftJoinAndSelect('customer.category', 'category')
+                .where('user.id = :userId', { userId })
+                .andWhere('customer.deletedAt is null')
+                .getOne();
+            if (customer) {
+                return customer.priceVariantAndCategory;
+            }
+        }
+    }
 }

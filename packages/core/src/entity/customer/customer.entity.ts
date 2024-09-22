@@ -72,4 +72,11 @@ export class Customer extends VendureEntity implements ChannelAware, HasCustomFi
     @ManyToMany(type => Channel, channel => channel.customers)
     @JoinTable()
     channels: Channel[];
+
+    get priceVariantAndCategory() {
+        return {
+            priceVariant: this.priceVariant,
+            category: this.category,
+        };
+    }
 }

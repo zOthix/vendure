@@ -53,6 +53,7 @@ import { Surcharge } from '../../../entity/surcharge/surcharge.entity';
 import { EventBus } from '../../../event-bus/event-bus';
 import { OrderLineEvent } from '../../../event-bus/events/order-line-event';
 import { CountryService } from '../../services/country.service';
+import { CustomerService } from '../../services/customer.service';
 import { HistoryService } from '../../services/history.service';
 import { PaymentService } from '../../services/payment.service';
 import { ProductVariantService } from '../../services/product-variant.service';
@@ -76,7 +77,7 @@ import { patchEntity } from '../utils/patch-entity';
  * OrderService was just growing too large. Future refactoring could improve the organization
  * of these Order-related methods into a more clearly-delineated set of classes.
  *
- * @docsCategory service-helpers
+ * @docsCategory service-helpersasdasda
  */
 @Injectable()
 export class OrderModifier {
@@ -94,6 +95,7 @@ export class OrderModifier {
         private shippingCalculator: ShippingCalculator,
         private historyService: HistoryService,
         private translator: TranslatorService,
+        private customerService: CustomerService,
     ) {}
 
     /**
@@ -166,17 +168,21 @@ export class OrderModifier {
 
         const productVariant = await this.getProductVariantOrThrow(ctx, productVariantId);
         const orderLine = await this.connection.getRepository(ctx, OrderLine).save(
-            new OrderLine({
+            await this.applyPriceVariantToOrderLine(
+                ctx,
+                new OrderLine({
+                    productVariant,
+                    taxCategory: productVariant.taxCategory,
+                    featuredAsset: productVariant.featuredAsset ?? productVariant.product.featuredAsset,
+                    listPrice: productVariant.listPrice,
+                    listPriceIncludesTax: productVariant.listPriceIncludesTax,
+                    adjustments: [],
+                    taxLines: [],
+                    customFields,
+                    quantity: 0,
+                }),
                 productVariant,
-                taxCategory: productVariant.taxCategory,
-                featuredAsset: productVariant.featuredAsset ?? productVariant.product.featuredAsset,
-                listPrice: productVariant.listPrice,
-                listPriceIncludesTax: productVariant.listPriceIncludesTax,
-                adjustments: [],
-                taxLines: [],
-                customFields,
-                quantity: 0,
-            }),
+            ),
         );
         const { orderSellerStrategy } = this.configService.orderOptions;
         if (typeof orderSellerStrategy.setOrderLineSellerChannel === 'function') {
@@ -757,6 +763,27 @@ export class OrderModifier {
             });
         }
         return order;
+    }
+
+    async applyPriceVariantToOrderLine(
+        ctx: RequestContext,
+        orderLine: OrderLine,
+        productVariant: ProductVariant,
+    ): Promise<OrderLine> {
+        if (ctx.activeUserId) {
+            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
+                ctx,
+                ctx.activeUserId,
+            );
+            if (customer && customer.priceVariant) {
+                const priceVariant = customer.priceVariant.id;
+                const price = productVariant.priceVariantPrice(ctx.channelId, priceVariant);
+                const updatedOrderLine = orderLine;
+                updatedOrderLine.listPrice = price;
+                return updatedOrderLine;
+            }
+        }
+        return orderLine;
     }
 
     private noChangesSpecified(input: ModifyOrderInput): boolean {

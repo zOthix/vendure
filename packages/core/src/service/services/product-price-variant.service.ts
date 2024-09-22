@@ -106,7 +106,9 @@ export class ProductPriceVariantService {
         ctx: RequestContext,
         productVariant: ProductVariant,
     ): Promise<ProductVariantPriceToPriceVariant[] | null> {
-        const productVariantPrice = productVariant.productVariantPrices.find(i => i.id);
+        const productVariantPrice = productVariant.productVariantPrices.find(
+            i => i.channelId === ctx.channelId,
+        );
         if (!productVariantPrice) {
             return null;
         }
