@@ -104,7 +104,7 @@ export class ProductVariant
             return 0;
         }
         const priceVariant = price.productVariantPriceVariant.find(
-            i => i.productVariantPriceVariant.id === priceVariantId,
+            i => i.productVariantPriceVariantId === priceVariantId,
         );
         if (!priceVariant) {
             return 0;
@@ -118,7 +118,7 @@ export class ProductVariant
             return 0;
         }
         const priceVariant = price.productVariantPriceVariant.find(
-            i => i.productVariantPriceVariant.id === priceVariantId,
+            i => i.productVariantPriceVariantId === priceVariantId,
         );
         if (!priceVariant) {
             return 0;

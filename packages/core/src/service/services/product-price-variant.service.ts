@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-    MutationCreatePriceVariantArgs,
-    ProductVariantPriceVariantListOptions,
-    UpdatePriceVariantInput,
-} from '@vendure/common/lib/generated-types';
+import { MutationCreatePriceVariantArgs, UpdatePriceVariantInput } from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../api/common/request-context';
@@ -13,8 +9,7 @@ import { ProductVariant, ProductVariantPrice } from '../../entity';
 import { ProductVariantPriceToPriceVariant } from '../../entity/product-variant/product-variant-price-price-variant.entity';
 import { ProductVariantPriceVariant } from '../../entity/product-variant/product-variant-price-variant.entity';
 import { ListQueryBuilder } from '../helpers/list-query-builder/list-query-builder';
-import { TranslatableSaver } from '../helpers/translatable-saver/translatable-saver';
-import { TranslatorService } from '../helpers/translator/translator.service';
+import { ProductPriceApplicator } from '../helpers/product-price-applicator/product-price-applicator';
 
 /**
  * @description
@@ -26,9 +21,8 @@ import { TranslatorService } from '../helpers/translator/translator.service';
 export class ProductPriceVariantService {
     constructor(
         private connection: TransactionalConnection,
-        private translatableSaver: TranslatableSaver,
         private listQueryBuilder: ListQueryBuilder,
-        private translator: TranslatorService,
+        private productPriceApplicator: ProductPriceApplicator,
     ) {}
 
     async findOne(ctx: RequestContext, input: ID): Promise<ProductVariantPriceVariant | null> {
@@ -154,6 +148,23 @@ export class ProductPriceVariantService {
         if (!variant) {
             return 0;
         }
+        return variant.priceVariantPrice(ctx.channelId, priceVariantId);
+    }
+
+    async getPriceWithTax(
+        ctx: RequestContext,
+        productVariant: ProductVariant,
+        priceVariantId: ID,
+    ): Promise<number> {
+        const variant = await this.connection.getRepository(ctx, ProductVariant).findOne({
+            where: {
+                id: productVariant.id,
+            },
+        });
+        if (!variant) {
+            return 0;
+        }
+        await this.productPriceApplicator.applyChannelPriceAndTax(variant, ctx, undefined, false, true);
         return variant.priceVariantPrice(ctx.channelId, priceVariantId);
     }
 }

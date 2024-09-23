@@ -46,7 +46,6 @@ export class ProductPriceApplicator {
         private configService: ConfigService,
         private taxRateService: TaxRateService,
         private customerService: CustomerService,
-        private productPriceVariantService: ProductPriceVariantService,
         private zoneService: ZoneService,
         private requestCache: RequestContextCacheService,
     ) {}
@@ -102,11 +101,7 @@ export class ProductPriceApplicator {
             );
             if (customer && customer.priceVariant) {
                 const { priceVariant } = customer;
-                const priceVariantPrice = await this.productPriceVariantService.getPrice(
-                    ctx,
-                    variant,
-                    priceVariant.id,
-                );
+                const priceVariantPrice = variant.priceVariantPrice(ctx.channelId, priceVariant.id);
                 const calculated = await productVariantPriceCalculationStrategy.calculate({
                     inputPrice: priceVariantPrice ?? 0,
                     taxCategory: variant.taxCategory,

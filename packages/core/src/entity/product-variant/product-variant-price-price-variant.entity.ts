@@ -1,7 +1,8 @@
-import { DeepPartial } from '@vendure/common/lib/shared-types';
+import { DeepPartial, ID } from '@vendure/common/lib/shared-types';
 import { Entity, ManyToOne } from 'typeorm';
 
 import { VendureEntity } from '../base/base.entity';
+import { EntityId } from '../entity-id.decorator';
 import { Money } from '../money.decorator';
 
 import { ProductVariantPriceVariant } from './product-variant-price-variant.entity';
@@ -12,6 +13,9 @@ export class ProductVariantPriceToPriceVariant extends VendureEntity {
     constructor(input?: DeepPartial<ProductVariantPriceToPriceVariant>) {
         super(input);
     }
+
+    @EntityId()
+    productVariantPriceVariantId: ID;
 
     @Money()
     price: number;
