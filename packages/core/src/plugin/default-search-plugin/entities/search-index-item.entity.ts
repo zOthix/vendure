@@ -57,6 +57,9 @@ export class SearchIndexItem {
     @Column('jsonb', { nullable: true })
     priceVariants?: Array<{ id: ID; name: string; price: number }>;
 
+    @Column('jsonb', { nullable: true })
+    priceVariantsWithTax?: Array<{ id: ID; name: string; price: number }>;
+
     @Column('simple-array')
     facetIds: string[];
 

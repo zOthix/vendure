@@ -443,6 +443,22 @@ export class IndexerController {
                 for (const channel of variant.channels) {
                     ctx.setChannel(channel);
                     await this.productPriceApplicator.applyChannelPriceAndTax(variant, ctx);
+                    const priceVariantPrices = priceVariants?.map(i => ({
+                        name: i.productVariantPriceVariant.name,
+                        id: i.productVariantPriceVariant.id,
+                        price: i.price,
+                    }));
+                    const priceVariantsWithTax = priceVariants?.map(i => {
+                        const price = variant.priceVariantPriceWithTax(
+                            ctx.channelId,
+                            i.productVariantPriceVariant.id,
+                        );
+                        return {
+                            name: i.productVariantPriceVariant.name,
+                            id: i.productVariantPriceVariant.id,
+                            price,
+                        };
+                    });
                     const item = new SearchIndexItem({
                         channelId: ctx.channelId,
                         languageCode,
@@ -472,11 +488,8 @@ export class IndexerController {
                         collectionIds: variant.collections.map(c => c.id.toString()),
                         collectionSlugs:
                             collectionTranslations.map(c => c?.slug).filter(notNullOrUndefined) ?? [],
-                        priceVariants: priceVariants?.map(i => ({
-                            name: i.productVariantPriceVariant.name,
-                            id: i.productVariantPriceVariant.id,
-                            price: i.price,
-                        })),
+                        priceVariants: priceVariantPrices ?? [],
+                        priceVariantsWithTax: priceVariantsWithTax ?? [],
                     });
                     if (this.options.indexStockStatus) {
                         item.inStock =

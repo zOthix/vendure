@@ -48,7 +48,14 @@ export function mapToSearchResult(
     if (priceVariantId) {
         const prices = raw.priceVariants.flatMap(
             (arr: Array<{ name: string; id: number; price: number }>) => {
-                const variant = arr.find(v => v.id === priceVariantId);
+                const variant = arr?.find(v => v.id === priceVariantId);
+                return variant ? variant.price : 0;
+            },
+        );
+
+        const pricesWithTax = raw.priceVariantsWithTax.flatMap(
+            (arr: Array<{ name: string; id: number; price: number }>) => {
+                const variant = arr?.find(v => v.id === priceVariantId);
                 return variant ? variant.price : 0;
             },
         );
@@ -56,15 +63,18 @@ export function mapToSearchResult(
         const minPrice = Math.min(...prices);
         const maxPrice = Math.max(...prices);
 
+        const minPriceWithTax = Math.min(...pricesWithTax);
+        const maxPriceWithTax = Math.max(...pricesWithTax);
+
         price =
             minPrice !== maxPrice
                 ? ({ min: minPrice, max: maxPrice } as PriceRange)
                 : ({ value: maxPrice } as SinglePrice);
 
         priceWithTax =
-            minPrice !== maxPrice
-                ? ({ min: minPrice, max: maxPrice } as PriceRange)
-                : ({ value: maxPrice } as SinglePrice);
+            minPriceWithTax !== maxPriceWithTax
+                ? ({ min: minPriceWithTax, max: maxPriceWithTax } as PriceRange)
+                : ({ value: maxPriceWithTax } as SinglePrice);
     }
 
     const enabled = raw.productEnabled != null ? !!Number(raw.productEnabled) : raw.si_enabled;
