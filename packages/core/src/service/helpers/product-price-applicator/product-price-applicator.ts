@@ -64,6 +64,7 @@ export class ProductPriceApplicator {
         ctx: RequestContext,
         order?: Order,
         throwIfNoPriceFound = false,
+        applyVariantPrice = false,
     ): Promise<ProductVariant> {
         const { productVariantPriceSelectionStrategy, productVariantPriceCalculationStrategy } =
             this.configService.catalogOptions;
@@ -94,7 +95,7 @@ export class ProductPriceApplicator {
         );
         let price = 0;
         let priceIncludesTax = false;
-        if (ctx.activeUserId) {
+        if (applyVariantPrice && ctx.activeUserId) {
             const customer = await this.customerService.getCustomerPriceVariantAndCategory(
                 ctx,
                 ctx.activeUserId,

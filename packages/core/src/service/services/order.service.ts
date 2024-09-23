@@ -1750,6 +1750,8 @@ export class OrderService {
                     updatedOrderLine.productVariant,
                     ctx,
                     order,
+                    false,
+                    true,
                 );
                 let priceResult = await orderItemPriceCalculationStrategy.calculateUnitPrice(
                     ctx,
