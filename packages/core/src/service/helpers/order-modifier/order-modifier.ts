@@ -56,6 +56,7 @@ import { CountryService } from '../../services/country.service';
 import { CustomerService } from '../../services/customer.service';
 import { HistoryService } from '../../services/history.service';
 import { PaymentService } from '../../services/payment.service';
+import { ProductPriceVariantService } from '../../services/product-price-variant.service';
 import { ProductVariantService } from '../../services/product-variant.service';
 import { PromotionService } from '../../services/promotion.service';
 import { StockMovementService } from '../../services/stock-movement.service';
@@ -96,6 +97,7 @@ export class OrderModifier {
         private historyService: HistoryService,
         private translator: TranslatorService,
         private customerService: CustomerService,
+        private productPriceVariantService: ProductPriceVariantService,
     ) {}
 
     /**
@@ -777,7 +779,11 @@ export class OrderModifier {
             );
             if (customer && customer.priceVariant) {
                 const priceVariant = customer.priceVariant.id;
-                const price = productVariant.priceVariantPrice(ctx.channelId, priceVariant);
+                const price = await this.productPriceVariantService.getPrice(
+                    ctx,
+                    productVariant,
+                    priceVariant,
+                );
                 const updatedOrderLine = orderLine;
                 updatedOrderLine.listPrice = price;
                 return updatedOrderLine;

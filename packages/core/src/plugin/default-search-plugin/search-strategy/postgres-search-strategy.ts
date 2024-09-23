@@ -125,7 +125,6 @@ export class PostgresSearchStrategy implements SearchStrategy {
         }
 
         qb.addSelect('jsonb_agg(si.priceVariants)', 'priceVariants');
-        qb.addSelect('jsonb_agg(si.priceVariantsWithTax)', 'priceVariantsWithTax');
 
         // Get the price variant and category of the customer
         // so that the products have the correct price
