@@ -251,14 +251,14 @@ export class OrderService {
         if (order) {
             if (effectiveRelations.includes('lines.productVariant')) {
                 for (const line of order.lines) {
+                    const variant = (await this.productVariantService.findOne(ctx, line.productVariantId, [
+                        'productVariantPrices.productVariantPriceVariant',
+                    ])) as ProductVariant;
                     line.productVariant = this.translator.translate(
-                        await this.productVariantService.applyChannelPriceAndTax(
-                            line.productVariant,
-                            ctx,
-                            order,
-                        ),
+                        await this.productVariantService.applyChannelPriceAndTax(variant, ctx, order),
                         ctx,
                     );
+                    line.listPrice = line.productVariant.listPrice;
                 }
             }
             return order;
@@ -1750,8 +1750,6 @@ export class OrderService {
                     updatedOrderLine.productVariant,
                     ctx,
                     order,
-                    false,
-                    true,
                 );
                 let priceResult = await orderItemPriceCalculationStrategy.calculateUnitPrice(
                     ctx,

@@ -63,7 +63,6 @@ export class ProductPriceApplicator {
         ctx: RequestContext,
         order?: Order,
         throwIfNoPriceFound = false,
-        applyVariantPrice = false,
     ): Promise<ProductVariant> {
         const { productVariantPriceSelectionStrategy, productVariantPriceCalculationStrategy } =
             this.configService.catalogOptions;
@@ -94,10 +93,28 @@ export class ProductPriceApplicator {
         );
         let price = 0;
         let priceIncludesTax = false;
-        if (applyVariantPrice && ctx.activeUserId) {
+        if (ctx.apiType === 'shop' && ctx.activeUserId) {
             const customer = await this.customerService.getCustomerPriceVariantAndCategory(
                 ctx,
                 ctx.activeUserId,
+            );
+            if (customer && customer.priceVariant) {
+                const { priceVariant } = customer;
+                const priceVariantPrice = variant.priceVariantPrice(ctx.channelId, priceVariant.id);
+                const calculated = await productVariantPriceCalculationStrategy.calculate({
+                    inputPrice: priceVariantPrice ?? 0,
+                    taxCategory: variant.taxCategory,
+                    productVariant: variant,
+                    activeTaxZone,
+                    ctx,
+                });
+                price = calculated.price;
+                priceIncludesTax = calculated.priceIncludesTax;
+            }
+        } else if (ctx.apiType === 'admin' && order && order.customer && order.customer.user) {
+            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
+                ctx,
+                order.customer.user.id,
             );
             if (customer && customer.priceVariant) {
                 const { priceVariant } = customer;

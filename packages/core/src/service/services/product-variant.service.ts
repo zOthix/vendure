@@ -812,15 +812,8 @@ export class ProductVariantService {
         ctx: RequestContext,
         order?: Order,
         throwIfNoPriceFound = false,
-        applyVariantPrice = false,
     ): Promise<ProductVariant> {
-        return this.productPriceApplicator.applyChannelPriceAndTax(
-            variant,
-            ctx,
-            order,
-            throwIfNoPriceFound,
-            applyVariantPrice,
-        );
+        return this.productPriceApplicator.applyChannelPriceAndTax(variant, ctx, order, throwIfNoPriceFound);
     }
 
     /**
