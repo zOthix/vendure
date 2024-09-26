@@ -164,7 +164,7 @@ export class ProductPriceVariantService {
         if (!variant) {
             return 0;
         }
-        await this.productPriceApplicator.applyChannelPriceAndTax(variant, ctx, undefined, false, true);
+        await this.productPriceApplicator.applyChannelPriceAndTax(variant, ctx, undefined);
         return variant.priceVariantPrice(ctx.channelId, priceVariantId);
     }
 }

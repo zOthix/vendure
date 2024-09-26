@@ -43,7 +43,7 @@ import { assertFound, idsAreEqual, normalizeEmailAddress } from '../../common/ut
 import { NATIVE_AUTH_STRATEGY_NAME } from '../../config/auth/native-authentication-strategy';
 import { ConfigService } from '../../config/config.service';
 import { TransactionalConnection } from '../../connection/transactional-connection';
-import { FacetValue, ProductVariantPriceVariant } from '../../entity';
+import { Collection, ProductVariantPriceVariant } from '../../entity';
 import { Address } from '../../entity/address/address.entity';
 import { NativeAuthenticationMethod } from '../../entity/authentication-method/native-authentication-method.entity';
 import { Channel } from '../../entity/channel/channel.entity';
@@ -392,7 +392,7 @@ export class CustomerService {
             customer.priceVariant = priceVariantEntity;
         }
         if (hasCategory(input) && input.categoryId !== null) {
-            const category = await this.connection.getEntityOrThrow(ctx, FacetValue, input.categoryId);
+            const category = await this.connection.getEntityOrThrow(ctx, Collection, input.categoryId);
             customer.category = category;
         }
 
