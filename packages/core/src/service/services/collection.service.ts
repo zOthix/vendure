@@ -55,6 +55,7 @@ import { moveToIndex } from '../helpers/utils/move-to-index';
 
 import { AssetService } from './asset.service';
 import { ChannelService } from './channel.service';
+import { CustomerService } from './customer.service';
 import { RoleService } from './role.service';
 
 export type ApplyCollectionFiltersJobData = {
@@ -88,6 +89,7 @@ export class CollectionService implements OnModuleInit {
         private customFieldRelationService: CustomFieldRelationService,
         private translator: TranslatorService,
         private roleService: RoleService,
+        private customerService: CustomerService,
     ) {}
 
     /**
@@ -185,6 +187,24 @@ export class CollectionService implements OnModuleInit {
             qb.innerJoin('collection.parent', 'parent_filter', 'parent_filter.isRoot = :isRoot', {
                 isRoot: true,
             });
+        }
+
+        if (ctx.apiType === 'shop' && ctx.activeUserId) {
+            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
+                ctx,
+                ctx.activeUserId,
+            );
+            if (customer && customer.category) {
+                return qb.getManyAndCount().then(async ([collections, totalItems]) => {
+                    const items = collections
+                        .filter(i => i.id === customer.category?.id)
+                        .map(collection => this.translator.translate(collection, ctx, ['parent']));
+                    return {
+                        items,
+                        totalItems,
+                    };
+                });
+            }
         }
 
         return qb.getManyAndCount().then(async ([collections, totalItems]) => {
@@ -303,7 +323,7 @@ export class CollectionService implements OnModuleInit {
     async getBreadcrumbs(
         ctx: RequestContext,
         collection: Collection,
-    ): Promise<Array<{ name: string; id: ID, slug: string }>> {
+    ): Promise<Array<{ name: string; id: ID; slug: string }>> {
         const rootCollection = await this.getRootCollection(ctx);
         if (idsAreEqual(collection.id, rootCollection.id)) {
             return [pick(rootCollection, ['id', 'name', 'slug'])];

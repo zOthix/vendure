@@ -6,9 +6,9 @@ import { HasCustomFields } from '../../config/custom-field/custom-field-types';
 import { Address } from '../address/address.entity';
 import { VendureEntity } from '../base/base.entity';
 import { Channel } from '../channel/channel.entity';
+import { Collection } from '../collection/collection.entity';
 import { CustomCustomerFields } from '../custom-entity-fields';
 import { CustomerGroup } from '../customer-group/customer-group.entity';
-import { FacetValue } from '../facet-value/facet-value.entity';
 import { Order } from '../order/order.entity';
 import { ProductVariantPriceVariant } from '../product-variant/product-variant-price-variant.entity';
 import { User } from '../user/user.entity';
@@ -59,8 +59,8 @@ export class Customer extends VendureEntity implements ChannelAware, HasCustomFi
     @ManyToOne(type => ProductVariantPriceVariant)
     priceVariant?: ProductVariantPriceVariant;
 
-    @ManyToOne(type => FacetValue)
-    category?: FacetValue;
+    @ManyToOne(type => Collection)
+    category?: Collection;
 
     @OneToOne(type => User, { eager: true })
     @JoinColumn()

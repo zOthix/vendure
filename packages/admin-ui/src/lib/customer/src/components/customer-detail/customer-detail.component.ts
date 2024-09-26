@@ -23,7 +23,7 @@ import {
     UpdateCustomerAddressMutation,
     UpdateCustomerInput,
     UpdateCustomerMutation,
-    GetCategoryListQuery,
+    GetCollectionListQuery,
 } from '@vendure/admin-ui/core';
 import { notNullOrUndefined } from '@vendure/common/lib/shared-utils';
 import { gql } from 'apollo-angular';
@@ -104,7 +104,7 @@ export class CustomerDetailComponent
     ordersCount$: Observable<number>;
     history$: Observable<NonNullable<GetCustomerHistoryQuery['customer']>['history']['items'] | undefined>;
     priceVariantOptions$: Observable<GetPriceVariantListQuery['productPriceVariants']['items']>;
-    categories$: Observable<GetCategoryListQuery['facetValuesCategory']>;
+    categories$: Observable<GetCollectionListQuery['collections']['items']>;
     payWithoutCreditCard: boolean;
     fetchHistory = new Subject<void>();
     defaultShippingAddressId: string;
@@ -137,9 +137,9 @@ export class CustomerDetailComponent
             .mapSingle(result => result.productPriceVariants.items)
             .pipe(shareReplay(1));
 
-        this.categories$ = this.dataService.product
-            .getCategoryList()
-            .mapSingle(result => result.facetValuesCategory)
+        this.categories$ = this.dataService.collection
+            .getCollections()
+            .mapSingle(result => result.collections.items)
             .pipe(shareReplay(1));
 
         const customerWithUpdates$ = this.entity$.pipe(merge(this.orderListUpdates$));

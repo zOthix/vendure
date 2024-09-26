@@ -139,7 +139,7 @@ export class PostgresSearchStrategy implements SearchStrategy {
                 priceVariantId = customer.priceVariant.id;
             }
             if (customer && customer.category && customer.category !== null) {
-                qb.andWhere(":id = ANY(string_to_array(si.facetValueIds, ','))", {
+                qb.andWhere(":id = ANY(string_to_array(si.collectionIds, ','))", {
                     id: customer.category.id,
                 });
             }
