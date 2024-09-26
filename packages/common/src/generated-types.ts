@@ -1366,7 +1366,7 @@ export type CustomFields = {
 export type Customer = Node & {
   __typename?: 'Customer';
   addresses?: Maybe<Array<Address>>;
-  category?: Maybe<FacetValue>;
+  category?: Maybe<Collection>;
   createdAt: Scalars['DateTime']['output'];
   customFields?: Maybe<Scalars['JSON']['output']>;
   emailAddress: Scalars['String']['output'];
