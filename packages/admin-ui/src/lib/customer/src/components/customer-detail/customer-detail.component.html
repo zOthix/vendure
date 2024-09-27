@@ -109,6 +109,55 @@
                         <input id="lastName" type="text" formControlName="lastName" />
                     </vdr-form-field>
                     <vdr-form-field
+                        [label]="'customer.accounting-email' | translate"
+                        for="accountingEmail"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <input id="accountingEmail" type="text" formControlName="accountingEmail" />
+                    </vdr-form-field>
+                    <vdr-form-field
+                        [label]="'customer.accounting-phone' | translate"
+                        for="accountingPhone"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <input id="accountingPhone" type="text" formControlName="accountingPhone" />
+                    </vdr-form-field>
+                    <vdr-form-field
+                        [label]="'customer.business-name' | translate"
+                        for="businessName"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <input id="businessName" type="text" formControlName="businessName" />
+                    </vdr-form-field>
+                    <vdr-form-field
+                        [label]="'customer.business-phone' | translate"
+                        for="businessPhone"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <input id="businessPhone" type="text" formControlName="businessPhone" />
+                    </vdr-form-field>
+                    <vdr-form-field
+                        [label]="'customer.contact-person-phone' | translate"
+                        for="contactPersonPhone"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <input id="contactPersonPhone" type="text" formControlName="contactPersonPhone" />
+                    </vdr-form-field>
+                    <vdr-form-field
+                        [label]="'customer.fax' | translate"
+                        for="fax"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <input id="fax" type="text" formControlName="fax" />
+                    </vdr-form-field>
+                    <vdr-form-field
+                        [label]="'customer.vat' | translate"
+                        for="VAT"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <input id="VAT" type="text" formControlName="VAT" />
+                    </vdr-form-field>
+                    <vdr-form-field
                         [label]="'customer.email-address' | translate"
                         for="emailAddress"
                         [readOnlyToggle]="!(isNew$ | async)"

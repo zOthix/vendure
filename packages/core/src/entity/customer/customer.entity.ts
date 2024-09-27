@@ -73,25 +73,25 @@ export class Customer extends VendureEntity implements ChannelAware, HasCustomFi
     @JoinTable()
     channels: Channel[];
 
-    @Column({ default: null })
+    @Column({ default: '' })
     businessName: string;
 
-    @Column({ default: null })
+    @Column({ default: '' })
     VAT: string;
 
-    @Column({ default: null })
+    @Column({ default: '' })
     businessPhone: string;
 
-    @Column({ default: null })
+    @Column({ default: '' })
     contactPersonPhone: string;
 
-    @Column({ default: null })
+    @Column({ default: '' })
     fax: string;
 
-    @Column({ default: null })
+    @Column({ default: '' })
     accountingPhone: string;
 
-    @Column({ default: null })
+    @Column({ default: '' })
     accountingEmail: string;
 
     get priceVariantAndCategory() {

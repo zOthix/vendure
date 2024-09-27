@@ -96,6 +96,13 @@ export class CustomerDetailComponent
             priceVariant: '',
             category: '',
             payWithoutCreditCard: false,
+            accountingEmail: ['', [Validators.required, Validators.email]],
+            accountingPhone: ['', Validators.required],
+            businessName: ['', Validators.required],
+            businessPhone: ['', Validators.required],
+            contactPersonPhone: ['', Validators.required],
+            fax: ['', Validators.required],
+            VAT: ['', Validators.required],
         }),
         addresses: new UntypedFormArray([]),
     });
@@ -235,9 +242,34 @@ export class CustomerDetailComponent
         if (!customerForm) {
             return;
         }
-        const { title, emailAddress, firstName, lastName, phoneNumber, password } = customerForm.value;
+        const {
+            title,
+            emailAddress,
+            firstName,
+            lastName,
+            phoneNumber,
+            password,
+            accountingEmail,
+            accountingPhone,
+            businessName,
+            businessPhone,
+            contactPersonPhone,
+            fax,
+            VAT,
+        } = customerForm.value;
         const customFields = customerForm.get('customFields')?.value;
-        if (!emailAddress || !firstName || !lastName) {
+        if (
+            !emailAddress ||
+            !firstName ||
+            !lastName ||
+            !accountingEmail ||
+            !accountingPhone ||
+            !businessName ||
+            !businessPhone ||
+            !contactPersonPhone ||
+            !fax ||
+            !VAT
+        ) {
             return;
         }
         const customer: CreateCustomerInput = {
@@ -247,6 +279,13 @@ export class CustomerDetailComponent
             lastName,
             phoneNumber,
             customFields,
+            accountingEmail,
+            accountingPhone,
+            businessName,
+            businessPhone,
+            contactPersonPhone,
+            fax,
+            VAT,
         };
         this.dataService.customer.createCustomer(customer, password).subscribe(({ createCustomer }) => {
             switch (createCustomer.__typename) {
@@ -301,6 +340,13 @@ export class CustomerDetailComponent
                             priceVariantId: formValue.priceVariant,
                             categoryId: formValue.category,
                             payWithoutCreditCard: this.payWithoutCreditCard,
+                            accountingEmail: formValue.accountingEmail,
+                            accountingPhone: formValue.accountingPhone,
+                            businessName: formValue.businessName,
+                            businessPhone: formValue.businessPhone,
+                            contactPersonPhone: formValue.contactPersonPhone,
+                            fax: formValue.fax,
+                            VAT: formValue.VAT,
                         };
                         saveOperations.push(
                             this.dataService.customer
@@ -511,6 +557,13 @@ export class CustomerDetailComponent
                 priceVariant: entity.priceVariant?.id ?? null,
                 category: entity.category?.id ?? null,
                 payWithoutCreditCard: this.payWithoutCreditCard,
+                accountingEmail: entity.accountingEmail,
+                accountingPhone: entity.accountingPhone,
+                businessName: entity.businessName,
+                businessPhone: entity.businessPhone,
+                contactPersonPhone: entity.contactPersonPhone,
+                fax: entity.fax,
+                VAT: entity.VAT,
             });
         }
 

@@ -368,6 +368,11 @@
     "add-customers-to-group-with-name": "Add customers to \"{ groupName }\"",
     "addresses": "Addresses",
     "approve-customer": "Approve",
+    "accounting-email": "Accounting email",
+    "accounting-phone": "Accounting phone",
+    "business-name": "Business name",
+    "business-phone": "Business phone",
+    "contact-person-phone": "Contact person phone",
     "city": "City",
     "company": "Company",
     "confirm-remove-customer-from-group": "Remove customer from group?",
@@ -388,6 +393,7 @@
     "email-verification-sent": "A verification email has been sent to { emailAddress }",
     "first-name": "First name",
     "full-name": "Full name",
+    "fax": "Fax",
     "guest": "Guest",
     "history-customer-added-to-group": "Customer added to group \"{ groupName }\"",
     "history-customer-address-created": "Address created",
@@ -431,6 +437,7 @@
     "title": "Title",
     "update-customer-group": "Update customer group",
     "verified": "Verified",
+    "vat": "VAT / Company number",
     "view-group-members": "View group members"
   },
   "dashboard": {
