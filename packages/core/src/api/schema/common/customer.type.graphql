@@ -10,6 +10,13 @@ type Customer implements Node {
     addresses: [Address!]
     orders(options: OrderListOptions): OrderList!
     user: User
+    businessName: String!
+    VAT: String!
+    businessPhone: String!
+    contactPersonPhone: String!
+    fax: String!
+    accountingPhone: String!
+    accountingEmail: String!
 }
 
 type CustomerList implements PaginatedList {

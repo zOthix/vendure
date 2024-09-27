@@ -196,6 +196,13 @@ input CreateCustomerInput {
     lastName: String!
     phoneNumber: String
     emailAddress: String!
+    businessName: String!
+    VAT: String!
+    businessPhone: String!
+    contactPersonPhone: String!
+    fax: String!
+    accountingPhone: String!
+    accountingEmail: String!
 }
 
 """

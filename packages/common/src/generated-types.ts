@@ -799,8 +799,15 @@ export type CreateCustomerGroupInput = {
 };
 
 export type CreateCustomerInput = {
+  VAT: Scalars['String']['input'];
+  accountingEmail: Scalars['String']['input'];
+  accountingPhone: Scalars['String']['input'];
+  businessName: Scalars['String']['input'];
+  businessPhone: Scalars['String']['input'];
+  contactPersonPhone: Scalars['String']['input'];
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   emailAddress: Scalars['String']['input'];
+  fax: Scalars['String']['input'];
   firstName: Scalars['String']['input'];
   lastName: Scalars['String']['input'];
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
@@ -1365,11 +1372,18 @@ export type CustomFields = {
 
 export type Customer = Node & {
   __typename?: 'Customer';
+  VAT: Scalars['String']['output'];
+  accountingEmail: Scalars['String']['output'];
+  accountingPhone: Scalars['String']['output'];
   addresses?: Maybe<Array<Address>>;
+  businessName: Scalars['String']['output'];
+  businessPhone: Scalars['String']['output'];
   category?: Maybe<Collection>;
+  contactPersonPhone: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   customFields?: Maybe<Scalars['JSON']['output']>;
   emailAddress: Scalars['String']['output'];
+  fax: Scalars['String']['output'];
   firstName: Scalars['String']['output'];
   groups: Array<CustomerGroup>;
   history: HistoryEntryList;
@@ -1395,10 +1409,17 @@ export type CustomerOrdersArgs = {
 };
 
 export type CustomerFilterParameter = {
+  VAT?: InputMaybe<StringOperators>;
   _and?: InputMaybe<Array<CustomerFilterParameter>>;
   _or?: InputMaybe<Array<CustomerFilterParameter>>;
+  accountingEmail?: InputMaybe<StringOperators>;
+  accountingPhone?: InputMaybe<StringOperators>;
+  businessName?: InputMaybe<StringOperators>;
+  businessPhone?: InputMaybe<StringOperators>;
+  contactPersonPhone?: InputMaybe<StringOperators>;
   createdAt?: InputMaybe<DateOperators>;
   emailAddress?: InputMaybe<StringOperators>;
+  fax?: InputMaybe<StringOperators>;
   firstName?: InputMaybe<StringOperators>;
   id?: InputMaybe<IdOperators>;
   lastName?: InputMaybe<StringOperators>;
@@ -1479,8 +1500,15 @@ export type CustomerListOptions = {
 };
 
 export type CustomerSortParameter = {
+  VAT?: InputMaybe<SortOrder>;
+  accountingEmail?: InputMaybe<SortOrder>;
+  accountingPhone?: InputMaybe<SortOrder>;
+  businessName?: InputMaybe<SortOrder>;
+  businessPhone?: InputMaybe<SortOrder>;
+  contactPersonPhone?: InputMaybe<SortOrder>;
   createdAt?: InputMaybe<SortOrder>;
   emailAddress?: InputMaybe<SortOrder>;
+  fax?: InputMaybe<SortOrder>;
   firstName?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
   lastName?: InputMaybe<SortOrder>;
@@ -6450,9 +6478,16 @@ export type UpdateCustomerGroupInput = {
 };
 
 export type UpdateCustomerInput = {
+  VAT?: InputMaybe<Scalars['String']['input']>;
+  accountingEmail?: InputMaybe<Scalars['String']['input']>;
+  accountingPhone?: InputMaybe<Scalars['String']['input']>;
+  businessName?: InputMaybe<Scalars['String']['input']>;
+  businessPhone?: InputMaybe<Scalars['String']['input']>;
   categoryId?: InputMaybe<Scalars['ID']['input']>;
+  contactPersonPhone?: InputMaybe<Scalars['String']['input']>;
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   emailAddress?: InputMaybe<Scalars['String']['input']>;
+  fax?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   lastName?: InputMaybe<Scalars['String']['input']>;
