@@ -22,13 +22,11 @@ export function mapToSearchResult(
     priceVariantId?: ID | undefined,
 ): SearchResult {
     let price =
-        raw.minPrice !== undefined
-            ? ({ min: raw.minPrice, max: raw.maxPrice } as PriceRange)
-            : ({ value: raw.si_price } as SinglePrice);
+        raw.minPrice !== undefined ? ({ min: 0, max: 0 } as PriceRange) : ({ value: 0 } as SinglePrice);
     let priceWithTax =
         raw.minPriceWithTax !== undefined
-            ? ({ min: raw.minPriceWithTax, max: raw.maxPriceWithTax } as PriceRange)
-            : ({ value: raw.si_priceWithTax } as SinglePrice);
+            ? ({ min: 0, max: 0 } as PriceRange)
+            : ({ value: 0 } as SinglePrice);
 
     const productAsset: SearchResultAsset | undefined = !raw.si_productAssetId
         ? undefined
