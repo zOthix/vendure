@@ -11,7 +11,10 @@ import { SimpleGraphQLClient } from '../simple-graphql-client';
 export class MockDataService {
     apiUrl: string;
 
-    constructor(private client: SimpleGraphQLClient, private logging = true) {
+    constructor(
+        private client: SimpleGraphQLClient,
+        private logging = true,
+    ) {
         // make the generated results deterministic
         faker.seed(1);
     }
@@ -29,6 +32,13 @@ export class MockDataService {
                 lastName,
                 emailAddress: faker.internet.email(firstName, lastName),
                 phoneNumber: faker.phone.phoneNumber(),
+                accountingEmail: '',
+                accountingPhone: '',
+                businessName: '',
+                businessPhone: '',
+                contactPersonPhone: '',
+                fax: '',
+                VAT: '',
             };
             const address: CreateAddressInput = {
                 fullName: `${firstName} ${lastName}`,

@@ -17,6 +17,7 @@ type Customer implements Node {
     fax: String!
     accountingPhone: String!
     accountingEmail: String!
+    payWithoutCreditCard: Boolean
 }
 
 type CustomerList implements PaginatedList {
