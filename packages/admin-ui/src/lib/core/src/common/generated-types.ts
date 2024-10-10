@@ -854,6 +854,15 @@ export type CreateGroupOptionInput = {
   translations: Array<ProductOptionGroupTranslationInput>;
 };
 
+export type CreateOrUpdateProductInput = {
+  assetIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  facetValueIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  featuredAssetId?: InputMaybe<Scalars['ID']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  translations?: InputMaybe<Array<ProductTranslationInput>>;
+};
+
 export type CreatePaymentMethodInput = {
   checker?: InputMaybe<ConfigurableOperationInput>;
   code: Scalars['String']['input'];
@@ -2779,6 +2788,8 @@ export type Mutation = {
   createFacet: Facet;
   /** Create one or more FacetValues */
   createFacetValues: Array<FacetValue>;
+  /** Create or update multiple existing Products */
+  createOrUpdateProducts: Array<Product>;
   /** Create existing PaymentMethod */
   createPaymentMethod: PaymentMethod;
   /** Add a new price variant */
@@ -3224,6 +3235,11 @@ export type MutationCreateFacetArgs = {
 
 export type MutationCreateFacetValuesArgs = {
   input: Array<CreateFacetValueInput>;
+};
+
+
+export type MutationCreateOrUpdateProductsArgs = {
+  input: Array<CreateOrUpdateProductInput>;
 };
 
 
@@ -5236,6 +5252,8 @@ export type Query = {
   productVariants: ProductVariantList;
   /** List Products */
   products: ProductList;
+  /** Get products by ids */
+  productsByIds: Array<Maybe<Product>>;
   promotion?: Maybe<Promotion>;
   promotionActions: Array<ConfigurableOperationDefinition>;
   promotionConditions: Array<ConfigurableOperationDefinition>;
@@ -5450,6 +5468,11 @@ export type QueryProductVariantsArgs = {
 
 export type QueryProductsArgs = {
   options?: InputMaybe<ProductListOptions>;
+};
+
+
+export type QueryProductsByIdsArgs = {
+  productIds: Array<InputMaybe<Scalars['ID']['input']>>;
 };
 
 

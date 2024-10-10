@@ -9,6 +9,7 @@ import {
     RemoveOptionGroupFromProductResult,
     RemoveProductsFromChannelInput,
     UpdateProductInput,
+    CreateOrUpdateProductInput,
 } from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 import { unique } from '@vendure/common/lib/unique';
@@ -267,6 +268,14 @@ export class ProductService {
         await this.customFieldRelationService.updateRelations(ctx, Product, input, updatedProduct);
         await this.eventBus.publish(new ProductEvent(ctx, updatedProduct, 'updated', input));
         return assertFound(this.findOne(ctx, updatedProduct.id));
+    }
+
+    async createOrUpdateProducts(ctx: RequestContext, input: CreateOrUpdateProductInput) {
+        if (input.id) {
+            return await this.update(ctx, input as UpdateProductInput);
+        } else {
+            return await this.create(ctx, input as CreateProductInput);
+        }
     }
 
     async softDelete(ctx: RequestContext, productId: ID): Promise<DeletionResponse> {

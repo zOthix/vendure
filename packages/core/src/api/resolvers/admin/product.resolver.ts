@@ -4,6 +4,7 @@ import {
     MutationAddOptionGroupToProductArgs,
     MutationAssignProductsToChannelArgs,
     MutationAssignProductVariantsToChannelArgs,
+    MutationCreateOrUpdateProductsArgs,
     MutationCreateProductArgs,
     MutationCreateProductVariantsArgs,
     MutationDeleteProductArgs,
@@ -19,6 +20,7 @@ import {
     Permission,
     QueryProductArgs,
     QueryProductsArgs,
+    QueryProductsByIdsArgs,
     QueryProductVariantArgs,
     QueryProductVariantsArgs,
     RemoveOptionGroupFromProductResult,
@@ -75,6 +77,18 @@ export class ProductResolver {
         } else {
             throw new UserInputError('error.product-id-or-slug-must-be-provided');
         }
+    }
+
+    @Query()
+    @Allow(Permission.ReadCatalog, Permission.ReadProduct)
+    async productsByIds(
+        @Ctx() ctx: RequestContext,
+        @Args() args: QueryProductsByIdsArgs,
+        @Relations({ entity: Product, omit: ['variants', 'assets'] }) relations: RelationPaths<Product>,
+    ): Promise<Array<Translated<Product>>> {
+        const { productIds } = args;
+        const products = await this.productService.findByIds(ctx, productIds, relations);
+        return products;
     }
 
     @Query()
@@ -136,6 +150,17 @@ export class ProductResolver {
     ): Promise<Array<Translated<Product>>> {
         const { input } = args;
         return await Promise.all(args.input.map(i => this.productService.update(ctx, i)));
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async createOrUpdateProducts(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationCreateOrUpdateProductsArgs,
+    ): Promise<Array<Translated<Product>>> {
+        const { input } = args;
+        return await Promise.all(input.map(i => this.productService.createOrUpdateProducts(ctx, i)));
     }
 
     @Transaction()

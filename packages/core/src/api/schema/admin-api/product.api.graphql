@@ -7,6 +7,8 @@ type Query {
     productVariants(options: ProductVariantListOptions, productId: ID): ProductVariantList!
     "Get a ProductVariant by id"
     productVariant(id: ID!): ProductVariant
+    "Get products by ids"
+    productsByIds(productIds: [ID]!): [Product]!
 }
 
 type Mutation {
@@ -18,6 +20,9 @@ type Mutation {
 
     "Update multiple existing Products"
     updateProducts(input: [UpdateProductInput!]!): [Product!]!
+
+    "Create or update multiple existing Products"
+    createOrUpdateProducts(input: [CreateOrUpdateProductInput!]!): [Product!]!
 
     "Delete a Product"
     deleteProduct(id: ID!): DeletionResponse!
@@ -100,6 +105,15 @@ input CreateProductInput {
 
 input UpdateProductInput {
     id: ID!
+    enabled: Boolean
+    featuredAssetId: ID
+    assetIds: [ID!]
+    facetValueIds: [ID!]
+    translations: [ProductTranslationInput!]
+}
+
+input CreateOrUpdateProductInput {
+    id: ID
     enabled: Boolean
     featuredAssetId: ID
     assetIds: [ID!]
