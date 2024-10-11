@@ -115,10 +115,8 @@ input UpdateProductInput {
 input CreateOrUpdateProductInput {
     id: ID
     enabled: Boolean
-    featuredAssetId: ID
-    assetIds: [ID!]
-    facetValueIds: [ID!]
-    translations: [ProductTranslationInput!]
+    name: String!
+    slug: String!
 }
 
 input ProductVariantTranslationInput {

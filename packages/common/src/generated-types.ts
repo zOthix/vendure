@@ -850,12 +850,10 @@ export type CreateGroupOptionInput = {
 };
 
 export type CreateOrUpdateProductInput = {
-  assetIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
-  facetValueIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  featuredAssetId?: InputMaybe<Scalars['ID']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
-  translations?: InputMaybe<Array<ProductTranslationInput>>;
+  name: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
 };
 
 export type CreatePaymentMethodInput = {

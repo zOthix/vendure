@@ -8,6 +8,7 @@ import {
     ASSIGN_PRODUCTS_TO_CHANNEL,
     ASSIGN_VARIANTS_TO_CHANNEL,
     CREATE_ASSETS,
+    CREATE_OR_UPDATE_PRODUCTS,
     CREATE_PRICE_VARIANT,
     CREATE_PRODUCT,
     CREATE_PRODUCT_OPTION_GROUP,
@@ -34,6 +35,7 @@ import {
     GET_PRODUCT_VARIANT_LIST_SIMPLE,
     GET_PRODUCT_VARIANT_OPTIONS,
     GET_PRODUCT_WITH_VARIANTS,
+    GET_PRODUCTS_BY_IDS,
     GET_TAG,
     GET_TAG_LIST,
     PRODUCT_SELECTOR_SEARCH,
@@ -498,5 +500,23 @@ export class ProductDataService {
 
     getCategoryList() {
         return this.baseDataService.query<Codegen.GetCategoryListQuery>(GET_CATEGORY_LIST);
+    }
+
+    getProductsByIds(input: string[]) {
+        return this.baseDataService.query<
+            Codegen.GetProductsByIdsQuery,
+            Codegen.GetProductsByIdsQueryVariables
+        >(GET_PRODUCTS_BY_IDS, {
+            productIds: input,
+        });
+    }
+
+    createOrUpdateProducts(input: Codegen.CreateOrUpdateProductInput[]) {
+        return this.baseDataService.mutate<
+            Codegen.CreateOrUpdateProductsMutation,
+            Codegen.CreateOrUpdateProductsMutationVariables
+        >(CREATE_OR_UPDATE_PRODUCTS, {
+            input: input,
+        });
     }
 }

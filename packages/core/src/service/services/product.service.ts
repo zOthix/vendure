@@ -272,9 +272,31 @@ export class ProductService {
 
     async createOrUpdateProducts(ctx: RequestContext, input: CreateOrUpdateProductInput) {
         if (input.id) {
-            return await this.update(ctx, input as UpdateProductInput);
+            const updateInput: UpdateProductInput = {
+                id: input.id,
+                enabled: input.enabled ?? true,
+                translations: [
+                    {
+                        languageCode: ctx.languageCode,
+                        name: input.name,
+                        slug: input.slug,
+                    },
+                ],
+            };
+            return await this.update(ctx, updateInput);
         } else {
-            return await this.create(ctx, input as CreateProductInput);
+            const createInput: CreateProductInput = {
+                enabled: input.enabled ?? true,
+                translations: [
+                    {
+                        languageCode: ctx.languageCode,
+                        name: input.name,
+                        slug: input.slug,
+                        description: '',
+                    },
+                ],
+            };
+            return await this.create(ctx, createInput);
         }
     }
 

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
+import * as Papa from 'papaparse';
 import {
+    CreateOrUpdateProductInput,
     DataService,
     FacetValueFormInputComponent,
     JobQueueService,
@@ -11,7 +13,7 @@ import {
     ProductListQueryDocument,
     TypedBaseListComponent,
 } from '@vendure/admin-ui/core';
-import { EMPTY, lastValueFrom } from 'rxjs';
+import { EMPTY, firstValueFrom, lastValueFrom } from 'rxjs';
 import { delay, switchMap } from 'rxjs/operators';
 
 @Component({
@@ -23,6 +25,7 @@ export class ProductListComponent
     extends TypedBaseListComponent<typeof ProductListQueryDocument, 'products'>
     implements OnInit
 {
+    productsToUpdate: CreateOrUpdateProductInput[] = [];
     pendingSearchIndexUpdates = 0;
     readonly customFields = this.getCustomFieldConfig('Product');
     readonly filters = this.createFilterCollection()
@@ -173,5 +176,82 @@ export class ProductListComponent
                     });
                 },
             );
+    }
+
+    async onFileSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files.length > 0) {
+            const file: File = input.files[0];
+            if (file.type === 'text/csv') {
+                const parsed = await this.parseCSV(file);
+                const productIds = parsed.map(item => String(item.id));
+                const productsToUpdate = await firstValueFrom(
+                    this.dataService.product
+                        .getProductsByIds(productIds)
+                        .mapSingle(result => result.productsByIds),
+                );
+                const productsToUpdateIds = productsToUpdate
+                    .map(item => (item !== null ? item.id : null))
+                    .filter(item => item !== null);
+                parsed.forEach(item => {
+                    if (item.id && !productsToUpdateIds.includes(String(item.id))) {
+                        item.id = '';
+                    }
+                });
+                this.productsToUpdate = parsed.map(item => {
+                    return {
+                        name: item.name ? item.name : '',
+                        slug: item.slug ? item.slug : '',
+                        enabled: item.enabled?.toLocaleLowerCase() === 'true' ? true : false,
+                        id: String(item.id),
+                    };
+                });
+                console.log(this.productsToUpdate);
+                this.refresh();
+            } else {
+                this.notificationService.error(_('common.notify-delete-error'), {
+                    entity: 'Product',
+                });
+            }
+        }
+    }
+
+    parseCSV(file: File): Promise<Array<{ name?: string; slug?: string; enabled?: string; id?: ID }>> {
+        return new Promise((resolve, reject) => {
+            Papa.parse(file, {
+                complete: result => {
+                    resolve(
+                        result.data as Array<{ name?: string; slug?: string; enabled?: string; id?: ID }>,
+                    );
+                },
+                error: error => {
+                    reject(error);
+                },
+                header: true,
+                skipEmptyLines: 'greedy',
+            });
+        });
+    }
+
+    approveUpdates() {
+        const productsToUpdate = [...this.productsToUpdate];
+        this.dataService.product.createOrUpdateProducts(productsToUpdate).subscribe(
+            data => {
+                this.notificationService.success(_('common.notify-create-success'), {
+                    entity: 'Price Variant',
+                });
+                this.refresh();
+            },
+            err => {
+                this.notificationService.error(_('common.notify-create-error'), {
+                    entity: 'Price Variant',
+                });
+            },
+        );
+    }
+
+    rejectUpdates() {
+        this.productsToUpdate.length = 0;
+        console.log('rejected');
     }
 }

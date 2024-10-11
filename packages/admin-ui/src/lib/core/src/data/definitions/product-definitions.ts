@@ -919,3 +919,21 @@ export const GET_CATEGORY_LIST = gql`
         }
     }
 `;
+
+export const GET_PRODUCTS_BY_IDS = gql`
+    query GetProductsByIds($productIds: [ID]!) {
+        productsByIds(productIds: $productIds) {
+            ...ProductForList
+        }
+    }
+    ${PRODUCT_FOR_LIST_FRAGMENT}
+`;
+
+export const CREATE_OR_UPDATE_PRODUCTS = gql`
+    mutation CreateOrUpdateProducts($input: [CreateOrUpdateProductInput!]!) {
+        createOrUpdateProducts(input: $input) {
+            ...ProductForList
+        }
+    }
+    ${PRODUCT_FOR_LIST_FRAGMENT}
+`;
