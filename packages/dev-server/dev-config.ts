@@ -42,6 +42,10 @@ export const devConfig: VendureConfig = {
             },
         },
         shopApiDebug: true,
+        cors: {
+            origin: true,
+            credentials: true,
+        },
     },
     authOptions: {
         disableAuth: false,
