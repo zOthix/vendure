@@ -54,6 +54,7 @@ export const devConfig: VendureConfig = {
         customPermissions: [],
         cookieOptions: {
             secret: 'abc',
+            secure: false,
         },
     },
     dbConnectionOptions: {
