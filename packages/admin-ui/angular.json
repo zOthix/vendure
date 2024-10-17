@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "baseHref": "/admin/",
+            "baseHref": "/",
             "outputPath": "dist",
             "index": "src/lib/static/index.html",
             "main": "src/main.ts",
@@ -44,6 +44,7 @@
               "zen-observable",
               "lodash",
               "dayjs",
+              "papaparse",
               "apollo-upload-client",
               "@clr/icons",
               "@clr/icons/shapes/all-shapes",
