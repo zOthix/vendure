@@ -42,10 +42,6 @@ export const devConfig: VendureConfig = {
             },
         },
         shopApiDebug: true,
-        cors: {
-            origin: true,
-            credentials: true,
-        },
     },
     authOptions: {
         disableAuth: false,
@@ -54,7 +50,6 @@ export const devConfig: VendureConfig = {
         customPermissions: [],
         cookieOptions: {
             secret: 'abc',
-            secure: false,
         },
     },
     dbConnectionOptions: {
@@ -130,6 +125,16 @@ export const devConfig: VendureConfig = {
 };
 
 function getDbConfig(): DataSourceOptions {
+    return {
+        synchronize: false,
+        type: 'postgres',
+        host: process.env.DB_HOST || 'localhost',
+        port: Number(process.env.DB_PORT) || 5432,
+        username: process.env.DB_USERNAME || 'postgres',
+        password: process.env.DB_PASSWORD || 'postgres',
+        database: process.env.DB_NAME || 'vendure',
+        schema: process.env.DB_SCHEMA || 'public',
+    };
     const dbType = process.env.DB || 'mysql';
     switch (dbType) {
         case 'postgres':
