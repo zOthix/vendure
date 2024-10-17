@@ -1,0 +1,7 @@
+services:
+  frontend:
+    image: admin-ui
+    build: .
+    ports:
+      - "4091:80"
+    restart: "always"
