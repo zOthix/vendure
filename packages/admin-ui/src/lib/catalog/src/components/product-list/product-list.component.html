@@ -15,7 +15,7 @@
                 (click)="fileInput.click()"
             >
                 <clr-icon shape="plus"></clr-icon>
-                Add via CSV
+                {{ 'catalog.add-via-csv' | translate }}
             </a>
             <input
                 id="fileid"
@@ -43,7 +43,7 @@
     </vdr-action-bar>
 </vdr-page-block>
 <div id="csv-preview-container" *ngIf="productsToUpdate.length > 0">
-    <h4>Preview</h4>
+    <h4>{{ 'asset.preview' | translate }}</h4>
     <vdr-data-table-2 class="mt-2" id="product-list-preview-update" [items]="productsToUpdate">
         <vdr-dt2-column [heading]="'common.id' | translate" id="id" [hiddenByDefault]="false">
             <ng-template let-product="item">
@@ -73,17 +73,17 @@
         <vdr-dt2-column [heading]="'common.update-or-create' | translate" id="update-or-create">
             <ng-template let-product="item">
                 <ng-container *ngIf="product.id; else createTemplate">
-                    <vdr-chip colorType="warning"> Update </vdr-chip>
+                    <vdr-chip colorType="warning">{{ 'common.update' | translate }}</vdr-chip>
                 </ng-container>
                 <ng-template #createTemplate>
-                    <vdr-chip colorType="success"> Create </vdr-chip>
+                    <vdr-chip colorType="success">{{ 'common.create' | translate }}</vdr-chip>
                 </ng-template>
             </ng-template>
         </vdr-dt2-column>
     </vdr-data-table-2>
     <div class="preview-btn-container">
-        <button class="button primary" (click)="approveUpdates()">Approve</button>
-        <button class="button danger" (click)="rejectUpdates()">Reject</button>
+        <button class="button primary" (click)="approveUpdates()">{{ 'common.approve' | translate }}</button>
+        <button class="button danger" (click)="rejectUpdates()">{{'common.reject' | translate }}</button>
     </div>
 </div>
 <vdr-data-table-2

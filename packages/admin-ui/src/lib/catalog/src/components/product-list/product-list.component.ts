@@ -13,6 +13,7 @@ import {
     ProductListQueryDocument,
     TypedBaseListComponent,
 } from '@vendure/admin-ui/core';
+import { ID } from '@vendure/common/lib/shared-types';
 import { EMPTY, firstValueFrom, lastValueFrom } from 'rxjs';
 import { delay, switchMap } from 'rxjs/operators';
 
@@ -206,7 +207,7 @@ export class ProductListComponent
                         id: String(item.id),
                     };
                 });
-                console.log(this.productsToUpdate);
+                input.value = '';
                 this.refresh();
             } else {
                 this.notificationService.error(_('common.notify-delete-error'), {
@@ -237,21 +238,21 @@ export class ProductListComponent
         const productsToUpdate = [...this.productsToUpdate];
         this.dataService.product.createOrUpdateProducts(productsToUpdate).subscribe(
             data => {
-                this.notificationService.success(_('common.notify-create-success'), {
-                    entity: 'Price Variant',
+                this.notificationService.success(_('common.notify-create-update-success'), {
+                    entity: 'Products',
                 });
+                this.productsToUpdate = [];
                 this.refresh();
             },
             err => {
-                this.notificationService.error(_('common.notify-create-error'), {
-                    entity: 'Price Variant',
+                this.notificationService.error(_('common.notify-create-update-error'), {
+                    entity: 'Products',
                 });
             },
         );
     }
 
     rejectUpdates() {
-        this.productsToUpdate.length = 0;
-        console.log('rejected');
+        this.productsToUpdate = [];
     }
 }
