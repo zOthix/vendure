@@ -63,6 +63,7 @@
     "add-price-in-another-currency": "הוסף מחיר במטבע אחר",
     "add-stock-location": "הוסף מיקום מלאי",
     "add-stock-to-location": "הוסף מלאי למיקום",
+
     "add-via-csv": "הוסף באמצעות CSV",
     "asset": "נכס",
     "asset-preview-links": "קישורי תצוגה מקדימה של הנכס",
@@ -136,6 +137,9 @@
     "notify-remove-product-from-channel-success": "המוצר הוסר בהצלחה מהערוץ",
     "notify-remove-variant-from-channel-error": "לא הצלחנו להסיר את וריאנט המוצר מהערוץ",
     "notify-remove-variant-from-channel-success": "וריאנט המוצר הוסר בהצלחה מהערוץ",
+    "notify-invalid-row-error": "אירעה שגיאה, השורה {row} חסרה את השדה {column}",
+    "notify-invalid-headers-error": "אירעה שגיאה, השורה {row} חסרה את השדה {column}",
+    "notify-invalid-file-error": "אירעה שגיאה, הקובץ צריך להיות מסוג {fileType}",
     "number-of-variants": "# וריאנטים",
     "option": "אפשרות",
     "option-name": "שם האפשרות",
