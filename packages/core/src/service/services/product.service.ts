@@ -10,6 +10,7 @@ import {
     RemoveProductsFromChannelInput,
     UpdateProductInput,
     CreateOrUpdateProductInput,
+    CreateProductVariantInput,
 } from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 import { unique } from '@vendure/common/lib/unique';
@@ -303,7 +304,22 @@ export class ProductService {
                     },
                 ],
             };
-            return await this.create(ctx, createInput);
+            const product = await this.create(ctx, createInput);
+            if (input.productVariantName) {
+                const productVariant: CreateProductVariantInput = {
+                    productId: product.id,
+                    price: input.productVariantPrice || 0,
+                    sku: input.productVariantSKU || '',
+                    translations: [
+                        {
+                            languageCode: ctx.languageCode,
+                            name: input.productVariantName,
+                        },
+                    ],
+                };
+                await this.productVariantService.create(ctx, [productVariant]);
+            }
+            return assertFound(this.findOne(ctx, product.id));
         }
     }
 
