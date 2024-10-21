@@ -274,25 +274,32 @@ export class ProductService {
         if (input.id) {
             const updateInput: UpdateProductInput = {
                 id: input.id,
-                enabled: input.enabled ?? true,
+                enabled: input.enabled,
+                assetIds: input.assetIds,
+                facetValueIds: input.facetValueIds,
+                featuredAssetId: input.featuredAssetId,
                 translations: [
                     {
                         languageCode: ctx.languageCode,
                         name: input.name,
                         slug: input.slug,
+                        description: input.description,
                     },
                 ],
             };
             return await this.update(ctx, updateInput);
         } else {
             const createInput: CreateProductInput = {
+                assetIds: input.assetIds ?? [],
+                facetValueIds: input.facetValueIds ?? [],
+                featuredAssetId: input.featuredAssetId ?? '',
                 enabled: input.enabled ?? true,
                 translations: [
                     {
                         languageCode: ctx.languageCode,
                         name: input.name,
                         slug: input.slug,
-                        description: '',
+                        description: input.description,
                     },
                 ],
             };

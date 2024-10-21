@@ -22,6 +22,10 @@ interface Row {
     slug?: string;
     enabled?: string;
     id?: ID;
+    description?: string;
+    assetIds?: string;
+    facetValueIds?: string;
+    featuredAssetId: ID;
 }
 
 @Component({
@@ -251,7 +255,16 @@ export class ProductListComponent
     }
 
     private validateHeaders(firstRow: Row): boolean {
-        const requiredHeaders: Array<keyof Row> = ['id', 'name', 'slug', 'enabled'];
+        const requiredHeaders: Array<keyof Row> = [
+            'id',
+            'name',
+            'slug',
+            'enabled',
+            'assetIds',
+            'description',
+            'facetValueIds',
+            'featuredAssetId',
+        ];
         const headersFromFile = Object.keys(firstRow);
         for (const header of requiredHeaders) {
             if (!headersFromFile.includes(header)) {
@@ -277,6 +290,10 @@ export class ProductListComponent
             item.name = item.name || '';
             item.slug = item.slug || '';
             item.enabled = item.enabled?.toLocaleLowerCase() === 'true' ? 'true' : 'false';
+            item.description = item.description || '';
+            item.facetValueIds = item.facetValueIds || '';
+            item.assetIds = item.assetIds || '';
+            item.featuredAssetId = item.featuredAssetId || '';
         }
         return true;
     }
@@ -294,11 +311,17 @@ export class ProductListComponent
                 item.id = '';
             }
         });
-        this.productsToUpdate = parsed.map(item => ({
-            name: item.name || '',
-            slug: item.slug || '',
-            enabled: item.enabled?.toLowerCase() === 'true',
-            id: String(item.id),
-        }));
+        this.productsToUpdate = parsed.map(item => {
+            return {
+                name: item.name || '',
+                slug: item.slug || '',
+                enabled: item.enabled?.toLowerCase() === 'true',
+                id: String(item.id),
+                description: item.description || '',
+                featuredAssetId: String(item.featuredAssetId) || '',
+                assetIds: item.assetIds?.split(',') || [],
+                facetValueIds: item.facetValueIds?.split(','),
+            };
+        });
     }
 }
