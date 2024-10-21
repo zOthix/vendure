@@ -212,7 +212,8 @@ export class ProductListComponent
         if (!this.validateRows(parsed)) {
             return;
         }
-        await this.setUpdateProducts(parsed);
+        const uniqueRows = this.getUniqueRows(parsed);
+        await this.setUpdateProducts(uniqueRows);
         input.value = '';
         this.refresh();
     }
@@ -230,6 +231,34 @@ export class ProductListComponent
                 skipEmptyLines: 'greedy',
             });
         });
+    }
+
+    createOrUpdate(row: CreateOrUpdateProductInput) {
+        const productsToUpdate = [...this.productsToUpdate];
+        const productToUpdateIndex = productsToUpdate.findIndex(
+            item => JSON.stringify(item) === JSON.stringify(row),
+        );
+        if (productToUpdateIndex === -1) {
+            return this.notificationService.error(_('common.notify-create-update-error'), {
+                entity: 'Product',
+            });
+        }
+        const productToUpdate = productsToUpdate[productToUpdateIndex];
+        this.dataService.product.createOrUpdateProducts([productToUpdate]).subscribe(
+            data => {
+                this.notificationService.success(_('common.notify-create-update-success'), {
+                    entity: 'Product',
+                });
+                productsToUpdate.splice(productToUpdateIndex, 1);
+                this.productsToUpdate = [...productsToUpdate];
+                this.refresh();
+            },
+            err => {
+                this.notificationService.error(_('common.notify-create-update-error'), {
+                    entity: 'Product',
+                });
+            },
+        );
     }
 
     approveUpdates() {
@@ -277,6 +306,25 @@ export class ProductListComponent
         return true;
     }
 
+    private getUniqueRows(parsed: Row[]): Row[] {
+        const map = new Set();
+        const rows: Row[] = [];
+        parsed.forEach(item => {
+            if (item.id) {
+                if (!map.has(item.id)) {
+                    map.add(item.id);
+                    rows.push(item);
+                }
+            } else {
+                if (!map.has(item.name)) {
+                    map.add(item.name);
+                    rows.push(item);
+                }
+            }
+        });
+        return rows;
+    }
+
     private validateRows(parsed: Row[]): boolean {
         for (const [index, item] of parsed.entries()) {
             if (!item.name) {
@@ -286,14 +334,6 @@ export class ProductListComponent
                 });
                 return false;
             }
-            item.id = item.id || '';
-            item.name = item.name || '';
-            item.slug = item.slug || '';
-            item.enabled = item.enabled?.toLocaleLowerCase() === 'true' ? 'true' : 'false';
-            item.description = item.description || '';
-            item.facetValueIds = item.facetValueIds || '';
-            item.assetIds = item.assetIds || '';
-            item.featuredAssetId = item.featuredAssetId || '';
         }
         return true;
     }
