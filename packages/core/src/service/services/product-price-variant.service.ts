@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { MutationCreatePriceVariantArgs, UpdatePriceVariantInput } from '@vendure/common/lib/generated-types';
+import {
+    MutationCreatePriceVariantArgs,
+    PriceVariantInput,
+    UpdatePriceVariantInput,
+} from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../api/common/request-context';
@@ -10,6 +14,8 @@ import { ProductVariantPriceToPriceVariant } from '../../entity/product-variant/
 import { ProductVariantPriceVariant } from '../../entity/product-variant/product-variant-price-variant.entity';
 import { ListQueryBuilder } from '../helpers/list-query-builder/list-query-builder';
 import { ProductPriceApplicator } from '../helpers/product-price-applicator/product-price-applicator';
+
+import { ProductVariantService } from './product-variant.service';
 
 /**
  * @description
@@ -23,6 +29,7 @@ export class ProductPriceVariantService {
         private connection: TransactionalConnection,
         private listQueryBuilder: ListQueryBuilder,
         private productPriceApplicator: ProductPriceApplicator,
+        private productVariantService: ProductVariantService,
     ) {}
 
     async findOne(ctx: RequestContext, input: ID): Promise<ProductVariantPriceVariant | null> {
@@ -47,6 +54,39 @@ export class ProductPriceVariantService {
                     totalItems,
                 };
             });
+    }
+
+    async updatePriceVariantsForProductVariant(
+        ctx: RequestContext,
+        productVariantId: ID,
+        priceVariants: PriceVariantInput[],
+    ) {
+        const productVariant = await this.productVariantService.findOne(ctx, productVariantId);
+        if (!productVariant) {
+            return;
+        }
+        const productVariantPrice = productVariant.productVariantPrices.find(
+            i => i.channelId === ctx.channelId,
+        );
+        if (!productVariantPrice) {
+            return;
+        }
+        const attached: ID[] = [];
+        const variants: ProductVariantPriceToPriceVariant[] = [];
+        const allPriceVariants = await this.connection.getRepository(ctx, ProductVariantPriceVariant).find();
+        priceVariants.forEach(item => {
+            const productVariantPriceVariant = allPriceVariants.find(i => i.id === item.id);
+            if (productVariantPriceVariant && !attached.includes(productVariantPriceVariant.id)) {
+                attached.push(productVariantPriceVariant.id);
+                const variant = new ProductVariantPriceToPriceVariant({
+                    price: item.price,
+                    productVariantPrice,
+                    productVariantPriceVariant,
+                });
+                variants.push(variant);
+            }
+        });
+        await this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(variants);
     }
 
     async create(

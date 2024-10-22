@@ -124,6 +124,13 @@ input CreateOrUpdateProductInput {
     productVariantName: String
     productVariantSKU: String
     productVariantPrice: Money
+    priceVariants: [PriceVariantInput]
+}
+
+input PriceVariantInput {
+    id: ID!
+    name: String!
+    price: Money!
 }
 
 input ProductVariantTranslationInput {

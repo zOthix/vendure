@@ -45,6 +45,7 @@ import { AssetService } from './asset.service';
 import { ChannelService } from './channel.service';
 import { FacetValueService } from './facet-value.service';
 import { ProductOptionGroupService } from './product-option-group.service';
+import { ProductPriceVariantService } from './product-price-variant.service';
 import { ProductVariantService } from './product-variant.service';
 
 /**
@@ -70,6 +71,7 @@ export class ProductService {
         private customFieldRelationService: CustomFieldRelationService,
         private translator: TranslatorService,
         private productOptionGroupService: ProductOptionGroupService,
+        private productPriceVariantService: ProductPriceVariantService,
     ) {}
 
     async findAll(
@@ -317,7 +319,12 @@ export class ProductService {
                         },
                     ],
                 };
-                await this.productVariantService.create(ctx, [productVariant]);
+                const createdVariants = await this.productVariantService.create(ctx, [productVariant]);
+                await this.productPriceVariantService.updatePriceVariantsForProductVariant(
+                    ctx,
+                    createdVariants[0].id,
+                    input.priceVariants ?? [],
+                );
             }
             return assertFound(this.findOne(ctx, product.id));
         }
