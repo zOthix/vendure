@@ -850,9 +850,17 @@ export type CreateGroupOptionInput = {
 };
 
 export type CreateOrUpdateProductInput = {
+  assetIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  description?: InputMaybe<Scalars['String']['input']>;
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  facetValueIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  featuredAssetId?: InputMaybe<Scalars['ID']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
   name: Scalars['String']['input'];
+  priceVariants?: InputMaybe<Array<InputMaybe<PriceVariantInput>>>;
+  productVariantName?: InputMaybe<Scalars['String']['input']>;
+  productVariantPrice?: InputMaybe<Scalars['Money']['input']>;
+  productVariantSKU?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
 };
 
@@ -4607,6 +4615,12 @@ export type PriceRange = {
   __typename?: 'PriceRange';
   max: Scalars['Money']['output'];
   min: Scalars['Money']['output'];
+};
+
+export type PriceVariantInput = {
+  id: Scalars['ID']['input'];
+  name: Scalars['String']['input'];
+  price: Scalars['Money']['input'];
 };
 
 export type Product = Node & {

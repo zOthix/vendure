@@ -8,15 +8,21 @@
             ></vdr-language-selector>
         </vdr-ab-left>
         <vdr-ab-right>
-            <vdr-action-bar-items locationId="product-list"></vdr-action-bar-items>
-            <a
-                class="button primary mr-1"
-                *vdrIfPermissions="['CreateCatalog', 'CreateProduct']"
-                (click)="fileInput.click()"
-            >
-                <clr-icon shape="plus"></clr-icon>
-                {{ 'catalog.add-via-csv' | translate }}
-            </a>
+            <vdr-dropdown *vdrIfPermissions="['CreateCatalog', 'CreateProduct']">
+                <button class="btn btn-secondary btn-sm mr-1" vdrDropdownTrigger>
+                    <clr-icon shape="plus"></clr-icon>
+                    {{ 'catalog.add-via-csv' | translate }}
+                    <clr-icon shape="ellipsis-vertical"></clr-icon>
+                </button>
+                <vdr-dropdown-menu vdrPosition="bottom-right">
+                    <button vdrDropdownItem (click)="fileInput.click()">
+                        {{ 'common.upload-csv' | translate }}
+                    </button>
+                    <button vdrDropdownItem (click)="downloadTemplate()">
+                        {{ 'common.download-template' | translate }}
+                    </button>
+                </vdr-dropdown-menu>
+            </vdr-dropdown>
             <input
                 id="fileid"
                 type="file"
@@ -70,20 +76,55 @@
                 }}</vdr-chip>
             </ng-template>
         </vdr-dt2-column>
-        <vdr-dt2-column [heading]="'common.update-or-create' | translate" id="update-or-create">
+        <vdr-dt2-column [heading]="'common.description' | translate" id="description">
             <ng-template let-product="item">
-                <ng-container *ngIf="product.id; else createTemplate">
-                    <vdr-chip colorType="warning">{{ 'common.update' | translate }}</vdr-chip>
-                </ng-container>
-                <ng-template #createTemplate>
-                    <vdr-chip colorType="success">{{ 'common.create' | translate }}</vdr-chip>
+                {{ product.description }}
+            </ng-template>
+        </vdr-dt2-column>
+        <vdr-dt2-column [heading]="'catalog.assets' | translate" id="assetIds">
+            <ng-template let-product="item">
+                {{ product.assetIds }}
+            </ng-template>
+        </vdr-dt2-column>
+        <vdr-dt2-column [heading]="'catalog.featured-asset' | translate" id="featuredAssetId">
+            <ng-template let-product="item">
+                {{ product.featuredAssetId }}
+            </ng-template>
+        </vdr-dt2-column>
+        <vdr-dt2-column [heading]="'catalog.facet-values' | translate" id="facetValueIds">
+            <ng-template let-product="item">
+                {{ product.facetValueIds }}
+            </ng-template>
+        </vdr-dt2-column>
+        <ng-container *ngFor="let variant of priceVariants">
+            <vdr-dt2-column [heading]="variant.name" [id]="variant.id">
+                <ng-template let-product="item">
+                    {{ getPriceById(product.priceVariants, variant.id) }}
                 </ng-template>
+            </vdr-dt2-column>
+        </ng-container>
+        <vdr-dt2-column
+            [heading]="'common.confirm' | translate"
+            id="approve-or-reject-btn"
+            [optional]="false"
+        >
+            <ng-template let-product="item">
+                <button class="button-small bg-weight-150" [disabled]="" (click)="createOrUpdate(product)">
+                    <ng-container *ngIf="product.id; else createTemplate">
+                        {{ 'common.update' | translate }}
+                        <clr-icon shape="pencil"></clr-icon>
+                    </ng-container>
+                    <ng-template #createTemplate>
+                        {{ 'common.create' | translate }}
+                        <clr-icon shape="check"></clr-icon>
+                    </ng-template>
+                </button>
             </ng-template>
         </vdr-dt2-column>
     </vdr-data-table-2>
     <div class="preview-btn-container">
         <button class="button primary" (click)="approveUpdates()">{{ 'common.approve' | translate }}</button>
-        <button class="button danger" (click)="rejectUpdates()">{{'common.reject' | translate }}</button>
+        <button class="button danger" (click)="rejectUpdates()">{{ 'common.reject' | translate }}</button>
     </div>
 </div>
 <vdr-data-table-2

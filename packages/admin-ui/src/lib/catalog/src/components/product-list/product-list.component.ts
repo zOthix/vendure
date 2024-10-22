@@ -10,7 +10,9 @@ import {
     LogicalOperator,
     ModalService,
     NotificationService,
+    PriceVariantInput,
     ProductListQueryDocument,
+    ProductVariantPriceVariant,
     TypedBaseListComponent,
 } from '@vendure/admin-ui/core';
 import { ID } from '@vendure/common/lib/shared-types';
@@ -26,6 +28,10 @@ interface Row {
     assetIds?: string;
     facetValueIds?: string;
     featuredAssetId: ID;
+    productVariantName?: string;
+    productVariantSKU?: string;
+    productVariantPrice?: number;
+    [key: string]: any;
 }
 
 @Component({
@@ -38,6 +44,7 @@ export class ProductListComponent
     implements OnInit
 {
     productsToUpdate: CreateOrUpdateProductInput[] = [];
+    priceVariants: ProductVariantPriceVariant[] = [];
     pendingSearchIndexUpdates = 0;
     readonly customFields = this.getCustomFieldConfig('Product');
     readonly filters = this.createFilterCollection()
@@ -283,8 +290,14 @@ export class ProductListComponent
         this.productsToUpdate = [];
     }
 
-    private validateHeaders(firstRow: Row): boolean {
-        const requiredHeaders: Array<keyof Row> = [
+    getPriceById(priceVariants: PriceVariantInput[], variantId: ID): number | undefined {
+        console.log(priceVariants);
+        const variant = priceVariants.find(v => v.id === variantId);
+        return variant ? variant.price : undefined;
+    }
+
+    async downloadTemplate() {
+        const headers: string[] = [
             'id',
             'name',
             'slug',
@@ -293,6 +306,45 @@ export class ProductListComponent
             'description',
             'facetValueIds',
             'featuredAssetId',
+            'productVariantName',
+            'productVariantSKU',
+            'productVariantPrice',
+        ];
+        const priceVariants = await firstValueFrom(
+            this.dataService.product.getPriceVariantList().mapSingle(result => result.productPriceVariants),
+        );
+        if (priceVariants.items) {
+            priceVariants.items.forEach(item => {
+                headers.push(item.name);
+            });
+        }
+        const filename = 'products.csv';
+        const csvContent = headers.join(',') + '\n';
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    private validateHeaders(firstRow: Row): boolean {
+        const requiredHeaders = [
+            'id',
+            'name',
+            'slug',
+            'enabled',
+            'assetIds',
+            'description',
+            'facetValueIds',
+            'featuredAssetId',
+            'productVariantSKU',
+            'productVariantName',
+            'productVariantPrice',
         ];
         const headersFromFile = Object.keys(firstRow);
         for (const header of requiredHeaders) {
@@ -334,6 +386,22 @@ export class ProductListComponent
                 });
                 return false;
             }
+            if (item.productVariantName) {
+                if (!item.productVariantPrice) {
+                    this.notificationService.error(_('common.notify-invalid-row-error'), {
+                        row: index + 1,
+                        column: '"productVariantPrice"',
+                    });
+                    return false;
+                }
+                if (!item.productVariantSKU) {
+                    this.notificationService.error(_('common.notify-invalid-row-error'), {
+                        row: index + 1,
+                        column: '"productVariantSKU"',
+                    });
+                    return false;
+                }
+            }
         }
         return true;
     }
@@ -343,6 +411,10 @@ export class ProductListComponent
         const productsToUpdate = await firstValueFrom(
             this.dataService.product.getProductsByIds(productIds).mapSingle(result => result.productsByIds),
         );
+        const priceVariants = await firstValueFrom(
+            this.dataService.product.getPriceVariantList().mapSingle(result => result.productPriceVariants),
+        );
+        this.priceVariants = priceVariants.items as ProductVariantPriceVariant[];
         const productsToUpdateIds = productsToUpdate
             .map(item => (item !== null ? item.id : null))
             .filter(item => item !== null);
@@ -352,15 +424,30 @@ export class ProductListComponent
             }
         });
         this.productsToUpdate = parsed.map(item => {
+            const variants: PriceVariantInput[] = [];
+            priceVariants.items.forEach(i => {
+                if (!isNaN(item[i.name]) && Number(item[i.name]) !== 0) {
+                    variants.push({
+                        name: i.name,
+                        id: i.id,
+                        price: Number(item[i.name]),
+                    });
+                }
+            });
+            console.log(variants);
             return {
-                name: item.name || '',
-                slug: item.slug || '',
+                name: item.name ?? '',
+                slug: item.slug ?? '',
                 enabled: item.enabled?.toLowerCase() === 'true',
                 id: String(item.id),
-                description: item.description || '',
-                featuredAssetId: String(item.featuredAssetId) || '',
-                assetIds: item.assetIds?.split(',') || [],
+                description: item.description ?? '',
+                featuredAssetId: String(item.featuredAssetId) ?? '',
+                assetIds: item.assetIds?.split(','),
                 facetValueIds: item.facetValueIds?.split(','),
+                productVariantName: item.productVariantName,
+                productVariantPrice: Number(item.productVariantPrice),
+                productVariantSKU: item.productVariantSKU,
+                priceVariants: variants,
             };
         });
     }
