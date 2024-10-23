@@ -249,19 +249,7 @@ export class OrderService {
 
         const order = await qb.getOne();
         if (order) {
-            if (effectiveRelations.includes('lines.productVariant')) {
-                for (const line of order.lines) {
-                    const variant = (await this.productVariantService.findOne(ctx, line.productVariantId, [
-                        'productVariantPrices.productVariantPriceVariant',
-                    ])) as ProductVariant;
-                    line.productVariant = this.translator.translate(
-                        await this.productVariantService.applyChannelPriceAndTax(variant, ctx, order),
-                        ctx,
-                    );
-                    line.listPrice = line.productVariant.listPrice;
-                }
-            }
-            return order;
+            return this.applyPriceAdjustments(ctx, order, order.lines, false);
         }
     }
 
@@ -1730,6 +1718,7 @@ export class OrderService {
         ctx: RequestContext,
         order: Order,
         updatedOrderLines?: OrderLine[],
+        assertFind = true,
     ): Promise<Order> {
         const promotions = await this.promotionService.getActivePromotionsInChannel(ctx);
         const activePromotionsPre = await this.promotionService.getActivePromotionsOnOrder(ctx, order.id);
@@ -1791,7 +1780,9 @@ export class OrderService {
         await this.connection.getRepository(ctx, OrderLine).save(updatedOrder.lines, { reload: false });
         await this.connection.getRepository(ctx, ShippingLine).save(order.shippingLines, { reload: false });
         await this.promotionService.runPromotionSideEffects(ctx, order, activePromotionsPre);
-
+        if (!assertFind) {
+            return order;
+        }
         return assertFound(this.findOne(ctx, order.id));
     }
 }
