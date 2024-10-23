@@ -170,6 +170,7 @@ export class CustomerService {
             .createQueryBuilder('customer')
             .leftJoin('customer.channels', 'channel')
             .leftJoinAndSelect('customer.user', 'user')
+            .leftJoinAndSelect('customer.priceVariant', 'priceVariant')
             .where('user.id = :userId', { userId })
             .andWhere('customer.deletedAt is null');
         if (filterOnChannel) {

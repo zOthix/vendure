@@ -18,6 +18,8 @@ type Customer implements Node {
     accountingPhone: String!
     accountingEmail: String!
     payWithoutCreditCard: Boolean
+    priceVariant: ProductVariantPriceVariant
+    category: Collection
 }
 
 type CustomerList implements PaginatedList {

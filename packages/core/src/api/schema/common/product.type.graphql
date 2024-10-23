@@ -68,3 +68,8 @@ type ProductVariantTranslation {
     languageCode: LanguageCode!
     name: String!
 }
+
+type ProductVariantPriceVariant implements Node {
+    id: ID!
+    name: String!
+}

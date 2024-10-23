@@ -119,6 +119,7 @@ export class CustomerUnapprovedListComponent
                 this.notificationService.success(_('common.notify-approve-customer-success'), {
                     user: `${customerFirstName} ${customerLastName}`,
                 });
+                this.refresh();
             },
             err => {
                 this.notificationService.error(_('common.notify-approve-customer-error'), {
