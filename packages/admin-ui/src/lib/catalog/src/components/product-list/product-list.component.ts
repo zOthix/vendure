@@ -306,7 +306,6 @@ export class ProductListComponent
     }
 
     formatPrice(price: number): string {
-        console.log(price);
         if (!price || isNaN(Number(price))) {
             return '';
         }
