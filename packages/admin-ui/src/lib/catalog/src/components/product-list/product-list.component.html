@@ -103,7 +103,7 @@
         </vdr-dt2-column>
         <vdr-dt2-column [heading]="'catalog.product-variant-price' | translate" id="productVariantPrice">
             <ng-template let-product="item">
-                {{ product.productVariantPrice }}
+                {{ formatPrice(product.productVariantPrice) }}
             </ng-template>
         </vdr-dt2-column>
         <vdr-dt2-column [heading]="'catalog.product-variant-sku' | translate" id="productVariantSKU">

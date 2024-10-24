@@ -302,7 +302,15 @@ export class ProductListComponent
         if (!variant) {
             return undefined;
         }
-        return `$${variant.price / 100}`;
+        return this.formatPrice(variant.price);
+    }
+
+    formatPrice(price: number): string {
+        console.log(price);
+        if (!price || isNaN(Number(price))) {
+            return '';
+        }
+        return `$${price / 100}`;
     }
 
     async downloadTemplate() {
