@@ -96,6 +96,21 @@
                 {{ product.facetValueIds }}
             </ng-template>
         </vdr-dt2-column>
+        <vdr-dt2-column [heading]="'catalog.product-variant-name' | translate" id="productVariantName">
+            <ng-template let-product="item">
+                {{ product.productVariantName }}
+            </ng-template>
+        </vdr-dt2-column>
+        <vdr-dt2-column [heading]="'catalog.product-variant-price' | translate" id="productVariantPrice">
+            <ng-template let-product="item">
+                {{ product.productVariantPrice }}
+            </ng-template>
+        </vdr-dt2-column>
+        <vdr-dt2-column [heading]="'catalog.product-variant-sku' | translate" id="productVariantSKU">
+            <ng-template let-product="item">
+                {{ product.productVariantSKU }}
+            </ng-template>
+        </vdr-dt2-column>
         <ng-container *ngFor="let variant of priceVariants">
             <vdr-dt2-column [heading]="variant.name" [id]="variant.id">
                 <ng-template let-product="item">

@@ -203,6 +203,7 @@ export class ProductListComponent
             this.notificationService.error(_('common.notify-invalid-file-error'), {
                 fileType: '"csv"',
             });
+            input.value = '';
             return;
         }
         const file: File = input.files[0];
@@ -210,13 +211,16 @@ export class ProductListComponent
             this.notificationService.error(_('common.notify-invalid-file-error'), {
                 fileType: '"csv"',
             });
+            input.value = '';
             return;
         }
         const parsed = await this.parseCSV(file);
         if (!this.validateHeaders(parsed[0])) {
+            input.value = '';
             return;
         }
         if (!this.validateRows(parsed)) {
+            input.value = '';
             return;
         }
         const uniqueRows = this.getUniqueRows(parsed);
@@ -291,8 +295,14 @@ export class ProductListComponent
     }
 
     getPriceById(priceVariants: PriceVariantInput[], variantId: ID): string | undefined {
+        if (!priceVariants) {
+            return undefined;
+        }
         const variant = priceVariants.find(v => v.id === variantId);
-        return variant ? `$${variant.price / 100}` : undefined;
+        if (!variant) {
+            return undefined;
+        }
+        return `$${variant.price / 100}`;
     }
 
     async downloadTemplate() {
@@ -378,34 +388,36 @@ export class ProductListComponent
 
     private validateRows(parsed: Row[]): boolean {
         for (const [index, item] of parsed.entries()) {
-            if (!item.name) {
-                this.notificationService.error(_('common.notify-invalid-row-error'), {
-                    row: index + 1,
-                    column: '"name"',
-                });
-                return false;
-            }
-            if (!item.id && !item.slug) {
-                this.notificationService.error(_('common.notify-invalid-row-error'), {
-                    row: index + 1,
-                    column: '"slug"',
-                });
-                return false;
-            }
-            if (item.productVariantName) {
-                if (!item.productVariantPrice) {
+            if (!item.id) {
+                if (!item.name) {
                     this.notificationService.error(_('common.notify-invalid-row-error'), {
                         row: index + 1,
-                        column: '"productVariantPrice"',
+                        column: '"name"',
                     });
                     return false;
                 }
-                if (!item.productVariantSKU) {
+                if (!item.slug) {
                     this.notificationService.error(_('common.notify-invalid-row-error'), {
                         row: index + 1,
-                        column: '"productVariantSKU"',
+                        column: '"slug"',
                     });
                     return false;
+                }
+                if (item.productVariantName) {
+                    if (!item.productVariantPrice) {
+                        this.notificationService.error(_('common.notify-invalid-row-error'), {
+                            row: index + 1,
+                            column: '"productVariantPrice"',
+                        });
+                        return false;
+                    }
+                    if (!item.productVariantSKU) {
+                        this.notificationService.error(_('common.notify-invalid-row-error'), {
+                            row: index + 1,
+                            column: '"productVariantSKU"',
+                        });
+                        return false;
+                    }
                 }
             }
         }
@@ -440,6 +452,35 @@ export class ProductListComponent
                     });
                 }
             });
+            if (item.id) {
+                const product = productsToUpdate.find(i => {
+                    if (item?.id === i?.id) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                if (product) {
+                    const assetIds = item.assetIds ? item.assetIds.split(',') : product.assets.map(i => i.id);
+                    const facetValueIds = item.facetValueIds
+                        ? item.facetValueIds.split(',')
+                        : product.facetValues.map(i => i.id);
+                    const featuredAssetId = item.featuredAssetId
+                        ? String(item.featuredAssetId)
+                        : product.featuredAsset?.id;
+                    const updatedProduct: CreateOrUpdateProductInput = {
+                        id: product.id,
+                        name: item.name || product.name,
+                        slug: item.slug || product.slug,
+                        enabled: item.enabled ? item.enabled.toLocaleLowerCase() === 'true' : product.enabled,
+                        description: item.description || product.description,
+                        featuredAssetId: featuredAssetId,
+                        assetIds: assetIds,
+                        facetValueIds: facetValueIds,
+                    };
+                    return updatedProduct;
+                }
+            }
             return {
                 name: item.name ?? '',
                 slug: item.slug ?? '',

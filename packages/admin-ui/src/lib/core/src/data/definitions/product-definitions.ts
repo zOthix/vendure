@@ -373,6 +373,7 @@ export const PRODUCT_FOR_LIST_FRAGMENT = gql`
         languageCode
         name
         slug
+        description
         featuredAsset {
             id
             createdAt
@@ -385,6 +386,12 @@ export const PRODUCT_FOR_LIST_FRAGMENT = gql`
         }
         variantList {
             totalItems
+        }
+        assets {
+            id
+        }
+        facetValues {
+            id
         }
     }
 `;
