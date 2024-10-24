@@ -385,6 +385,13 @@ export class ProductListComponent
                 });
                 return false;
             }
+            if (!item.id && !item.slug) {
+                this.notificationService.error(_('common.notify-invalid-row-error'), {
+                    row: index + 1,
+                    column: '"slug"',
+                });
+                return false;
+            }
             if (item.productVariantName) {
                 if (!item.productVariantPrice) {
                     this.notificationService.error(_('common.notify-invalid-row-error'), {
