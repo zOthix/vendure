@@ -292,6 +292,9 @@ export class ProductService {
             };
             return await this.update(ctx, updateInput);
         } else {
+            if (!input.name || !input.slug) {
+                throw new UserInputError('error.invalid-input');
+            }
             const createInput: CreateProductInput = {
                 assetIds: input.assetIds ?? [],
                 facetValueIds: input.facetValueIds ?? [],

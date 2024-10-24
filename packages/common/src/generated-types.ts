@@ -856,12 +856,12 @@ export type CreateOrUpdateProductInput = {
   facetValueIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   featuredAssetId?: InputMaybe<Scalars['ID']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   priceVariants?: InputMaybe<Array<InputMaybe<PriceVariantInput>>>;
   productVariantName?: InputMaybe<Scalars['String']['input']>;
   productVariantPrice?: InputMaybe<Scalars['Money']['input']>;
   productVariantSKU?: InputMaybe<Scalars['String']['input']>;
-  slug: Scalars['String']['input'];
+  slug?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreatePaymentMethodInput = {

@@ -290,10 +290,9 @@ export class ProductListComponent
         this.productsToUpdate = [];
     }
 
-    getPriceById(priceVariants: PriceVariantInput[], variantId: ID): number | undefined {
-        console.log(priceVariants);
+    getPriceById(priceVariants: PriceVariantInput[], variantId: ID): string | undefined {
         const variant = priceVariants.find(v => v.id === variantId);
-        return variant ? variant.price : undefined;
+        return variant ? `$${variant.price / 100}` : undefined;
     }
 
     async downloadTemplate() {
@@ -434,16 +433,15 @@ export class ProductListComponent
                     });
                 }
             });
-            console.log(variants);
             return {
                 name: item.name ?? '',
                 slug: item.slug ?? '',
                 enabled: item.enabled?.toLowerCase() === 'true',
                 id: String(item.id),
-                description: item.description ?? '',
-                featuredAssetId: String(item.featuredAssetId) ?? '',
-                assetIds: item.assetIds?.split(','),
-                facetValueIds: item.facetValueIds?.split(','),
+                description: item.description,
+                featuredAssetId: String(item.featuredAssetId),
+                assetIds: item.assetIds ? item.assetIds.split(',') : [],
+                facetValueIds: item.facetValueIds ? item.facetValueIds.split(',') : [],
                 productVariantName: item.productVariantName,
                 productVariantPrice: Number(item.productVariantPrice),
                 productVariantSKU: item.productVariantSKU,

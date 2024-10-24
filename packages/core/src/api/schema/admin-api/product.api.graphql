@@ -115,8 +115,8 @@ input UpdateProductInput {
 input CreateOrUpdateProductInput {
     id: ID
     enabled: Boolean
-    name: String!
-    slug: String!
+    name: String
+    slug: String
     description: String
     assetIds: [ID]
     facetValueIds: [ID]
