@@ -226,6 +226,10 @@ export class OrderService {
             'shippingLines',
             'surcharges',
         ];
+        if (effectiveRelations.includes('lines.productVariant')) {
+            effectiveRelations.push('lines.productVariant.productVariantPrices');
+            effectiveRelations.push('lines.productVariant.productVariantPrices.productVariantPriceVariant');
+        }
         if (
             relations &&
             effectiveRelations.includes('lines.productVariant') &&
@@ -249,7 +253,20 @@ export class OrderService {
 
         const order = await qb.getOne();
         if (order) {
-            return this.applyPriceAdjustments(ctx, order, order.lines, false);
+            if (effectiveRelations.includes('lines.productVariant')) {
+                for (const line of order.lines) {
+                    line.productVariant = this.translator.translate(
+                        await this.productVariantService.applyChannelPriceAndTax(
+                            line.productVariant,
+                            ctx,
+                            order,
+                        ),
+                        ctx,
+                    );
+                    line.listPrice = line.productVariant.price;
+                }
+            }
+            return order;
         }
     }
 
