@@ -13,6 +13,7 @@ import {
     VendureConfig,
 } from '@vendure/core';
 import { ElasticsearchPlugin } from '@vendure/elasticsearch-plugin';
+import { TranzilaPlugin } from '@vendure/payments-plugin/src/tranzila';
 import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
 import { BullMQJobQueuePlugin } from '@vendure/job-queue-plugin/package/bullmq';
 import 'dotenv/config';
@@ -68,6 +69,9 @@ export const devConfig: VendureConfig = {
         importAssetsDir: path.join(__dirname, 'import-assets'),
     },
     plugins: [
+        TranzilaPlugin.init({
+            vendureHost: 'http://localhost:3000',
+        }),
         // MultivendorPlugin.init({
         //     platformFeePercent: 10,
         //     platformFeeSKU: 'FEE',
