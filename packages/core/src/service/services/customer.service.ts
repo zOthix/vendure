@@ -384,17 +384,25 @@ export class CustomerService {
                 }
             }
         }
-        if (hasPriceVariant(input) && input.priceVariantId !== null) {
-            const priceVariantEntity = await this.connection.getEntityOrThrow(
-                ctx,
-                ProductVariantPriceVariant,
-                input.priceVariantId,
-            );
-            customer.priceVariant = priceVariantEntity;
+        if (hasPriceVariant(input)) {
+            if (input.priceVariantId === null) {
+                customer.priceVariant = null;
+            } else {
+                const priceVariantEntity = await this.connection.getEntityOrThrow(
+                    ctx,
+                    ProductVariantPriceVariant,
+                    input.priceVariantId,
+                );
+                customer.priceVariant = priceVariantEntity;
+            }
         }
-        if (hasCategory(input) && input.categoryId !== null) {
-            const category = await this.connection.getEntityOrThrow(ctx, Collection, input.categoryId);
-            customer.category = category;
+        if (hasCategory(input)) {
+            if (input.categoryId === null) {
+                customer.category = null;
+            } else {
+                const category = await this.connection.getEntityOrThrow(ctx, Collection, input.categoryId);
+                customer.category = category;
+            }
         }
 
         const updatedCustomer = patchEntity(customer, input);

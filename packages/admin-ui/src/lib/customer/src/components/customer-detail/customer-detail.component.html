@@ -178,6 +178,9 @@
                         *ngIf="!(isNew$ | async)"
                     >
                         <select id="priceVariant" formControlName="priceVariant">
+                            <option [value]="null">
+                                Default
+                            </option>
                             <option *ngFor="let variant of priceVariantOptions$ | async" [value]="variant.id">
                                 {{ variant.name }}
                             </option>
@@ -190,6 +193,9 @@
                         *ngIf="!(isNew$ | async)"
                     >
                         <select id="category" formControlName="category">
+                            <option [value]="null">
+                                Default
+                            </option>
                             <option *ngFor="let category of categories$ | async" [value]="category.id">
                                 {{ category.name }}
                             </option>

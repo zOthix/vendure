@@ -56,11 +56,11 @@ export class Customer extends VendureEntity implements ChannelAware, HasCustomFi
     @OneToMany(type => Order, order => order.customer)
     orders: Order[];
 
-    @ManyToOne(type => ProductVariantPriceVariant)
-    priceVariant?: ProductVariantPriceVariant;
+    @ManyToOne(type => ProductVariantPriceVariant, { nullable: true })
+    priceVariant?: ProductVariantPriceVariant | null;
 
-    @ManyToOne(type => Collection)
-    category?: Collection;
+    @ManyToOne(type => Collection, { nullable: true })
+    category?: Collection | null;
 
     @OneToOne(type => User, { eager: true })
     @JoinColumn()
