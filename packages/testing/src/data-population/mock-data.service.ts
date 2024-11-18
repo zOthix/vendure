@@ -39,6 +39,8 @@ export class MockDataService {
                 contactPersonPhone: '',
                 fax: '',
                 VAT: '',
+                address: '',
+                managerAddress: '',
             };
             const address: CreateAddressInput = {
                 fullName: `${firstName} ${lastName}`,
