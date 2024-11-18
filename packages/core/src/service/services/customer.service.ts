@@ -481,6 +481,15 @@ export class CustomerService {
             firstName: input.firstName || '',
             lastName: input.lastName || '',
             phoneNumber: input.phoneNumber || '',
+            accountingEmail: input.accountingEmail,
+            accountingPhone: input.accountingPhone,
+            businessName: input.businessName,
+            businessPhone: input.businessPhone,
+            contactPersonPhone: input.contactPersonPhone,
+            fax: input.fax,
+            VAT: input.vat,
+            address: input.address,
+            managerAddress: input.managerAddress,
             ...(customFields ? { customFields } : {}),
         });
         if (isGraphQlErrorResult(customer)) {

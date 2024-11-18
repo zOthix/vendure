@@ -807,6 +807,7 @@ export type CreateCustomerInput = {
   VAT: Scalars['String']['input'];
   accountingEmail: Scalars['String']['input'];
   accountingPhone: Scalars['String']['input'];
+  address: Scalars['String']['input'];
   businessName: Scalars['String']['input'];
   businessPhone: Scalars['String']['input'];
   contactPersonPhone: Scalars['String']['input'];
@@ -815,6 +816,7 @@ export type CreateCustomerInput = {
   fax: Scalars['String']['input'];
   firstName: Scalars['String']['input'];
   lastName: Scalars['String']['input'];
+  managerAddress: Scalars['String']['input'];
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };

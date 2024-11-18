@@ -157,6 +157,16 @@ input RegisterCustomerInput {
     lastName: String
     phoneNumber: String
     password: String
+    businessName: String!
+    vat: String!
+    address: String!
+    businessPhone: String!
+    contactPersonPhone: String!
+    fax: String!
+    accountingPhone: String!
+    accountingEmail: String!
+    managerAddress: String!
+    
 }
 
 input UpdateCustomerInput {
