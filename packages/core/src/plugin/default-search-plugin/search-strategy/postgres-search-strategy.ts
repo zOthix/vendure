@@ -142,6 +142,10 @@ export class PostgresSearchStrategy implements SearchStrategy {
                 qb.andWhere(":id = ANY(string_to_array(si.collectionIds, ','))", {
                     id: customer.category.id,
                 });
+            } else {
+                qb.andWhere(":id = ANY(string_to_array(si.collectionIds, ','))", {
+                    id: null,
+                });
             }
             if (!customer) {
                 qb.andWhere('1=0');
