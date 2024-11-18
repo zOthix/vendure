@@ -158,6 +158,20 @@
                         <input id="VAT" type="text" formControlName="VAT" />
                     </vdr-form-field>
                     <vdr-form-field
+                        [label]="'customer.address' | translate"
+                        for="address"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <input id="address" type="text" formControlName="address" />
+                    </vdr-form-field>
+                    <vdr-form-field
+                        [label]="'customer.managerAddress' | translate"
+                        for="managerAddress"
+                        [readOnlyToggle]="!(isNew$ | async)"
+                    >
+                        <input id="managerAddress" type="text" formControlName="managerAddress" />
+                    </vdr-form-field>
+                    <vdr-form-field
                         [label]="'customer.email-address' | translate"
                         for="emailAddress"
                         [readOnlyToggle]="!(isNew$ | async)"

@@ -453,6 +453,8 @@
     "update-customer-group": "עדכן קבוצת לקוחות",
     "vat": "מע\"מ / מספר חברה",
     "verified": "אומת",
+    "address": "כְּתוֹבֶת",
+    "managerAddress": "כתובת המנהל",
     "view-group-members": "הצג חברי הקבוצה"
   },
   "dashboard": {

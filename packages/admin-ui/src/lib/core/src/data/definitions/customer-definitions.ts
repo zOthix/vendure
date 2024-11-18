@@ -43,6 +43,8 @@ export const CUSTOMER_FRAGMENT = gql`
         contactPersonPhone
         fax
         VAT
+        address
+        managerAddress
         user {
             id
             identifier

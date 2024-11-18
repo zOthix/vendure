@@ -17,6 +17,8 @@ type Customer implements Node {
     fax: String!
     accountingPhone: String!
     accountingEmail: String!
+    address: String!
+    managerAddress: String!
     payWithoutCreditCard: Boolean
     priceVariant: ProductVariantPriceVariant
     category: Collection

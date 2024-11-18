@@ -453,6 +453,8 @@
     "update-customer-group": "Update customer group",
     "verified": "Verified",
     "vat": "VAT / Company number",
+    "address": "Address",
+    "managerAddress": "Manager address",
     "view-group-members": "View group members"
   },
   "dashboard": {

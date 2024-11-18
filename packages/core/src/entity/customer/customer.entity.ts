@@ -94,6 +94,12 @@ export class Customer extends VendureEntity implements ChannelAware, HasCustomFi
     @Column({ default: '' })
     accountingEmail: string;
 
+    @Column({ default: '' })
+    address: string;
+
+    @Column({ default: '' })
+    managerAddress: string;
+
     get priceVariantAndCategory() {
         return {
             priceVariant: this.priceVariant,

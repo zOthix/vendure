@@ -103,6 +103,8 @@ export class CustomerDetailComponent
             contactPersonPhone: ['', Validators.required],
             fax: ['', Validators.required],
             VAT: ['', Validators.required],
+            address: ['', Validators.required],
+            managerAddress: ['', Validators.required],
         }),
         addresses: new UntypedFormArray([]),
     });
@@ -256,6 +258,8 @@ export class CustomerDetailComponent
             contactPersonPhone,
             fax,
             VAT,
+            address,
+            managerAddress,
         } = customerForm.value;
         const customFields = customerForm.get('customFields')?.value;
         if (
@@ -268,7 +272,9 @@ export class CustomerDetailComponent
             !businessPhone ||
             !contactPersonPhone ||
             !fax ||
-            !VAT
+            !VAT ||
+            !address ||
+            !managerAddress
         ) {
             return;
         }
@@ -286,6 +292,8 @@ export class CustomerDetailComponent
             contactPersonPhone,
             fax,
             VAT,
+            address,
+            managerAddress,
         };
         this.dataService.customer.createCustomer(customer, password).subscribe(({ createCustomer }) => {
             switch (createCustomer.__typename) {
@@ -347,6 +355,8 @@ export class CustomerDetailComponent
                             contactPersonPhone: formValue.contactPersonPhone,
                             fax: formValue.fax,
                             VAT: formValue.VAT,
+                            address: formValue.address,
+                            managerAddress: formValue.managerAddress,
                         };
                         saveOperations.push(
                             this.dataService.customer
@@ -564,6 +574,8 @@ export class CustomerDetailComponent
                 contactPersonPhone: entity.contactPersonPhone,
                 fax: entity.fax,
                 VAT: entity.VAT,
+                address: entity.address,
+                managerAddress: entity.managerAddress,
             });
         }
 

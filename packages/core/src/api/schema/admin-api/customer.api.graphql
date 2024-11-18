@@ -51,6 +51,8 @@ input UpdateCustomerInput {
     fax: String
     accountingPhone: String
     accountingEmail: String
+    address: String
+    managerAddress: String
 }
 
 input CustomerFilterParameter {
