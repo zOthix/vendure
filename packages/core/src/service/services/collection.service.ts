@@ -189,24 +189,6 @@ export class CollectionService implements OnModuleInit {
             });
         }
 
-        if (ctx.apiType === 'shop' && ctx.activeUserId) {
-            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
-                ctx,
-                ctx.activeUserId,
-            );
-            if (customer && customer.category) {
-                return qb.getManyAndCount().then(async ([collections, totalItems]) => {
-                    const items = collections
-                        .filter(i => i.id === customer.category?.id)
-                        .map(collection => this.translator.translate(collection, ctx, ['parent']));
-                    return {
-                        items,
-                        totalItems,
-                    };
-                });
-            }
-        }
-
         return qb.getManyAndCount().then(async ([collections, totalItems]) => {
             const items = collections.map(collection =>
                 this.translator.translate(collection, ctx, ['parent']),
