@@ -49,6 +49,19 @@ export class ProductDetailService {
         createVariantsConfig: CreateProductVariantsConfig,
         languageCode: LanguageCode,
     ) {
+        let allVariantsAvailable = true;
+        createVariantsConfig.variants.forEach(variant => {
+            variant.priceVariants.forEach(item => {
+                if (!item.price || item.price === 0) {
+                    allVariantsAvailable = false;
+                }
+            });
+        });
+
+        if (!allVariantsAvailable) {
+            return throwError(() => new Error('All price variants required.'));
+        }
+
         const createProduct$ = this.dataService.product.createProduct(input);
         const nonEmptyOptionGroups = createVariantsConfig.groups.filter(g => 0 < g.values.length);
         const createOptionGroups$ = this.createProductOptionGroups(nonEmptyOptionGroups, languageCode);
