@@ -7,6 +7,7 @@ import {
     DeletionResult,
     GlobalFlag,
     Permission,
+    PriceVariantInput,
     ProductVariantFilterParameter,
     RemoveProductVariantsFromChannelInput,
     UpdateProductVariantInput,
@@ -32,6 +33,7 @@ import {
     OrderLine,
     ProductOptionGroup,
     ProductVariantPrice,
+    ProductVariantPriceVariant,
     TaxCategory,
 } from '../../entity';
 import { FacetValue } from '../../entity/facet-value/facet-value.entity';
@@ -413,6 +415,7 @@ export class ProductVariantService {
     }
 
     private async createSingle(ctx: RequestContext, input: CreateProductVariantInput): Promise<ID> {
+        await this.validateAllPriceVariants(ctx, input.priceVariants ?? []);
         await this.validateVariantOptionIds(ctx, input.productId, input.optionIds);
         if (!input.optionIds) {
             input.optionIds = [];
@@ -995,6 +998,19 @@ export class ProductVariantService {
                     });
                 }
             });
+    }
+
+    private async validateAllPriceVariants(ctx: RequestContext, priceVariants: PriceVariantInput[]) {
+        const variants = await this.connection.getRepository(ctx, ProductVariantPriceVariant).find();
+        priceVariants.forEach(priceVariant => {
+            const variant = variants.find(i => i.name === priceVariant.name);
+            if (!variant) {
+                throw new UserInputError('error.price-variant-required-error');
+            }
+            if (!priceVariant.price || priceVariant.price === 0) {
+                throw new UserInputError('error.price-variant-required-error');
+            }
+        });
     }
 
     private throwIncompatibleOptionsError(optionGroups: ProductOptionGroup[]) {
