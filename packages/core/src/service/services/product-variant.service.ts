@@ -463,18 +463,43 @@ export class ProductVariantService {
         }
 
         const defaultChannel = await this.channelService.getDefaultChannel(ctx);
-        await this.createOrUpdateProductVariantPrice(ctx, createdVariant.id, input.price, ctx.channelId);
+        const price = await this.createOrUpdateProductVariantPrice(
+            ctx,
+            createdVariant.id,
+            input.price,
+            ctx.channelId,
+        );
         if (!idsAreEqual(ctx.channelId, defaultChannel.id)) {
             // When creating a ProductVariant _not_ in the default Channel, we still need to
             // create a ProductVariantPrice for it in the default Channel, otherwise errors will
             // result when trying to query it there.
-            await this.createOrUpdateProductVariantPrice(
+            const defaultChannelPrice = await this.createOrUpdateProductVariantPrice(
                 ctx,
                 createdVariant.id,
                 input.price,
                 defaultChannel.id,
                 defaultChannel.defaultCurrencyCode,
             );
+            if (input.priceVariants) {
+                for (const priceVariant of input.priceVariants) {
+                    const variant = new ProductVariantPriceToPriceVariant({
+                        price: priceVariant.price,
+                        productVariantPrice: defaultChannelPrice,
+                        productVariantPriceVariantId: priceVariant.id,
+                    });
+                    await this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(variant);
+                }
+            }
+        }
+        if (input.priceVariants) {
+            for (const priceVariant of input.priceVariants) {
+                const variant = new ProductVariantPriceToPriceVariant({
+                    price: priceVariant.price,
+                    productVariantPrice: price,
+                    productVariantPriceVariantId: priceVariant.id,
+                });
+                await this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(variant);
+            }
         }
         return createdVariant.id;
     }
