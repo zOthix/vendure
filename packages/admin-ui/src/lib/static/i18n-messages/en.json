@@ -316,6 +316,7 @@
     "notify-invalid-row-error": "An error occurred, row { row } is missing { column } field",
     "notify-invalid-headers-error": "An error occurred, column { column } is missing",
     "notify-invalid-file-error": "An error occurred, file should be of type { fileType }",
+    "notify-price-variant-required-error":"All price variants required",
     "okay": "Okay",
     "operator-contains": "contains",
     "operator-eq": "equals",

@@ -313,11 +313,9 @@ export class ProductDetailComponent
                 err => {
                     // eslint-disable-next-line no-console
                     console.error(err);
-                    if (err.message === 'All price variants required') {
-                        this.notificationService.error('All price variants required', {
-                            entity: 'Product',
-                        });
-                    }
+                    this.notificationService.error(_('common.notify-price-variant-required-error'), {
+                        entity: 'Product',
+                    });
                     this.notificationService.error(_('common.notify-create-error'), {
                         entity: 'Product',
                     });

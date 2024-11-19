@@ -316,6 +316,7 @@
     "notify-update-error": "אירעה שגיאה, לא הצלחנו לעדכן { entity }",
     "notify-update-success": "עודכן { entity }",
     "notify-updated-tags-success": "התגים עודכנו בהצלחה",
+    "notify-price-variant-required-error": "נדרשות כל גרסאות המחיר",
     "okay": "אוקיי",
     "operator-contains": "מכיל",
     "operator-eq": "שווה ל",
