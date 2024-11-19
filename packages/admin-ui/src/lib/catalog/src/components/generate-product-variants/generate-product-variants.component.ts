@@ -8,7 +8,7 @@ import {
     ItemOf,
 } from '@vendure/admin-ui/core';
 import { generateAllCombinations } from '@vendure/common/lib/shared-utils';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { OptionValueInputComponent } from '../option-value-input/option-value-input.component';
@@ -20,12 +20,24 @@ export type CreateVariantValues = {
     sku: string;
     price: number;
     stock: number;
+    priceVariants: PriceVariantInput[];
 };
 export type CreateProductVariantsConfig = {
     groups: Array<{ name: string; values: string[] }>;
     variants: CreateVariantValues[];
     stockLocationId: string;
 };
+
+interface PriceVariant {
+    id: string;
+    name: string;
+}
+
+export interface PriceVariantInput {
+    id: string;
+    name: string;
+    price: number;
+}
 
 @Component({
     selector: 'vdr-generate-product-variants',
@@ -35,6 +47,7 @@ export type CreateProductVariantsConfig = {
 export class GenerateProductVariantsComponent implements OnInit {
     @Output() variantsChange = new EventEmitter<CreateProductVariantsConfig>();
     @ViewChildren('optionGroupName', { read: ElementRef }) groupNameInputs: QueryList<ElementRef>;
+    priceVariantOptions: PriceVariant[];
     optionGroups: Array<{ name: string; values: Array<{ name: string; locked: boolean }> }> = [];
     currencyCode: CurrencyCode;
     variants: Array<{ id: string; values: string[] }>;
@@ -45,6 +58,7 @@ export class GenerateProductVariantsComponent implements OnInit {
             price: FormControl<number>;
             sku: FormControl<string>;
             stock: FormControl<number>;
+            [key: string]: FormControl<any>;
         }>;
     } = {};
     stockLocations$: Observable<Array<ItemOf<GetStockLocationListQuery, 'stockLocations'>>>;
@@ -92,22 +106,29 @@ export class GenerateProductVariantsComponent implements OnInit {
         this.generateVariants();
     }
 
-    generateVariants() {
+    async generateVariants() {
+        const priceVariantList = await firstValueFrom(
+            this.dataService.product.getPriceVariantList().mapSingle(result => result.productPriceVariants),
+        );
+        this.priceVariantOptions = priceVariantList.items;
         const totalValuesCount = this.optionGroups.reduce((sum, group) => sum + group.values.length, 0);
         const groups = totalValuesCount
             ? this.optionGroups.map(g => g.values.map(v => v.name))
             : [[DEFAULT_VARIANT_CODE]];
         this.variants = generateAllCombinations(groups).map(values => ({ id: values.join('|'), values }));
-
         this.variants.forEach((variant, index) => {
             if (!this.variantFormValues[variant.id]) {
-                const formGroup = this.formBuilder.nonNullable.group({
+                const obj = {
                     optionValues: [variant.values],
                     enabled: true as boolean,
                     price: this.copyFromDefault(variant.id, 'price', 0),
                     sku: this.copyFromDefault(variant.id, 'sku', ''),
                     stock: this.copyFromDefault(variant.id, 'stock', 0),
+                };
+                priceVariantList.items.forEach(item => {
+                    obj[item.name] = this.copyFromDefault(variant.id, 'price', 0);
                 });
+                const formGroup = this.formBuilder.nonNullable.group(obj);
                 formGroup.valueChanges.subscribe(() => this.onFormChange());
                 if (index === 0) {
                     formGroup.get('price')?.valueChanges.subscribe(value => {
@@ -152,6 +173,17 @@ export class GenerateProductVariantsComponent implements OnInit {
         const variantsToCreate = this.variants
             .map(v => this.variantFormValues[v.id].value as CreateVariantValues)
             .filter(v => v.enabled);
+        variantsToCreate.forEach(variant => {
+            const priceVariants: PriceVariantInput[] = [];
+            this.priceVariantOptions.forEach(price => {
+                priceVariants.push({
+                    id: String(price.id),
+                    name: price.name,
+                    price: variant[price.name],
+                });
+            });
+            variant.priceVariants = priceVariants;
+        });
         this.variantsChange.emit({
             groups: this.optionGroups.map(og => ({ name: og.name, values: og.values.map(v => v.name) })),
             variants: variantsToCreate,
@@ -166,7 +198,8 @@ export class GenerateProductVariantsComponent implements OnInit {
         value: CreateVariantValues[T],
     ): CreateVariantValues[T] {
         return variantId !== DEFAULT_VARIANT_CODE
-            ? (this.variantFormValues[DEFAULT_VARIANT_CODE].get(prop)?.value as CreateVariantValues[T])
+            ? (this.variantFormValues[DEFAULT_VARIANT_CODE].get(prop as string)
+                  ?.value as CreateVariantValues[T])
             : value;
     }
 }

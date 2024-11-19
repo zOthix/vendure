@@ -90,6 +90,14 @@
                             [currencyCode]="currencyCode"
                         ></vdr-currency-input>
                     </vdr-form-field>
+                    <div class="mt-2" *ngFor="let priceVariant of priceVariantOptions">
+                        <vdr-form-field [label]="priceVariant.name">
+                            <vdr-currency-input
+                                formControlName="{{ priceVariant.name }}"
+                                [currencyCode]="currencyCode"
+                            ></vdr-currency-input>
+                        </vdr-form-field>
+                    </div>
                 </td>
                 <td>
                     <vdr-form-field>

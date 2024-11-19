@@ -20,7 +20,10 @@ import { notNullOrUndefined } from '@vendure/common/lib/shared-utils';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { map, mergeMap, shareReplay, switchMap } from 'rxjs/operators';
 
-import { CreateProductVariantsConfig } from '../../components/generate-product-variants/generate-product-variants.component';
+import {
+    CreateProductVariantsConfig,
+    PriceVariantInput,
+} from '../../components/generate-product-variants/generate-product-variants.component';
 
 import { replaceLast } from './replace-last';
 
@@ -115,7 +118,13 @@ export class ProductDetailService {
 
     createProductVariants(
         product: { name: string; id: string },
-        variantData: Array<{ price: number; sku: string; stock: number; optionIds: string[] }>,
+        variantData: Array<{
+            price: number;
+            sku: string;
+            stock: number;
+            optionIds: string[];
+            priceVariants: PriceVariantInput[];
+        }>,
         options: Array<{ id: string; name: string }>,
         languageCode: LanguageCode,
         stockLocationId: string,
@@ -145,6 +154,7 @@ export class ProductDetailService {
                     },
                 ],
                 optionIds: v.optionIds,
+                priceVariants: v.priceVariants,
             };
         });
         return this.dataService.product.createProductVariants(variants).pipe(

@@ -906,6 +906,7 @@ export type CreateProductVariantInput = {
   optionIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   outOfStockThreshold?: InputMaybe<Scalars['Int']['input']>;
   price?: InputMaybe<Scalars['Money']['input']>;
+  priceVariants?: InputMaybe<Array<InputMaybe<PriceVariantInput>>>;
   productId: Scalars['ID']['input'];
   sku: Scalars['String']['input'];
   stockLevels?: InputMaybe<Array<StockLevelInput>>;

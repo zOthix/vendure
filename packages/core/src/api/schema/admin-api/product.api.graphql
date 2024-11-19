@@ -186,6 +186,7 @@ input CreateProductVariantInput {
     outOfStockThreshold: Int
     useGlobalOutOfStockThreshold: Boolean
     trackInventory: GlobalFlag
+    priceVariants: [PriceVariantInput]
 }
 
 input UpdateProductVariantInput {
