@@ -960,6 +960,15 @@ export class OrderService {
         orderId: ID,
         state: OrderState,
     ): Promise<Order | OrderStateTransitionError> {
+        if (ctx.activeUserId) {
+            const customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
+            if (customer) {
+                const priceVariant = customer.priceVariant;
+                if (!priceVariant) {
+                    throw new Error('Price variant not assigned.');
+                }
+            }
+        }
         const order = await this.getOrderOrThrow(ctx, orderId);
         order.payments = await this.getOrderPayments(ctx, orderId);
         const fromState = order.state;
@@ -1096,6 +1105,15 @@ export class OrderService {
         orderId: ID,
         input: PaymentInput,
     ): Promise<ErrorResultUnion<AddPaymentToOrderResult, Order>> {
+        if (ctx.activeUserId) {
+            const customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
+            if (customer) {
+                const priceVariant = customer.priceVariant;
+                if (!priceVariant) {
+                    throw new Error('Price variant not assigned.');
+                }
+            }
+        }
         const order = await this.getOrderOrThrow(ctx, orderId);
         if (!this.canAddPaymentToOrder(order)) {
             return new OrderPaymentStateError();
