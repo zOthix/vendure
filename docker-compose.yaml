@@ -2,10 +2,9 @@ services:
   db:
     image: postgres:14
     container_name: db-vendure
+    env_file:
+      - ./.env
     environment:
-      POSTGRES_DB: vendure
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
       PGDATA: /var/lib/postgresql/data
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -20,7 +19,7 @@ services:
     ports:
       - "4090:4090"
     env_file:
-      - ./packages/dev-server/.env
+      - ./.env
     depends_on:
       - db
     restart: always
