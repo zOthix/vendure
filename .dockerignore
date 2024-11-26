@@ -1,0 +1,11 @@
+.github
+.vscode
+docs
+e2e-common
+license
+node_modules
+scripts
+.*
+*.md
+docker-compose.yaml
+Dockerfile

@@ -27,6 +27,10 @@ if (require.main === module) {
                 importAssetsDir: path.join(__dirname, '../core/mock-data/assets'),
             },
             customFields: {},
+            apiOptions: {
+                ...devConfig.apiOptions,
+                port: 12000,
+            },
         }),
     );
     clearAllTables(populateConfig, true)

@@ -1,6 +1,6 @@
 {
     "apiHost": "http://localhost",
-    "apiPort": "3000",
+    "apiPort": "4090",
     "adminApiPath": "admin-api",
     "tokenMethod": "bearer",
     "authTokenHeaderKey": "vendure-auth-token",

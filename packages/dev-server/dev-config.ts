@@ -134,7 +134,7 @@ function getDbConfig(): DataSourceOptions {
         case 'postgres':
             console.log('Using postgres connection');
             return {
-                synchronize: false,
+                synchronize: true,
                 type: 'postgres',
                 host: process.env.DB_HOST || 'localhost',
                 port: Number(process.env.DB_PORT) || 5432,

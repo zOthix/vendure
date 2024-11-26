@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:14
+    container_name: db-vendure
+    environment:
+      POSTGRES_DB: vendure
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432"
+    command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c pg_stat_statements.max=100000 -c max_connections=200
+
+  dev-server:
+    build:
+      context: .
+    ports:
+      - "4090:4090"
+    env_file:
+      - ./packages/dev-server/.env
+    depends_on:
+      - db
+
+  admin:
+    build:
+      context: ./packages/admin-ui
+    ports:
+      - "4091:80"
+    depends_on:
+      - dev-server
+
+volumes:
+  postgres_data:
+    driver: local
