@@ -20,6 +20,7 @@ import { Asset } from '../asset/asset.entity';
 import { VendureEntity } from '../base/base.entity';
 import { Channel } from '../channel/channel.entity';
 import { CustomCollectionFields } from '../custom-entity-fields';
+import { Customer } from '../customer/customer.entity';
 import { EntityId } from '../entity-id.decorator';
 import { ProductVariant } from '../product-variant/product-variant.entity';
 
@@ -41,6 +42,9 @@ export class Collection
     constructor(input?: DeepPartial<Collection>) {
         super(input);
     }
+
+    @ManyToMany(type => Customer, customer => customer.category)
+    customer: Customer;
 
     @Column({ default: false })
     isRoot: boolean;

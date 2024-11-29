@@ -94,7 +94,7 @@ export class CustomerDetailComponent
             password: '',
             customFields: this.formBuilder.group(getCustomFieldsDefaults(this.customFields)),
             priceVariant: '',
-            category: '',
+            category: [['']],
             payWithoutCreditCard: false,
             accountingEmail: ['', [Validators.required, Validators.email]],
             accountingPhone: ['', Validators.required],
@@ -346,7 +346,7 @@ export class CustomerDetailComponent
                             phoneNumber: formValue.phoneNumber,
                             customFields,
                             priceVariantId: formValue.priceVariant !== 'null' ? formValue.priceVariant : null,
-                            categoryId: formValue.category !== 'null' ? formValue.category : null,
+                            categoryId: formValue.category,
                             payWithoutCreditCard: this.payWithoutCreditCard,
                             accountingEmail: formValue.accountingEmail,
                             accountingPhone: formValue.accountingPhone,
@@ -556,6 +556,12 @@ export class CustomerDetailComponent
     protected setFormValues(entity: CustomerWithOrders): void {
         const customerGroup = this.detailForm.get('customer');
         if (customerGroup) {
+            const categoriesList: string[] = [];
+            entity.category?.forEach(i => {
+                if (i) {
+                    categoriesList.push(i.id);
+                }
+            });
             customerGroup.patchValue({
                 title: entity.title ?? null,
                 firstName: entity.firstName,
@@ -565,7 +571,7 @@ export class CustomerDetailComponent
                 password: '',
                 customFields: {},
                 priceVariant: entity.priceVariant?.id ?? null,
-                category: entity.category?.id ?? null,
+                category: categoriesList,
                 payWithoutCreditCard: this.payWithoutCreditCard,
                 accountingEmail: entity.accountingEmail,
                 accountingPhone: entity.accountingPhone,

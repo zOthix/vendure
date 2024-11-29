@@ -1397,7 +1397,7 @@ export type Customer = Node & {
   addresses?: Maybe<Array<Address>>;
   businessName: Scalars['String']['output'];
   businessPhone: Scalars['String']['output'];
-  category?: Maybe<Collection>;
+  category?: Maybe<Array<Maybe<Collection>>>;
   contactPersonPhone: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   customFields?: Maybe<Scalars['JSON']['output']>;
@@ -6528,7 +6528,7 @@ export type UpdateCustomerInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   businessName?: InputMaybe<Scalars['String']['input']>;
   businessPhone?: InputMaybe<Scalars['String']['input']>;
-  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  categoryId?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   contactPersonPhone?: InputMaybe<Scalars['String']['input']>;
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   emailAddress?: InputMaybe<Scalars['String']['input']>;

@@ -206,7 +206,7 @@
                         [readOnlyToggle]="!(isNew$ | async)"
                         *ngIf="!(isNew$ | async)"
                     >
-                        <select id="category" formControlName="category">
+                        <select multiple="true" id="category" formControlName="category">
                             <option [value]="null">
                                 Default
                             </option>

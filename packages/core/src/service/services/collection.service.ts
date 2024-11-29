@@ -197,7 +197,7 @@ export class CollectionService implements OnModuleInit {
             if (customer && customer.category) {
                 return qb.getManyAndCount().then(async ([collections, totalItems]) => {
                     const items = collections
-                        .filter(i => i.id === customer.category?.id)
+                        .filter(i => customer.category?.find(j => j.id === i.id))
                         .map(collection => this.translator.translate(collection, ctx, ['parent']));
                     return {
                         items,

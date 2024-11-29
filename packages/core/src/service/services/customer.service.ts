@@ -336,7 +336,7 @@ export class CustomerService {
             Object.hasOwnProperty.call(i, 'emailAddress');
         const hasPriceVariant = (i: any): i is UpdateCustomerInput & { priceVariantId: ID } =>
             Object.hasOwnProperty.call(i, 'priceVariantId');
-        const hasCategory = (i: any): i is UpdateCustomerInput & { categoryId: ID } =>
+        const hasCategory = (i: any): i is UpdateCustomerInput & { categoryId: [ID] } =>
             Object.hasOwnProperty.call(i, 'categoryId');
 
         const customer = await this.connection.getEntityOrThrow(ctx, Customer, input.id, {
@@ -400,8 +400,12 @@ export class CustomerService {
             if (input.categoryId === null) {
                 customer.category = null;
             } else {
-                const category = await this.connection.getEntityOrThrow(ctx, Collection, input.categoryId);
-                customer.category = category;
+                const categories = [];
+                for (const id of input.categoryId) {
+                    const category = await this.connection.getEntityOrThrow(ctx, Collection, id);
+                    categories.push(category);
+                }
+                customer.category = categories;
             }
         }
 

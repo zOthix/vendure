@@ -21,7 +21,7 @@ type Customer implements Node {
     managerAddress: String!
     payWithoutCreditCard: Boolean
     priceVariant: ProductVariantPriceVariant
-    category: Collection
+    category: [Collection]
 }
 
 type CustomerList implements PaginatedList {
