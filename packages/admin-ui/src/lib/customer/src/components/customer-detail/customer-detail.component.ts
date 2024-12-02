@@ -561,6 +561,7 @@ export class CustomerDetailComponent
 
     onSelectedOptionsChange(updatedSelectedOptions: string[]): void {
         this.categories = updatedSelectedOptions;
+        this.detailForm.get('customer')?.markAsDirty();
     }
 
     protected setFormValues(entity: CustomerWithOrders): void {
