@@ -94,7 +94,7 @@ export class CustomerDetailComponent
             password: '',
             customFields: this.formBuilder.group(getCustomFieldsDefaults(this.customFields)),
             priceVariant: '',
-            category: [['']],
+            category: [''],
             payWithoutCreditCard: false,
             accountingEmail: ['', [Validators.required, Validators.email]],
             accountingPhone: ['', Validators.required],
@@ -108,6 +108,7 @@ export class CustomerDetailComponent
         }),
         addresses: new UntypedFormArray([]),
     });
+    categories: string[] = [];
     availableCountries$: Observable<GetAvailableCountriesQuery['countries']['items']>;
     orders$: Observable<CustomerWithOrders['orders']['items']>;
     ordersCount$: Observable<number>;
@@ -346,7 +347,7 @@ export class CustomerDetailComponent
                             phoneNumber: formValue.phoneNumber,
                             customFields,
                             priceVariantId: formValue.priceVariant !== 'null' ? formValue.priceVariant : null,
-                            categoryId: formValue.category,
+                            categoryId: this.categories,
                             payWithoutCreditCard: this.payWithoutCreditCard,
                             accountingEmail: formValue.accountingEmail,
                             accountingPhone: formValue.accountingPhone,
@@ -553,6 +554,15 @@ export class CustomerDetailComponent
             });
     }
 
+    getSelectedOptions() {
+        const list = this.detailForm.get('customer.category');
+        return list ? list.value : [];
+    }
+
+    onSelectedOptionsChange(updatedSelectedOptions: string[]): void {
+        this.categories = updatedSelectedOptions;
+    }
+
     protected setFormValues(entity: CustomerWithOrders): void {
         const customerGroup = this.detailForm.get('customer');
         if (customerGroup) {
@@ -562,6 +572,7 @@ export class CustomerDetailComponent
                     categoriesList.push(i.id);
                 }
             });
+            this.categories = categoriesList;
             customerGroup.patchValue({
                 title: entity.title ?? null,
                 firstName: entity.firstName,
@@ -571,7 +582,7 @@ export class CustomerDetailComponent
                 password: '',
                 customFields: {},
                 priceVariant: entity.priceVariant?.id ?? null,
-                category: categoriesList,
+                category: null,
                 payWithoutCreditCard: this.payWithoutCreditCard,
                 accountingEmail: entity.accountingEmail,
                 accountingPhone: entity.accountingPhone,

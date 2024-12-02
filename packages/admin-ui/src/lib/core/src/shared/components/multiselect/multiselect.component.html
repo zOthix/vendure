@@ -1,0 +1,21 @@
+<div class="multi-select-container">
+    <vdr-form-field for="for" [readOnlyToggle]="true" [label]="label">
+        <select [formControl]="control" id="multiSelect" name="for" (change)="selectOption($event.target.value)">
+            <option [value]="null">
+                Default
+            </option>
+            <option *ngFor="let option of options" [value]="option.id">
+                {{ option.name }}
+            </option>
+        </select>
+    </vdr-form-field>
+    <div class="selected-options">
+        <div class="flex flex-wrap col-gap-1 row-gap-1">
+            <ng-container *ngFor="let option of selectedOptions">
+                <vdr-chip icon="close" (iconClick)="deleteOption(option)">
+                    {{ getOptionName(option) }}
+                </vdr-chip>
+            </ng-container>
+        </div>
+    </div>
+</div>

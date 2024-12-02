@@ -192,29 +192,19 @@
                         *ngIf="!(isNew$ | async)"
                     >
                         <select id="priceVariant" formControlName="priceVariant">
-                            <option [value]="null">
-                                Default
-                            </option>
+                            <option [value]="null">Default</option>
                             <option *ngFor="let variant of priceVariantOptions$ | async" [value]="variant.id">
                                 {{ variant.name }}
                             </option>
                         </select>
                     </vdr-form-field>
-                    <vdr-form-field
+                    <vdr-multiselect
                         [label]="'customer.category' | translate"
-                        for="category"
-                        [readOnlyToggle]="!(isNew$ | async)"
-                        *ngIf="!(isNew$ | async)"
-                    >
-                        <select multiple="true" id="category" formControlName="category">
-                            <option [value]="null">
-                                Default
-                            </option>
-                            <option *ngFor="let category of categories$ | async" [value]="category.id">
-                                {{ category.name }}
-                            </option>
-                        </select>
-                    </vdr-form-field>
+                        [control]="detailForm.get('customer.category')"
+                        [options]="categories$ | async"
+                        [selectedOptions]="categories"
+                        (selectedOptionsChange)="onSelectedOptionsChange($event)"
+                    ></vdr-multiselect>
                     <vdr-form-field
                         [label]="'customer.password' | translate"
                         for="password"
