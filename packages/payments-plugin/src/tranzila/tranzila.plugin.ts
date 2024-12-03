@@ -26,6 +26,7 @@ export interface TranzilaPluginOptions {
     imports: [PluginCommonModule],
     controllers: [TranzilaController],
     providers: [SocketGateway],
+    compatibility: '^3.0.0',
 })
 export class TranzilaPlugin {
     static options: TranzilaPluginOptions;
