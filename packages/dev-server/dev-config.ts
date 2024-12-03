@@ -1,7 +1,13 @@
 /* eslint-disable no-console */
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import { AssetServerPlugin } from '@vendure/asset-server-plugin';
-import { ADMIN_API_PATH, API_PORT, SHOP_API_PATH } from '@vendure/common/lib/shared-constants';
+import {
+    ADMIN_API_PATH,
+    API_PORT,
+    SHOP_API_PATH,
+    SUPER_ADMIN_USER_IDENTIFIER,
+    SUPER_ADMIN_USER_PASSWORD,
+} from '@vendure/common/lib/shared-constants';
 import {
     Asset,
     DefaultJobQueuePlugin,
@@ -22,6 +28,9 @@ import path from 'path';
 import { DataSourceOptions } from 'typeorm';
 
 import { MultivendorPlugin } from './example-plugins/multivendor-plugin/multivendor.plugin';
+import { HardenPlugin } from '@vendure/harden-plugin';
+
+const IS_DEV = process.env.APP_ENV === 'dev';
 
 /**
  * Config settings used during development
@@ -52,6 +61,10 @@ export const devConfig: VendureConfig = {
         cookieOptions: {
             secret: 'abc',
         },
+        superadminCredentials: {
+            identifier: process.env.SUPERADMIN_USERNAME ?? SUPER_ADMIN_USER_IDENTIFIER,
+            password: process.env.SUPERADMIN_PASSWORD ?? SUPER_ADMIN_USER_PASSWORD,
+        },
     },
     dbConnectionOptions: {
         synchronize: false,
@@ -71,6 +84,10 @@ export const devConfig: VendureConfig = {
     plugins: [
         TranzilaPlugin.init({
             vendureHost: 'http://localhost:3000',
+        }),
+        HardenPlugin.init({
+            maxQueryComplexity: 500,
+            apiMode: IS_DEV ? 'dev' : 'prod',
         }),
         // MultivendorPlugin.init({
         //     platformFeePercent: 10,
