@@ -86,7 +86,7 @@ export const devConfig: VendureConfig = {
             vendureHost: 'http://localhost:3000',
         }),
         HardenPlugin.init({
-            maxQueryComplexity: 500,
+            maxQueryComplexity: 10000,
             apiMode: IS_DEV ? 'dev' : 'prod',
         }),
         // MultivendorPlugin.init({
