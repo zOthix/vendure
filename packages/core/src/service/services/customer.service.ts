@@ -992,6 +992,16 @@ export class CustomerService {
         }
     }
 
+    async setCustomerNotificationToken(ctx: RequestContext, token: string, customer: Customer) {
+        try {
+            customer.pushToken = token;
+            await this.connection.getRepository(ctx, Customer).save(customer);
+            return true;
+        } catch (e: any) {
+            return false;
+        }
+    }
+
     private async enforceSingleDefaultAddress(
         ctx: RequestContext,
         addressId: ID,

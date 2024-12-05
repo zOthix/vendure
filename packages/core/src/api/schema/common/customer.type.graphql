@@ -22,6 +22,7 @@ type Customer implements Node {
     payWithoutCreditCard: Boolean
     priceVariant: ProductVariantPriceVariant
     category: [Collection]
+    pushToken: String
 }
 
 type CustomerList implements PaginatedList {

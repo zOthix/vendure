@@ -1,6 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
     MutationDeleteCustomerAddressArgs,
+    MutationSetCustomerNotificationTokenArgs,
     MutationUpdateCustomerArgs,
     Success,
 } from '@vendure/common/lib/generated-shop-types';
@@ -85,6 +86,18 @@ export class ShopCustomerResolver {
             throw new ForbiddenError();
         }
         const success = await this.customerService.deleteAddress(ctx, args.id);
+        return { success };
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.Owner)
+    async setCustomerNotificationToken(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationSetCustomerNotificationTokenArgs,
+    ): Promise<Success> {
+        const customer = await this.getCustomerForOwner(ctx);
+        const success = await this.customerService.setCustomerNotificationToken(ctx, args.token, customer);
         return { success };
     }
 

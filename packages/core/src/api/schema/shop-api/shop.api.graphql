@@ -145,6 +145,8 @@ type Mutation {
     requestPasswordReset(emailAddress: String!): RequestPasswordResetResult
     "Resets a Customer's password based on the provided token"
     resetPassword(token: String!, password: String!): ResetPasswordResult!
+    "Set customer notification token"
+    setCustomerNotificationToken(token: String!): Success!
 }
 
 # Populated at run-time

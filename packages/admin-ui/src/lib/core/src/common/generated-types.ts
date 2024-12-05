@@ -1425,6 +1425,7 @@ export type Customer = Node & {
   payWithoutCreditCard?: Maybe<Scalars['Boolean']['output']>;
   phoneNumber?: Maybe<Scalars['String']['output']>;
   priceVariant?: Maybe<ProductVariantPriceVariant>;
+  pushToken?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   user?: Maybe<User>;
@@ -1460,6 +1461,7 @@ export type CustomerFilterParameter = {
   payWithoutCreditCard?: InputMaybe<BooleanOperators>;
   phoneNumber?: InputMaybe<StringOperators>;
   postalCode?: InputMaybe<StringOperators>;
+  pushToken?: InputMaybe<StringOperators>;
   title?: InputMaybe<StringOperators>;
   updatedAt?: InputMaybe<DateOperators>;
 };
@@ -1549,6 +1551,7 @@ export type CustomerSortParameter = {
   lastName?: InputMaybe<SortOrder>;
   managerAddress?: InputMaybe<SortOrder>;
   phoneNumber?: InputMaybe<SortOrder>;
+  pushToken?: InputMaybe<SortOrder>;
   title?: InputMaybe<SortOrder>;
   updatedAt?: InputMaybe<SortOrder>;
 };

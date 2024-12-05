@@ -784,7 +784,7 @@ export type Customer = Node & {
     addresses?: Maybe<Array<Address>>;
     businessName: Scalars['String']['output'];
     businessPhone: Scalars['String']['output'];
-    category?: Maybe<Collection>;
+    category?: Maybe<Array<Maybe<Collection>>>;
     contactPersonPhone: Scalars['String']['output'];
     createdAt: Scalars['DateTime']['output'];
     customFields?: Maybe<Scalars['JSON']['output']>;
@@ -798,6 +798,7 @@ export type Customer = Node & {
     payWithoutCreditCard?: Maybe<Scalars['Boolean']['output']>;
     phoneNumber?: Maybe<Scalars['String']['output']>;
     priceVariant?: Maybe<ProductVariantPriceVariant>;
+    pushToken?: Maybe<Scalars['String']['output']>;
     title?: Maybe<Scalars['String']['output']>;
     updatedAt: Scalars['DateTime']['output'];
     user?: Maybe<User>;
@@ -826,6 +827,7 @@ export type CustomerFilterParameter = {
     managerAddress?: InputMaybe<StringOperators>;
     payWithoutCreditCard?: InputMaybe<BooleanOperators>;
     phoneNumber?: InputMaybe<StringOperators>;
+    pushToken?: InputMaybe<StringOperators>;
     title?: InputMaybe<StringOperators>;
     updatedAt?: InputMaybe<DateOperators>;
 };
@@ -879,6 +881,7 @@ export type CustomerSortParameter = {
     lastName?: InputMaybe<SortOrder>;
     managerAddress?: InputMaybe<SortOrder>;
     phoneNumber?: InputMaybe<SortOrder>;
+    pushToken?: InputMaybe<SortOrder>;
     title?: InputMaybe<SortOrder>;
     updatedAt?: InputMaybe<SortOrder>;
 };
@@ -1787,6 +1790,8 @@ export type Mutation = {
     resetPassword: ResetPasswordResult;
     /** Set the Customer for the Order. Required only if the Customer is not currently logged in */
     setCustomerForOrder: SetCustomerForOrderResult;
+    /** Set customer notification token */
+    setCustomerNotificationToken: Success;
     /** Sets the billing address for this order */
     setOrderBillingAddress: ActiveOrderResult;
     /** Allows any custom fields to be set for the active order */
@@ -1891,6 +1896,10 @@ export type MutationResetPasswordArgs = {
 
 export type MutationSetCustomerForOrderArgs = {
     input: CreateCustomerInput;
+};
+
+export type MutationSetCustomerNotificationTokenArgs = {
+    token: Scalars['String']['input'];
 };
 
 export type MutationSetOrderBillingAddressArgs = {
