@@ -50,6 +50,7 @@ import { Channel } from '../../entity/channel/channel.entity';
 import { Customer } from '../../entity/customer/customer.entity';
 import { CustomerGroup } from '../../entity/customer-group/customer-group.entity';
 import { HistoryEntry } from '../../entity/history-entry/history-entry.entity';
+import { NotificationToken } from '../../entity/notification-token/notification-token.entity';
 import { Order } from '../../entity/order/order.entity';
 import { User } from '../../entity/user/user.entity';
 import { EventBus } from '../../event-bus/event-bus';
@@ -994,7 +995,18 @@ export class CustomerService {
 
     async setCustomerNotificationToken(ctx: RequestContext, token: string, customer: Customer) {
         try {
-            customer.pushToken = token;
+            if (token === '') {
+                customer.pushToken = null;
+                await this.connection.getRepository(ctx, Customer).save(customer);
+                return true;
+            }
+            const pushToken = await this.connection.getRepository(ctx, NotificationToken).findOneBy({
+                token,
+            });
+            if (!pushToken) {
+                throw new Error('Token not registered.');
+            }
+            customer.pushToken = pushToken;
             await this.connection.getRepository(ctx, Customer).save(customer);
             return true;
         } catch (e: any) {

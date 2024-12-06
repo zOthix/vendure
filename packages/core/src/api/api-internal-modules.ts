@@ -86,6 +86,7 @@ import { ZoneEntityResolver } from './resolvers/entity/zone-entity.resolver';
 import { ShopAuthResolver } from './resolvers/shop/shop-auth.resolver';
 import { ShopCustomerResolver } from './resolvers/shop/shop-customer.resolver';
 import { ShopEnvironmentResolver } from './resolvers/shop/shop-environment.resolver';
+import { ShopNotificationTokenResolver } from './resolvers/shop/shop-notification-token.resolver';
 import { ShopOrderResolver } from './resolvers/shop/shop-order.resolver';
 import { ShopProductsResolver } from './resolvers/shop/shop-products.resolver';
 
@@ -127,6 +128,7 @@ const shopResolvers = [
     ShopOrderResolver,
     ShopProductsResolver,
     ShopEnvironmentResolver,
+    ShopNotificationTokenResolver,
 ];
 
 export const entityResolvers = [

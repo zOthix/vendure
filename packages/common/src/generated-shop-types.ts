@@ -1792,6 +1792,7 @@ export type Mutation = {
     setCustomerForOrder: SetCustomerForOrderResult;
     /** Set customer notification token */
     setCustomerNotificationToken: Success;
+    setNotificationToken: Success;
     /** Sets the billing address for this order */
     setOrderBillingAddress: ActiveOrderResult;
     /** Allows any custom fields to be set for the active order */
@@ -1899,6 +1900,10 @@ export type MutationSetCustomerForOrderArgs = {
 };
 
 export type MutationSetCustomerNotificationTokenArgs = {
+    token: Scalars['String']['input'];
+};
+
+export type MutationSetNotificationTokenArgs = {
     token: Scalars['String']['input'];
 };
 

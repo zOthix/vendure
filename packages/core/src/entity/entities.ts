@@ -19,6 +19,7 @@ import { GlobalSettings } from './global-settings/global-settings.entity';
 import { CustomerHistoryEntry } from './history-entry/customer-history-entry.entity';
 import { HistoryEntry } from './history-entry/history-entry.entity';
 import { OrderHistoryEntry } from './history-entry/order-history-entry.entity';
+import { NotificationToken } from './notification-token/notification-token.entity';
 import { Order } from './order/order.entity';
 import { OrderLine } from './order-line/order-line.entity';
 import { FulfillmentLine } from './order-line-reference/fulfillment-line.entity';
@@ -149,4 +150,5 @@ export const coreEntitiesMap = {
     Zone,
     ProductVariantPriceVariant,
     ProductVariantPriceToPriceVariant,
+    NotificationToken,
 };

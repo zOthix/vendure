@@ -147,6 +147,7 @@ type Mutation {
     resetPassword(token: String!, password: String!): ResetPasswordResult!
     "Set customer notification token"
     setCustomerNotificationToken(token: String!): Success!
+    setNotificationToken(token: String!): Success!
 }
 
 # Populated at run-time
