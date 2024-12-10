@@ -24,4 +24,17 @@ export class NotificationTokenService {
             return false;
         }
     }
+
+    async deleteNotificationToken(ctx: RequestContext, token: string): Promise<boolean> {
+        try {
+            await this.connection.getRepository(ctx, NotificationToken).delete({ token });
+            return true;
+        } catch (e: any) {
+            return false;
+        }
+    }
+
+    async getAllNotificationTokens(ctx: RequestContext): Promise<NotificationToken[]> {
+        return this.connection.getRepository(ctx, NotificationToken).find({});
+    }
 }

@@ -45,6 +45,7 @@ import { FulfillmentService } from './services/fulfillment.service';
 import { GlobalSettingsService } from './services/global-settings.service';
 import { HistoryService } from './services/history.service';
 import { NotificationTokenService } from './services/notification-token.service';
+import { NotificationService } from './services/notification.service';
 import { OrderTestingService } from './services/order-testing.service';
 import { OrderService } from './services/order.service';
 import { PaymentMethodService } from './services/payment-method.service';
@@ -107,6 +108,7 @@ const services = [
     ZoneService,
     ProductPriceVariantService,
     NotificationTokenService,
+    NotificationService,
 ];
 
 const helpers = [

@@ -1,0 +1,10 @@
+type Mutation {
+    "Send notification"
+    sendNotification(notificationBody: NotificationBody!, customerIds: [ID!]): Success!
+}
+
+input NotificationBody {
+    title: String
+    body: String
+    subtitle: String
+}

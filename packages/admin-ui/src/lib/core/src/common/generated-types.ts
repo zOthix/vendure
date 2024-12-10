@@ -2984,6 +2984,8 @@ export type Mutation = {
   requestCompleted: Scalars['Int']['output'];
   requestStarted: Scalars['Int']['output'];
   runPendingSearchIndexUpdates: Success;
+  /** Send notification */
+  sendNotification: Success;
   setActiveChannel: UserStatus;
   setAsLoggedIn: UserStatus;
   setAsLoggedOut: UserStatus;
@@ -3690,6 +3692,12 @@ export type MutationRemoveStockLocationsFromChannelArgs = {
 };
 
 
+export type MutationSendNotificationArgs = {
+  customerIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  notificationBody: NotificationBody;
+};
+
+
 export type MutationSetActiveChannelArgs = {
   channelId: Scalars['ID']['input'];
 };
@@ -4010,6 +4018,12 @@ export type NothingToRefundError = ErrorResult & {
   __typename?: 'NothingToRefundError';
   errorCode: ErrorCode;
   message: Scalars['String']['output'];
+};
+
+export type NotificationBody = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  subtitle?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Operators for filtering on a list of Number fields */

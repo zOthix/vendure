@@ -2970,6 +2970,8 @@ export type Mutation = {
   /** Removes StockLocations from the specified Channel */
   removeStockLocationsFromChannel: Array<StockLocation>;
   runPendingSearchIndexUpdates: Success;
+  /** Send notification */
+  sendNotification: Success;
   setCustomerForDraftOrder: SetCustomerForDraftOrderResult;
   /** Sets the billing address for a draft Order */
   setDraftOrderBillingAddress: Order;
@@ -3666,6 +3668,12 @@ export type MutationRemoveStockLocationsFromChannelArgs = {
 };
 
 
+export type MutationSendNotificationArgs = {
+  customerIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  notificationBody: NotificationBody;
+};
+
+
 export type MutationSetCustomerForDraftOrderArgs = {
   customerId?: InputMaybe<Scalars['ID']['input']>;
   input?: InputMaybe<CreateCustomerInput>;
@@ -3936,6 +3944,12 @@ export type NothingToRefundError = ErrorResult & {
   __typename?: 'NothingToRefundError';
   errorCode: ErrorCode;
   message: Scalars['String']['output'];
+};
+
+export type NotificationBody = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  subtitle?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Operators for filtering on a list of Number fields */

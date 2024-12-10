@@ -25,6 +25,7 @@ import { FacetResolver } from './resolvers/admin/facet.resolver';
 import { GlobalSettingsResolver } from './resolvers/admin/global-settings.resolver';
 import { ImportResolver } from './resolvers/admin/import.resolver';
 import { JobResolver } from './resolvers/admin/job.resolver';
+import { NotificationResolver } from './resolvers/admin/notification.resolver';
 import { OrderResolver } from './resolvers/admin/order.resolver';
 import { PaymentMethodResolver } from './resolvers/admin/payment-method.resolver';
 import { ProductOptionResolver } from './resolvers/admin/product-option.resolver';
@@ -105,6 +106,7 @@ const adminResolvers = [
     GlobalSettingsResolver,
     ImportResolver,
     JobResolver,
+    NotificationResolver,
     OrderResolver,
     PaymentMethodResolver,
     ProductOptionResolver,
