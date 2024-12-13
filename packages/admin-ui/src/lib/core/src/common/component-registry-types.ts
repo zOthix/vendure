@@ -63,6 +63,7 @@ export type PageLocationId =
     | 'customer-detail'
     | 'customer-list'
     | 'customer-unapproved-list'
+    | 'customer-notification'
     | 'customer-group-list'
     | 'customer-group-detail'
     | 'draft-order-detail'

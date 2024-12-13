@@ -17,5 +17,6 @@ export * from './components/customer-status-label/customer-status-label.componen
 export * from './components/customer-unapproved-list/customer-unapproved-list-bulk-actions';
 export * from './components/customer-unapproved-list/customer-unapproved-list.component';
 export * from './components/select-customer-group-dialog/select-customer-group-dialog.component';
+export * from './components/send-customer-notification/send-customer-notification-list.component';
 export * from './customer.module';
 export * from './customer.routes';

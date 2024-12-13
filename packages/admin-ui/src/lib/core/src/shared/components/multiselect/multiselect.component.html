@@ -1,5 +1,5 @@
 <div class="multi-select-container">
-    <vdr-form-field for="for" [readOnlyToggle]="true" [label]="label">
+    <vdr-form-field for="for" [readOnlyToggle]="readonly" [label]="label">
         <select [formControl]="control" id="multiSelect" name="for" (change)="selectOption($event.target.value)">
             <option [value]="null">
                 Default

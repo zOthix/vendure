@@ -309,3 +309,11 @@ export const APPROVE_CUSTOMER = gql`
     }
     ${CUSTOMER_FRAGMENT}
 `;
+
+export const SEND_NOTIFICATION_TO_CUSTOMER = gql`
+    mutation SendNotificationToCustomer($input: SendNotificationInput!) {
+        sendNotification(input: $input) {
+            success
+        }
+    }
+`;

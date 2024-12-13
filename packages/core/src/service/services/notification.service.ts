@@ -72,7 +72,7 @@ export class NotificationService {
                 if (priceVariant) {
                     qb.orWhere('priceVariant.id = :priceVariantId', { priceVariantId: priceVariant });
                 }
-                if (categories) {
+                if (categories && categories.length > 0) {
                     qb.orWhere('category.id IN (:...categoryIds)', {
                         categoryIds: categories,
                     });
@@ -80,7 +80,7 @@ export class NotificationService {
                 if (noOrderCustomers) {
                     qb.orWhere('order.id IS NULL');
                 }
-                if (days) {
+                if (days && days !== 0) {
                     const today = new Date();
                     const date = new Date();
                     date.setDate(today.getDate() - days);

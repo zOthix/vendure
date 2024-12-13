@@ -207,6 +207,7 @@ export * from './shared/components/modal-dialog/dialog-buttons.directive';
 export * from './shared/components/modal-dialog/dialog-component-outlet.component';
 export * from './shared/components/modal-dialog/dialog-title.directive';
 export * from './shared/components/modal-dialog/modal-dialog.component';
+export * from './shared/components/multiselect/multiselect.component';
 export * from './shared/components/object-tree/object-tree.component';
 export * from './shared/components/order-state-label/order-state-label.component';
 export * from './shared/components/page/page.component';

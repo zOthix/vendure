@@ -31,6 +31,15 @@ export const createRoutes = (pageService: PageService): Route[] => [
         children: pageService.getPageTabRoutes('customer-detail'),
     },
     {
+        path: 'notification',
+        component: PageComponent,
+        data: {
+            locationId: 'customer-notification',
+            breadcrumb: _('breadcrumb.send-notifcation-to-customer'),
+        },
+        children: pageService.getPageTabRoutes('customer-notification'),
+    },
+    {
         path: 'customers/:id',
         component: PageComponent,
         data: {

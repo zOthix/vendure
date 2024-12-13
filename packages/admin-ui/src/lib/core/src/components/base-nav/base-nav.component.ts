@@ -166,6 +166,20 @@ export class BaseNavComponent implements OnInit, OnDestroy {
                 ],
             },
             {
+                id: 'notifications',
+                label: _('nav.notifications'),
+                requiresPermission: allow(Permission.ReadCustomer, Permission.ReadCustomerGroup),
+                items: [
+                    {
+                        requiresPermission: allow(Permission.ReadCustomer),
+                        id: 'send-notification',
+                        label: _('nav.send-notification'),
+                        routerLink: ['/customer', 'notification'],
+                        icon: 'notification',
+                    },
+                ],
+            },
+            {
                 id: 'marketing',
                 label: _('nav.marketing'),
                 requiresPermission: allow(Permission.ReadPromotion),

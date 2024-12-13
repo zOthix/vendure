@@ -13,12 +13,13 @@ export class MultiSelectComponent {
     @Input() for: string;
     @Input() control: FormControl;
     @Input() selectedOptions: string[] = [];
+    @Input() readonly = true;
     @Output() selectedOptionsChange = new EventEmitter<string[]>();
 
     selectOption(option: string): void {
         const index = this.selectedOptions.indexOf(option);
         if (index === -1) {
-            if (option === '-1') {
+            if (option === '-1' || option === 'null') {
                 return;
             }
             this.selectedOptions.push(option);

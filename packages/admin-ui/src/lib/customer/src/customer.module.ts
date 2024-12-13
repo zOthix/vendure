@@ -29,6 +29,7 @@ import { SelectCustomerGroupDialogComponent } from './components/select-customer
 import { createRoutes } from './customer.routes';
 import { CustomerGroupDetailComponent } from './components/customer-group-detail/customer-group-detail.component';
 import { CustomerUnapprovedListComponent } from './components/customer-unapproved-list/customer-unapproved-list.component';
+import { SendCustomerNotificationListComponent } from './components/send-customer-notification/send-customer-notification-list.component';
 
 @NgModule({
     imports: [SharedModule, RouterModule.forChild([])],
@@ -55,6 +56,7 @@ import { CustomerUnapprovedListComponent } from './components/customer-unapprove
         CustomerHistoryEntryHostComponent,
         CustomerGroupDetailComponent,
         CustomerUnapprovedListComponent,
+        SendCustomerNotificationListComponent,
     ],
     exports: [AddressCardComponent],
 })
@@ -82,6 +84,13 @@ export class CustomerModule {
             tab: _('customer.customers'),
             route: '',
             component: CustomerUnapprovedListComponent,
+        });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'customer-notification',
+            tab: _('customer.customers'),
+            route: '',
+            component: SendCustomerNotificationListComponent,
         });
 
         pageService.registerPageTab({

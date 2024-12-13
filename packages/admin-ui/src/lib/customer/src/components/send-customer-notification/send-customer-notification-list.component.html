@@ -1,0 +1,152 @@
+<vdr-page-block>
+    <vdr-action-bar>
+        <vdr-ab-left> </vdr-ab-left>
+        <vdr-ab-right>
+            <vdr-action-bar-items locationId="customer-detail"></vdr-action-bar-items>
+            <button class="btn btn-primary hidden">
+                {{ 'common.create' | translate }}
+            </button>
+            <vdr-action-bar-dropdown-menu locationId="customer-detail" />
+        </vdr-ab-right>
+    </vdr-action-bar>
+</vdr-page-block>
+<vdr-page-detail-layout>
+    <vdr-page-block>
+        <form class="form" [formGroup]="notificationForm">
+            <vdr-card [title]="'catalog.notification-form-heading' | translate">
+                <div class="form-grid">
+                    <vdr-form-field [label]="'catalog.notification-title' | translate" for="title">
+                        <input id="title" type="text" formControlName="title" />
+                    </vdr-form-field>
+                    <vdr-form-field [label]="'catalog.notification-body' | translate" for="body">
+                        <input id="body" type="text" formControlName="body" />
+                    </vdr-form-field>
+                    <vdr-form-field [label]="'catalog.notification-subtitle' | translate" for="subtitle">
+                        <input id="subtitle" type="text" formControlName="subtitle" />
+                    </vdr-form-field>
+                    <br />
+                </div>
+                <p>Send to users by</p>
+                <br />
+                <div class="form-grid">
+                    <vdr-multiselect
+                        [label]="'customer.category' | translate"
+                        [options]="categories$ | async"
+                        [selectedOptions]="categories"
+                        (selectedOptionsChange)="onSelectedOptionsChange($event)"
+                        [readonly]="false"
+                        [control]="notificationForm.get('category')"
+                    ></vdr-multiselect>
+                    <vdr-form-field [label]="'customer.price-variant' | translate" for="priceVariant">
+                        <select id="priceVariant" formControlName="priceVariant">
+                            <option [value]="null">Default</option>
+                            <option *ngFor="let variant of priceVariantOptions$ | async" [value]="variant.id">
+                                {{ variant.name }}
+                            </option>
+                        </select>
+                    </vdr-form-field>
+                    <vdr-form-field [label]="'customer.ordered-in-days' | translate" for="days">
+                        <input id="days" type="number" formControlName="days" />
+                    </vdr-form-field>
+                    <vdr-form-field [label]="'customer.no-orders' | translate" for="noOrder">
+                        <input id="noOrder" type="checkbox" formControlName="noOrder" />
+                    </vdr-form-field>
+                </div>
+                <div class="preview-btn-container mt-2">
+                    <button [disabled]="!(notificationForm.valid && notificationForm.dirty)" class="button primary" (click)="sendNotification()">
+                        {{ 'common.send' | translate }}
+                    </button>
+                </div>
+            </vdr-card>
+        </form>
+    </vdr-page-block>
+</vdr-page-detail-layout>
+
+<vdr-data-table-2
+    class="mt-6"
+    id="customer-list"
+    [items]="items$ | async"
+    [itemsPerPage]="itemsPerPage$ | async"
+    [totalItems]="totalItems$ | async"
+    [currentPage]="currentPage$ | async"
+    [filters]="filters"
+    (pageChange)="setPageNumber($event)"
+    (itemsPerPageChange)="setItemsPerPage($event)"
+>
+    <vdr-bulk-action-menu
+        locationId="customer-list"
+        [hostComponent]="this"
+        [selectionManager]="selectionManager"
+    ></vdr-bulk-action-menu>
+    <vdr-dt2-search
+        [searchTermControl]="searchTermControl"
+        [searchTermPlaceholder]="'customer.search-customers-by-email-last-name-postal-code' | translate"
+    ></vdr-dt2-search>
+    <vdr-dt2-column [heading]="'common.id' | translate" id="id" [hiddenByDefault]="true">
+        <ng-template let-customer="item">
+            {{ customer.id }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column
+        [heading]="'common.created-at' | translate"
+        id="created-at"
+        [hiddenByDefault]="true"
+        [sort]="sorts.get('createdAt')"
+    >
+        <ng-template let-customer="item">
+            {{ customer.createdAt | localeDate: 'short' }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column
+        [heading]="'common.updated-at' | translate"
+        id="updated-at"
+        [hiddenByDefault]="true"
+        [sort]="sorts.get('updatedAt')"
+    >
+        <ng-template let-customer="item">
+            {{ customer.updatedAt | localeDate: 'short' }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column
+        [heading]="'customer.name' | translate"
+        id="name"
+        [optional]="false"
+        [sort]="sorts.get('lastName')"
+    >
+        <ng-template let-customer="item">
+            <a class="button-ghost" [routerLink]="['./', customer.id]"
+                ><span> {{ customer.title }} {{ customer.firstName }} {{ customer.lastName }} </span>
+                <clr-icon shape="arrow right"></clr-icon>
+            </a>
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column [heading]="'customer.price-variant' | translate" id="price-variant" [optional]="false">
+        <ng-template let-customer="item">
+            {{ customer.priceVariant?.name }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column [heading]="'customer.category' | translate" id="category" [optional]="false">
+        <ng-template let-customer="item">
+            <div class="category-container">
+                <ng-container *ngFor="let category of customer.category">
+                    <vdr-chip>{{ category.name }}</vdr-chip>
+                </ng-container>
+            </div>
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column [heading]="'common.status' | translate" id="status">
+        <ng-template let-customer="item">
+            <vdr-customer-status-label [customer]="customer" />
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column
+        [heading]="'customer.email-address' | translate"
+        id="email-address"
+        [sort]="sorts.get('emailAddress')"
+    >
+        <ng-template let-customer="item">
+            {{ customer.emailAddress }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-custom-field-column *ngFor="let field of customFields" [customField]="field" [sorts]="sorts" />
+</vdr-data-table-2>

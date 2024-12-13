@@ -18,6 +18,7 @@ import {
     GET_CUSTOMER_HISTORY,
     GET_CUSTOMER_LIST,
     REMOVE_CUSTOMERS_FROM_GROUP,
+    SEND_NOTIFICATION_TO_CUSTOMER,
     UPDATE_CUSTOMER,
     UPDATE_CUSTOMER_ADDRESS,
     UPDATE_CUSTOMER_GROUP,
@@ -232,6 +233,29 @@ export class CustomerDataService {
             Codegen.ApproveCustomerMutationVariables
         >(APPROVE_CUSTOMER, {
             id,
+        });
+    }
+
+    sendNotificationToCustomer(
+        notificationBody: { title: string; subtitle: string; body: string },
+        customerIds?: string[],
+        categories?: string[],
+        priceVariant?: string,
+        days?: number,
+        noOrderCustomers?: boolean,
+    ) {
+        return this.baseDataService.mutate<
+            Codegen.SendNotificationToCustomerMutation,
+            Codegen.SendNotificationToCustomerMutationVariables
+        >(SEND_NOTIFICATION_TO_CUSTOMER, {
+            input: {
+                notificationBody,
+                customerIds,
+                categories,
+                priceVariant,
+                days,
+                noOrderCustomers,
+            },
         });
     }
 }
