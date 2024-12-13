@@ -1397,7 +1397,6 @@ export type Customer = Node & {
   addresses?: Maybe<Array<Address>>;
   businessName: Scalars['String']['output'];
   businessPhone: Scalars['String']['output'];
-  categories?: Maybe<Scalars['String']['output']>;
   category?: Maybe<Array<Maybe<Collection>>>;
   contactPersonPhone: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
@@ -1414,12 +1413,10 @@ export type Customer = Node & {
   payWithoutCreditCard?: Maybe<Scalars['Boolean']['output']>;
   phoneNumber?: Maybe<Scalars['String']['output']>;
   priceVariant?: Maybe<ProductVariantPriceVariant>;
-  priceVariantName?: Maybe<Scalars['String']['output']>;
   pushToken?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   user?: Maybe<User>;
-  yo?: Maybe<Scalars['String']['output']>;
 };
 
 
@@ -1441,7 +1438,6 @@ export type CustomerFilterParameter = {
   address?: InputMaybe<StringOperators>;
   businessName?: InputMaybe<StringOperators>;
   businessPhone?: InputMaybe<StringOperators>;
-  categories?: InputMaybe<StringOperators>;
   contactPersonPhone?: InputMaybe<StringOperators>;
   createdAt?: InputMaybe<DateOperators>;
   emailAddress?: InputMaybe<StringOperators>;
@@ -1453,11 +1449,9 @@ export type CustomerFilterParameter = {
   payWithoutCreditCard?: InputMaybe<BooleanOperators>;
   phoneNumber?: InputMaybe<StringOperators>;
   postalCode?: InputMaybe<StringOperators>;
-  priceVariantName?: InputMaybe<StringOperators>;
   pushToken?: InputMaybe<StringOperators>;
   title?: InputMaybe<StringOperators>;
   updatedAt?: InputMaybe<DateOperators>;
-  yo?: InputMaybe<StringOperators>;
 };
 
 export type CustomerGroup = Node & {
@@ -1536,7 +1530,6 @@ export type CustomerSortParameter = {
   address?: InputMaybe<SortOrder>;
   businessName?: InputMaybe<SortOrder>;
   businessPhone?: InputMaybe<SortOrder>;
-  categories?: InputMaybe<SortOrder>;
   contactPersonPhone?: InputMaybe<SortOrder>;
   createdAt?: InputMaybe<SortOrder>;
   emailAddress?: InputMaybe<SortOrder>;
@@ -1546,11 +1539,9 @@ export type CustomerSortParameter = {
   lastName?: InputMaybe<SortOrder>;
   managerAddress?: InputMaybe<SortOrder>;
   phoneNumber?: InputMaybe<SortOrder>;
-  priceVariantName?: InputMaybe<SortOrder>;
   pushToken?: InputMaybe<SortOrder>;
   title?: InputMaybe<SortOrder>;
   updatedAt?: InputMaybe<SortOrder>;
-  yo?: InputMaybe<SortOrder>;
 };
 
 /** Operators for filtering on a list of Date fields */
@@ -5922,6 +5913,7 @@ export type SellerSortParameter = {
 export type SendNotificationInput = {
   categories?: InputMaybe<Array<Scalars['ID']['input']>>;
   customerIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  days?: InputMaybe<Scalars['Int']['input']>;
   noOrderCustomers?: InputMaybe<Scalars['Boolean']['input']>;
   notificationBody: NotificationBody;
   priceVariant?: InputMaybe<Scalars['ID']['input']>;
