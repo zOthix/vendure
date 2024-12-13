@@ -26,7 +26,9 @@
                     </vdr-form-field>
                     <br />
                 </div>
-                <p>Send to users by</p>
+                <div class="title-row mt-4">
+                    <span class="title">{{ 'customer.filter-customers-by' | translate }}</span>
+                </div>
                 <br />
                 <div class="form-grid">
                     <vdr-multiselect
@@ -52,8 +54,12 @@
                         <input id="noOrder" type="checkbox" formControlName="noOrder" />
                     </vdr-form-field>
                 </div>
-                <div class="preview-btn-container mt-2">
-                    <button [disabled]="!(notificationForm.valid && notificationForm.dirty)" class="button primary" (click)="sendNotification()">
+                <div class="preview-btn-container mt-4">
+                    <button
+                        [disabled]="!(notificationForm.valid && notificationForm.dirty)"
+                        class="button primary"
+                        (click)="sendNotification()"
+                    >
                         {{ 'common.send' | translate }}
                     </button>
                 </div>
@@ -61,9 +67,11 @@
         </form>
     </vdr-page-block>
 </vdr-page-detail-layout>
-
+<div class="heading mt-6">
+    <h5>{{ 'catalog.select-individual-users' | translate }}</h5>
+</div>
 <vdr-data-table-2
-    class="mt-6"
+    class="mt-2"
     id="customer-list"
     [items]="items$ | async"
     [itemsPerPage]="itemsPerPage$ | async"
@@ -74,7 +82,7 @@
     (itemsPerPageChange)="setItemsPerPage($event)"
 >
     <vdr-bulk-action-menu
-        locationId="customer-list"
+        locationId="send-notification-customer-list"
         [hostComponent]="this"
         [selectionManager]="selectionManager"
     ></vdr-bulk-action-menu>
@@ -114,10 +122,7 @@
         [sort]="sorts.get('lastName')"
     >
         <ng-template let-customer="item">
-            <a class="button-ghost" [routerLink]="['./', customer.id]"
-                ><span> {{ customer.title }} {{ customer.firstName }} {{ customer.lastName }} </span>
-                <clr-icon shape="arrow right"></clr-icon>
-            </a>
+            {{ customer.title }} {{ customer.firstName }} {{ customer.lastName }}
         </ng-template>
     </vdr-dt2-column>
     <vdr-dt2-column [heading]="'customer.price-variant' | translate" id="price-variant" [optional]="false">

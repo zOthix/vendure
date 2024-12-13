@@ -152,6 +152,7 @@ export class SendCustomerNotificationListComponent
 
     sendNotification() {
         this.loading = true;
+        const customerIds = this.selectionManager.selection.map(item => item.id);
         const notificationForm = this.notificationForm.value;
         const notificationBody = {
             title: notificationForm.title ?? '',
@@ -161,7 +162,7 @@ export class SendCustomerNotificationListComponent
         this.dataService.customer
             .sendNotificationToCustomer(
                 notificationBody,
-                [],
+                customerIds,
                 this.categories,
                 notificationForm.priceVariant ?? undefined,
                 notificationForm.days ?? undefined,
@@ -182,6 +183,7 @@ export class SendCustomerNotificationListComponent
                         noOrder: false,
                         priceVariant: null,
                     });
+                    this.selectionManager.clearSelection();
                     this.categories = [];
                     this.notificationForm.markAsPristine();
                     this.loading = false;

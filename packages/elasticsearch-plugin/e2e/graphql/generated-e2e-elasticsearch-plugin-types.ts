@@ -790,10 +790,19 @@ export type CreateCustomerGroupInput = {
 };
 
 export type CreateCustomerInput = {
+    VAT: Scalars['String']['input'];
+    accountingEmail: Scalars['String']['input'];
+    accountingPhone: Scalars['String']['input'];
+    address: Scalars['String']['input'];
+    businessName: Scalars['String']['input'];
+    businessPhone: Scalars['String']['input'];
+    contactPersonPhone: Scalars['String']['input'];
     customFields?: InputMaybe<Scalars['JSON']['input']>;
     emailAddress: Scalars['String']['input'];
+    fax: Scalars['String']['input'];
     firstName: Scalars['String']['input'];
     lastName: Scalars['String']['input'];
+    managerAddress: Scalars['String']['input'];
     phoneNumber?: InputMaybe<Scalars['String']['input']>;
     title?: InputMaybe<Scalars['String']['input']>;
 };
@@ -830,6 +839,21 @@ export type CreateFulfillmentError = ErrorResult & {
 export type CreateGroupOptionInput = {
     code: Scalars['String']['input'];
     translations: Array<ProductOptionGroupTranslationInput>;
+};
+
+export type CreateOrUpdateProductInput = {
+    assetIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    description?: InputMaybe<Scalars['String']['input']>;
+    enabled?: InputMaybe<Scalars['Boolean']['input']>;
+    facetValueIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    featuredAssetId?: InputMaybe<Scalars['ID']['input']>;
+    id?: InputMaybe<Scalars['ID']['input']>;
+    name?: InputMaybe<Scalars['String']['input']>;
+    priceVariants?: InputMaybe<Array<InputMaybe<PriceVariantInput>>>;
+    productVariantName?: InputMaybe<Scalars['String']['input']>;
+    productVariantPrice?: InputMaybe<Scalars['Money']['input']>;
+    productVariantSKU?: InputMaybe<Scalars['String']['input']>;
+    slug?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreatePaymentMethodInput = {
@@ -872,6 +896,7 @@ export type CreateProductVariantInput = {
     optionIds?: InputMaybe<Array<Scalars['ID']['input']>>;
     outOfStockThreshold?: InputMaybe<Scalars['Int']['input']>;
     price?: InputMaybe<Scalars['Money']['input']>;
+    priceVariants?: InputMaybe<Array<InputMaybe<PriceVariantInput>>>;
     productId: Scalars['ID']['input'];
     sku: Scalars['String']['input'];
     stockLevels?: InputMaybe<Array<StockLevelInput>>;
@@ -1360,20 +1385,30 @@ export type CustomFields = {
 };
 
 export type Customer = Node & {
+    VAT: Scalars['String']['output'];
+    accountingEmail: Scalars['String']['output'];
+    accountingPhone: Scalars['String']['output'];
+    address: Scalars['String']['output'];
     addresses?: Maybe<Array<Address>>;
-    category?: Maybe<FacetValue>;
+    businessName: Scalars['String']['output'];
+    businessPhone: Scalars['String']['output'];
+    category?: Maybe<Array<Maybe<Collection>>>;
+    contactPersonPhone: Scalars['String']['output'];
     createdAt: Scalars['DateTime']['output'];
     customFields?: Maybe<Scalars['JSON']['output']>;
     emailAddress: Scalars['String']['output'];
+    fax: Scalars['String']['output'];
     firstName: Scalars['String']['output'];
     groups: Array<CustomerGroup>;
     history: HistoryEntryList;
     id: Scalars['ID']['output'];
     lastName: Scalars['String']['output'];
+    managerAddress: Scalars['String']['output'];
     orders: OrderList;
     payWithoutCreditCard?: Maybe<Scalars['Boolean']['output']>;
     phoneNumber?: Maybe<Scalars['String']['output']>;
     priceVariant?: Maybe<ProductVariantPriceVariant>;
+    pushToken?: Maybe<Scalars['String']['output']>;
     title?: Maybe<Scalars['String']['output']>;
     updatedAt: Scalars['DateTime']['output'];
     user?: Maybe<User>;
@@ -1388,16 +1423,26 @@ export type CustomerOrdersArgs = {
 };
 
 export type CustomerFilterParameter = {
+    VAT?: InputMaybe<StringOperators>;
     _and?: InputMaybe<Array<CustomerFilterParameter>>;
     _or?: InputMaybe<Array<CustomerFilterParameter>>;
+    accountingEmail?: InputMaybe<StringOperators>;
+    accountingPhone?: InputMaybe<StringOperators>;
+    address?: InputMaybe<StringOperators>;
+    businessName?: InputMaybe<StringOperators>;
+    businessPhone?: InputMaybe<StringOperators>;
+    contactPersonPhone?: InputMaybe<StringOperators>;
     createdAt?: InputMaybe<DateOperators>;
     emailAddress?: InputMaybe<StringOperators>;
+    fax?: InputMaybe<StringOperators>;
     firstName?: InputMaybe<StringOperators>;
     id?: InputMaybe<IdOperators>;
     lastName?: InputMaybe<StringOperators>;
+    managerAddress?: InputMaybe<StringOperators>;
     payWithoutCreditCard?: InputMaybe<BooleanOperators>;
     phoneNumber?: InputMaybe<StringOperators>;
     postalCode?: InputMaybe<StringOperators>;
+    pushToken?: InputMaybe<StringOperators>;
     title?: InputMaybe<StringOperators>;
     updatedAt?: InputMaybe<DateOperators>;
 };
@@ -1468,12 +1513,22 @@ export type CustomerListOptions = {
 };
 
 export type CustomerSortParameter = {
+    VAT?: InputMaybe<SortOrder>;
+    accountingEmail?: InputMaybe<SortOrder>;
+    accountingPhone?: InputMaybe<SortOrder>;
+    address?: InputMaybe<SortOrder>;
+    businessName?: InputMaybe<SortOrder>;
+    businessPhone?: InputMaybe<SortOrder>;
+    contactPersonPhone?: InputMaybe<SortOrder>;
     createdAt?: InputMaybe<SortOrder>;
     emailAddress?: InputMaybe<SortOrder>;
+    fax?: InputMaybe<SortOrder>;
     firstName?: InputMaybe<SortOrder>;
     id?: InputMaybe<SortOrder>;
     lastName?: InputMaybe<SortOrder>;
+    managerAddress?: InputMaybe<SortOrder>;
     phoneNumber?: InputMaybe<SortOrder>;
+    pushToken?: InputMaybe<SortOrder>;
     title?: InputMaybe<SortOrder>;
     updatedAt?: InputMaybe<SortOrder>;
 };
@@ -2691,6 +2746,8 @@ export type Mutation = {
     createFacet: Facet;
     /** Create one or more FacetValues */
     createFacetValues: Array<FacetValue>;
+    /** Create or update multiple existing Products */
+    createOrUpdateProducts: Array<Product>;
     /** Create existing PaymentMethod */
     createPaymentMethod: PaymentMethod;
     /** Add a new price variant */
@@ -2865,6 +2922,8 @@ export type Mutation = {
     /** Removes StockLocations from the specified Channel */
     removeStockLocationsFromChannel: Array<StockLocation>;
     runPendingSearchIndexUpdates: Success;
+    /** Send notification */
+    sendNotification: Success;
     setCustomerForDraftOrder: SetCustomerForDraftOrderResult;
     /** Sets the billing address for a draft Order */
     setDraftOrderBillingAddress: Order;
@@ -3089,6 +3148,10 @@ export type MutationCreateFacetArgs = {
 
 export type MutationCreateFacetValuesArgs = {
     input: Array<CreateFacetValueInput>;
+};
+
+export type MutationCreateOrUpdateProductsArgs = {
+    input: Array<CreateOrUpdateProductInput>;
 };
 
 export type MutationCreatePaymentMethodArgs = {
@@ -3437,6 +3500,10 @@ export type MutationRemoveStockLocationsFromChannelArgs = {
     input: RemoveStockLocationsFromChannelInput;
 };
 
+export type MutationSendNotificationArgs = {
+    input: SendNotificationInput;
+};
+
 export type MutationSetCustomerForDraftOrderArgs = {
     customerId?: InputMaybe<Scalars['ID']['input']>;
     input?: InputMaybe<CreateCustomerInput>;
@@ -3660,6 +3727,12 @@ export type Node = {
 export type NothingToRefundError = ErrorResult & {
     errorCode: ErrorCode;
     message: Scalars['String']['output'];
+};
+
+export type NotificationBody = {
+    body?: InputMaybe<Scalars['String']['input']>;
+    subtitle?: InputMaybe<Scalars['String']['input']>;
+    title?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Operators for filtering on a list of Number fields */
@@ -4330,6 +4403,12 @@ export type PriceRange = {
     min: Scalars['Money']['output'];
 };
 
+export type PriceVariantInput = {
+    id: Scalars['ID']['input'];
+    name: Scalars['String']['input'];
+    price: Scalars['Money']['input'];
+};
+
 export type Product = Node & {
     assets: Array<Asset>;
     channels: Array<Channel>;
@@ -4872,6 +4951,8 @@ export type Query = {
     productVariants: ProductVariantList;
     /** List Products */
     products: ProductList;
+    /** Get products by ids */
+    productsByIds: Array<Maybe<Product>>;
     promotion?: Maybe<Promotion>;
     promotionActions: Array<ConfigurableOperationDefinition>;
     promotionConditions: Array<ConfigurableOperationDefinition>;
@@ -5048,6 +5129,10 @@ export type QueryProductVariantsArgs = {
 
 export type QueryProductsArgs = {
     options?: InputMaybe<ProductListOptions>;
+};
+
+export type QueryProductsByIdsArgs = {
+    productIds: Array<InputMaybe<Scalars['ID']['input']>>;
 };
 
 export type QueryPromotionArgs = {
@@ -5494,6 +5579,15 @@ export type SellerSortParameter = {
     id?: InputMaybe<SortOrder>;
     name?: InputMaybe<SortOrder>;
     updatedAt?: InputMaybe<SortOrder>;
+};
+
+export type SendNotificationInput = {
+    categories?: InputMaybe<Array<Scalars['ID']['input']>>;
+    customerIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+    days?: InputMaybe<Scalars['Int']['input']>;
+    noOrderCustomers?: InputMaybe<Scalars['Boolean']['input']>;
+    notificationBody: NotificationBody;
+    priceVariant?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type ServerConfig = {
@@ -6106,12 +6200,21 @@ export type UpdateCustomerGroupInput = {
 };
 
 export type UpdateCustomerInput = {
-    categoryId?: InputMaybe<Scalars['ID']['input']>;
+    VAT?: InputMaybe<Scalars['String']['input']>;
+    accountingEmail?: InputMaybe<Scalars['String']['input']>;
+    accountingPhone?: InputMaybe<Scalars['String']['input']>;
+    address?: InputMaybe<Scalars['String']['input']>;
+    businessName?: InputMaybe<Scalars['String']['input']>;
+    businessPhone?: InputMaybe<Scalars['String']['input']>;
+    categoryId?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    contactPersonPhone?: InputMaybe<Scalars['String']['input']>;
     customFields?: InputMaybe<Scalars['JSON']['input']>;
     emailAddress?: InputMaybe<Scalars['String']['input']>;
+    fax?: InputMaybe<Scalars['String']['input']>;
     firstName?: InputMaybe<Scalars['String']['input']>;
     id: Scalars['ID']['input'];
     lastName?: InputMaybe<Scalars['String']['input']>;
+    managerAddress?: InputMaybe<Scalars['String']['input']>;
     payWithoutCreditCard?: InputMaybe<Scalars['Boolean']['input']>;
     phoneNumber?: InputMaybe<Scalars['String']['input']>;
     priceVariantId?: InputMaybe<Scalars['ID']['input']>;

@@ -35,7 +35,7 @@ export const createRoutes = (pageService: PageService): Route[] => [
         component: PageComponent,
         data: {
             locationId: 'customer-notification',
-            breadcrumb: _('breadcrumb.send-notifcation-to-customer'),
+            breadcrumb: _('breadcrumb.send-notification-to-customer'),
         },
         children: pageService.getPageTabRoutes('customer-notification'),
     },
