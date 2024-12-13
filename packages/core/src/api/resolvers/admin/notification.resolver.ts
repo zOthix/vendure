@@ -14,8 +14,15 @@ export class NotificationResolver {
         @Ctx() ctx: RequestContext,
         @Args() args: MutationSendNotificationArgs,
     ): Promise<Success> {
-        const { customerIds, notificationBody } = args;
-        const success = await this.notificationService.sendNotification(ctx, notificationBody, customerIds);
+        const { customerIds, notificationBody, categories, priceVariant, noOrderCustomers } = args.input;
+        const success = await this.notificationService.sendNotification(
+            ctx,
+            notificationBody,
+            customerIds,
+            priceVariant,
+            categories,
+            noOrderCustomers,
+        );
         return { success };
     }
 }

@@ -8,7 +8,6 @@ import Expo, {
     ExpoPushTicket,
     ExpoPushToken,
 } from 'expo-server-sdk';
-import { In } from 'typeorm';
 
 import { RequestContext } from '../../api';
 import { TransactionalConnection } from '../../connection';
@@ -49,17 +48,39 @@ export class NotificationService {
         ctx: RequestContext,
         notificationBody: NotificationBody,
         customerIds?: ID[],
+        priceVariant?: ID,
+        categories?: ID[],
+        noOrderCustomers?: boolean,
     ): Promise<boolean> {
         try {
             let pushTokens: ExpoPushToken[] = [];
-            if (customerIds) {
-                const customers = await this.connection.getRepository(ctx, Customer).findBy({
-                    id: In(customerIds),
-                });
-                pushTokens = customers.map(customer => customer.pushToken?.token ?? '');
-            } else {
+            if (!customerIds && !priceVariant && !categories) {
                 const pushTokenObjects = await this.notificationTokenService.getAllNotificationTokens(ctx);
                 pushTokens = pushTokenObjects.map(token => token.token);
+            } else {
+                const qb = this.connection.rawConnection
+                    .getRepository(Customer)
+                    .createQueryBuilder('customer')
+                    .leftJoinAndSelect('customer.priceVariant', 'priceVariant')
+                    .leftJoinAndSelect('customer.category', 'category')
+                    .leftJoinAndSelect('customer.pushToken', 'pushToken')
+                    .leftJoinAndSelect('customer.orders', 'order');
+                if (customerIds && customerIds.length > 0) {
+                    qb.where('customer.id IN (:...customerIds)', { customerIds });
+                }
+                if (priceVariant) {
+                    qb.orWhere('priceVariant.id = :priceVariantId', { priceVariantId: priceVariant });
+                }
+                if (categories) {
+                    qb.orWhere('category.id IN (:...categoryIds)', {
+                        categoryIds: categories,
+                    });
+                }
+                if (noOrderCustomers) {
+                    qb.orWhere('order.id IS NULL');
+                }
+                const customers = await qb.getMany();
+                pushTokens = customers.map(customer => customer.pushToken?.token ?? '');
             }
             if (pushTokens.length <= 0) {
                 throw new Error('No push tokens');

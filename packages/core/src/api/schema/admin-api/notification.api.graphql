@@ -1,6 +1,14 @@
 type Mutation {
     "Send notification"
-    sendNotification(notificationBody: NotificationBody!, customerIds: [ID!]): Success!
+    sendNotification(input: SendNotificationInput!): Success!
+}
+
+input SendNotificationInput {
+    notificationBody: NotificationBody!
+    customerIds: [ID!]
+    priceVariant: ID
+    categories: [ID!]
+    noOrderCustomers: Boolean
 }
 
 input NotificationBody {
