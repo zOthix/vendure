@@ -9,6 +9,7 @@ input SendNotificationInput {
     priceVariant: ID
     categories: [ID!]
     noOrderCustomers: Boolean
+    days: Int
 }
 
 input NotificationBody {

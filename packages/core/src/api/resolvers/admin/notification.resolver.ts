@@ -14,7 +14,8 @@ export class NotificationResolver {
         @Ctx() ctx: RequestContext,
         @Args() args: MutationSendNotificationArgs,
     ): Promise<Success> {
-        const { customerIds, notificationBody, categories, priceVariant, noOrderCustomers } = args.input;
+        const { customerIds, notificationBody, categories, priceVariant, noOrderCustomers, days } =
+            args.input;
         const success = await this.notificationService.sendNotification(
             ctx,
             notificationBody,
@@ -22,6 +23,7 @@ export class NotificationResolver {
             priceVariant,
             categories,
             noOrderCustomers,
+            days,
         );
         return { success };
     }

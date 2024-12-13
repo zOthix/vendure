@@ -51,10 +51,11 @@ export class NotificationService {
         priceVariant?: ID,
         categories?: ID[],
         noOrderCustomers?: boolean,
+        days?: number,
     ): Promise<boolean> {
         try {
             let pushTokens: ExpoPushToken[] = [];
-            if (!customerIds && !priceVariant && !categories) {
+            if (!customerIds && !priceVariant && !categories && !days) {
                 const pushTokenObjects = await this.notificationTokenService.getAllNotificationTokens(ctx);
                 pushTokens = pushTokenObjects.map(token => token.token);
             } else {
@@ -78,6 +79,15 @@ export class NotificationService {
                 }
                 if (noOrderCustomers) {
                     qb.orWhere('order.id IS NULL');
+                }
+                if (days) {
+                    const today = new Date();
+                    const date = new Date();
+                    date.setDate(today.getDate() - days);
+                    qb.orWhere('order.orderPlacedAt BETWEEN :days AND :today', {
+                        days: date,
+                        today,
+                    });
                 }
                 const customers = await qb.getMany();
                 pushTokens = customers.map(customer => customer.pushToken?.token ?? '');
