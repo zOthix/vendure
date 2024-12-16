@@ -170,9 +170,7 @@ export class SendCustomerNotificationListComponent
             )
             .subscribe(
                 data => {
-                    this.notificationService.success(_('common.notify-create-update-success'), {
-                        entity: 'Product',
-                    });
+                    this.notificationService.success(_('common.notify-notification-sent-success'));
                     this.loading = false;
                     this.notificationForm.patchValue({
                         title: '',
@@ -190,9 +188,7 @@ export class SendCustomerNotificationListComponent
                     this.refresh();
                 },
                 err => {
-                    this.notificationService.error(_('common.notify-create-update-error'), {
-                        entity: 'Product',
-                    });
+                    this.notificationService.error(_('common.notify-notification-sent-error'));
                     this.loading = false;
                     this.refresh();
                 },
