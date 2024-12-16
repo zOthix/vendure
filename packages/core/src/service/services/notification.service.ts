@@ -144,7 +144,7 @@ export class NotificationService {
         ctx: RequestContext,
         messages: ExpoPushMessage[],
     ): Promise<ExpoPushSuccessTicketWithToken[]> {
-        const tickets: ExpoPushTicketWithToken[] = [];
+        const tickets: ExpoPushSuccessTicketWithToken[] = [];
         /**
          * Chunk the push notification messages before sending
          * so that there isn't much load sending multiple
@@ -154,11 +154,13 @@ export class NotificationService {
         for (const chunk of chunks) {
             // Send the notifications using expo
             const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-            ticketChunk.forEach((ticket, index) =>
-                tickets.push({ ...ticket, expoPushToken: messages[index].to as string }),
-            );
+            ticketChunk.forEach((ticket, index) => {
+                if (ticket.status === 'ok') {
+                    tickets.push({ ...ticket, expoPushToken: messages[index].to as string });
+                }
+            });
         }
-        return tickets.filter(ticket => ticket.status === 'ok');
+        return tickets;
     }
 
     private async handleNotificationReceipts(
@@ -187,7 +189,7 @@ export class NotificationService {
                     if (status === 'error') {
                         await this.handleNotificationErrors(
                             ctx,
-                            receiptsChunk[receiptId],
+                            receiptsChunk[receiptId] as ExpoPushErrorReceipt,
                             receipt?.expoPushToken ?? '',
                         );
                     }
