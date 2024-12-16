@@ -322,6 +322,8 @@
     "notify-update-success": "עודכן { entity }",
     "notify-updated-tags-success": "התגים עודכנו בהצלחה",
     "notify-price-variant-required-error": "נדרשות כל גרסאות המחיר",
+    "notify-notification-sent-success": "ההתראות נשלחו ללקוחות בהצלחה",
+    "notify-notification-sent-error": "משהו השתבש בעת שליחת ההתראות",
     "okay": "אוקיי",
     "operator-contains": "מכיל",
     "operator-eq": "שווה ל",

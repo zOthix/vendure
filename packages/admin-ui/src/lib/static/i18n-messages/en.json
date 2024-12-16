@@ -323,6 +323,8 @@
     "notify-invalid-headers-error": "An error occurred, column { column } is missing",
     "notify-invalid-file-error": "An error occurred, file should be of type { fileType }",
     "notify-price-variant-required-error":"All price variants required",
+    "notify-notification-sent-success":"Notifications have been pushed to customers",
+    "notify-notification-sent-error":"Something went wrong when sending notifications",
     "okay": "Okay",
     "operator-contains": "contains",
     "operator-eq": "equals",
