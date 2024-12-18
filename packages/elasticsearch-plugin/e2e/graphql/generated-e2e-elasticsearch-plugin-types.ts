@@ -2822,6 +2822,8 @@ export type Mutation = {
     deletePaymentMethod: DeletionResponse;
     /** Delete multiple PaymentMethods */
     deletePaymentMethods: Array<DeletionResponse>;
+    /** Delete an existing price variant */
+    deletePriceVariant: DeletionResponse;
     /** Delete a Product */
     deleteProduct: DeletionResponse;
     /** Delete a ProductOption */
@@ -2969,7 +2971,7 @@ export type Mutation = {
     /** Update an existing PaymentMethod */
     updatePaymentMethod: PaymentMethod;
     /** Update an existing price variant */
-    updatePriceVariant?: Maybe<ProductVariantPriceVariant>;
+    updatePriceVariant: ProductVariantPriceVariant;
     /** Update an existing Product */
     updateProduct: Product;
     /** Create a new ProductOption within a ProductOptionGroup */
@@ -3313,6 +3315,10 @@ export type MutationDeletePaymentMethodArgs = {
 export type MutationDeletePaymentMethodsArgs = {
     force?: InputMaybe<Scalars['Boolean']['input']>;
     ids: Array<Scalars['ID']['input']>;
+};
+
+export type MutationDeletePriceVariantArgs = {
+    id: Scalars['ID']['input'];
 };
 
 export type MutationDeleteProductArgs = {

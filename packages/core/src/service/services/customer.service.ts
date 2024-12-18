@@ -22,7 +22,7 @@ import {
     UpdateCustomerResult,
 } from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
-import { IsNull } from 'typeorm';
+import { FindOptionsWhere, IsNull } from 'typeorm';
 
 import { RequestContext } from '../../api/common/request-context';
 import { RelationPaths } from '../../api/decorators/relations.decorator';
@@ -98,6 +98,7 @@ export class CustomerService {
         ctx: RequestContext,
         options: ListQueryOptions<Customer> | undefined,
         relations: RelationPaths<Customer> = [],
+        getUnverifiedUsers?: boolean,
     ): Promise<PaginatedList<Customer>> {
         const customPropertyMap: { [name: string]: string } = {};
         const hasPostalCodeFilter = this.listQueryBuilder.filterObjectHasProperty<CustomerFilterParameter>(
@@ -108,11 +109,15 @@ export class CustomerService {
             relations.push('addresses');
             customPropertyMap.postalCode = 'addresses.postalCode';
         }
+        const whereClause: FindOptionsWhere<Customer> = { deletedAt: IsNull() };
+        if (getUnverifiedUsers) {
+            whereClause.user = { verified: false };
+        }
         return this.listQueryBuilder
             .build(Customer, options, {
                 relations,
                 channelId: ctx.channelId,
-                where: { deletedAt: IsNull() },
+                where: whereClause,
                 ctx,
                 customPropertyMap,
             })
@@ -131,32 +136,6 @@ export class CustomerService {
                 where: { deletedAt: IsNull() },
             })
             .then(result => result ?? undefined);
-    }
-
-    async findAllUnapprovedCustomers(
-        ctx: RequestContext,
-        options: ListQueryOptions<Customer> | undefined,
-        relations: RelationPaths<Customer> = [],
-    ): Promise<PaginatedList<Customer>> {
-        const customPropertyMap: { [name: string]: string } = {};
-        const hasPostalCodeFilter = this.listQueryBuilder.filterObjectHasProperty<CustomerFilterParameter>(
-            options?.filter as CustomerFilterParameter,
-            'postalCode',
-        );
-        if (hasPostalCodeFilter) {
-            relations.push('addresses');
-            customPropertyMap.postalCode = 'addresses.postalCode';
-        }
-        return this.listQueryBuilder
-            .build(Customer, options, {
-                relations,
-                channelId: ctx.channelId,
-                where: { deletedAt: IsNull(), user: { verified: false } },
-                ctx,
-                customPropertyMap,
-            })
-            .getManyAndCount()
-            .then(([items, totalItems]) => ({ items, totalItems }));
     }
 
     /**
@@ -427,10 +406,6 @@ export class CustomerService {
 
     async approveCustomer(ctx: RequestContext, id: ID) {
         const customer = await this.findOne(ctx, id);
-        if (!customer) {
-            throw new InternalServerError('error.cannot-locate-customer-for-user');
-        }
-
         if (customer && customer.user) {
             customer.user.verified = true;
             await this.connection.getRepository(ctx, User).save(customer.user);
@@ -448,6 +423,8 @@ export class CustomerService {
             const user = assertFound(this.findOneByUserId(ctx, customer.user.id));
             await this.eventBus.publish(new AccountVerifiedEvent(ctx, customer));
             return user;
+        } else {
+            throw new InternalServerError('error.cannot-locate-customer-for-user');
         }
     }
 

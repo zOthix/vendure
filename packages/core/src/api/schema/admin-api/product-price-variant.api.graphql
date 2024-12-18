@@ -9,7 +9,9 @@ type Mutation {
     "Add a new price variant"
     createPriceVariant(name: String!): ProductVariantPriceVariant!
     "Update an existing price variant"
-    updatePriceVariant(input: UpdatePriceVariantInput!): ProductVariantPriceVariant
+    updatePriceVariant(input: UpdatePriceVariantInput!): ProductVariantPriceVariant!
+    "Delete an existing price variant"
+    deletePriceVariant(id: ID!): DeletionResponse!
 }
 
 input UpdatePriceVariantInput {

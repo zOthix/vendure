@@ -49,10 +49,11 @@ export class CustomerResolver {
         @Args() args: QueryCustomersArgs,
         @Relations({ entity: Customer, omit: ['orders'] }) relations: RelationPaths<Customer>,
     ): Promise<PaginatedList<Customer>> {
-        return this.customerService.findAllUnapprovedCustomers(
+        return this.customerService.findAll(
             ctx,
             (args.options as ListQueryOptions<Customer>) || undefined,
             relations,
+            true,
         );
     }
 
@@ -106,8 +107,7 @@ export class CustomerResolver {
     @Mutation()
     @Allow(Permission.UpdateCustomer)
     async approveCustomer(@Ctx() ctx: RequestContext, @Args() args: MutationApproveCustomerArgs) {
-        const { id } = args;
-        return this.customerService.approveCustomer(ctx, id);
+        return this.customerService.approveCustomer(ctx, args.id);
     }
 
     @Transaction()

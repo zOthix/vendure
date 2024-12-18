@@ -3,7 +3,9 @@ import {
     MutationCreatePriceVariantArgs,
     QueryProductPriceVariantArgs,
     MutationUpdatePriceVariantArgs,
-    ProductVariantPriceVariantListOptions,
+    QueryProductPriceVariantsArgs,
+    MutationDeletePriceVariantArgs,
+    DeletionResponse,
 } from '@vendure/common/lib/generated-types';
 import { PaginatedList } from '@vendure/common/lib/shared-types';
 
@@ -19,7 +21,7 @@ export class ProductPriceVariantResolver {
     @Query()
     async productPriceVariants(
         @Ctx() ctx: RequestContext,
-        @Args() args: { options: ProductVariantPriceVariantListOptions },
+        @Args() args: QueryProductPriceVariantsArgs,
     ): Promise<PaginatedList<ProductVariantPriceVariant>> {
         return this.productPriceVariantService.findAll(ctx, args.options);
     }
@@ -28,7 +30,7 @@ export class ProductPriceVariantResolver {
     async productPriceVariant(
         @Ctx() ctx: RequestContext,
         @Args() args: QueryProductPriceVariantArgs,
-    ): Promise<ProductVariantPriceVariant | null> {
+    ): Promise<ProductVariantPriceVariant | undefined> {
         return this.productPriceVariantService.findOne(ctx, args.id);
     }
 
@@ -37,7 +39,7 @@ export class ProductPriceVariantResolver {
         @Ctx() ctx: RequestContext,
         @Args() args: MutationCreatePriceVariantArgs,
     ): Promise<ProductVariantPriceVariant> {
-        return this.productPriceVariantService.create(ctx, args);
+        return this.productPriceVariantService.create(ctx, args.name);
     }
 
     @Mutation()
@@ -47,5 +49,13 @@ export class ProductPriceVariantResolver {
     ): Promise<ProductVariantPriceVariant | undefined> {
         const { input } = args;
         return this.productPriceVariantService.update(ctx, input);
+    }
+
+    @Mutation()
+    async deletePriceVariant(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationDeletePriceVariantArgs,
+    ): Promise<DeletionResponse> {
+        return await this.productPriceVariantService.delete(ctx, args.id);
     }
 }

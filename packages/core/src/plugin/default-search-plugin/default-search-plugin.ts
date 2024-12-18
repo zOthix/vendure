@@ -10,6 +10,7 @@ import { idsAreEqual } from '../../common/utils';
 import { EventBus } from '../../event-bus/event-bus';
 import { AssetEvent } from '../../event-bus/events/asset-event';
 import { CollectionModificationEvent } from '../../event-bus/events/collection-modification-event';
+import { PriceVariantEvent } from '../../event-bus/events/price-variant-events';
 import { ProductChannelEvent } from '../../event-bus/events/product-channel-event';
 import { ProductEvent } from '../../event-bus/events/product-event';
 import { ProductVariantChannelEvent } from '../../event-bus/events/product-variant-channel-event';
@@ -163,6 +164,11 @@ export class DefaultSearchPlugin implements OnApplicationBootstrap, OnApplicatio
                     event.productVariant.id,
                     event.channelId,
                 );
+            }
+        });
+        this.eventBus.ofType(PriceVariantEvent).subscribe(event => {
+            if (event.type === 'created') {
+                return this.searchIndexService.reindex(event.ctx);
             }
         });
 
