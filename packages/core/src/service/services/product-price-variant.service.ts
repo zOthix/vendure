@@ -167,11 +167,11 @@ export class ProductPriceVariantService implements OnModuleInit {
         return this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(entities);
     }
 
-    async getPrice(
+    getPrice(
         ctx: RequestContext,
         productVariant: ProductVariant,
         priceVariant: ProductVariantPriceVariant,
-    ): Promise<number> {
+    ): number {
         const price = this.getChannelPrice(ctx, productVariant);
         if (!price) {
             return 0;
