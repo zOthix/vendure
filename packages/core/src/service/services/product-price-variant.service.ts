@@ -8,7 +8,7 @@ import {
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../api/common/request-context';
-import { assertFound, ListQueryOptions } from '../../common';
+import { assertFound, ListQueryOptions, roundMoney } from '../../common';
 import { grossPriceOf } from '../../common/tax-utils';
 import { TransactionalConnection } from '../../connection/transactional-connection';
 import { ProductVariant, ProductVariantPrice } from '../../entity';
@@ -180,7 +180,14 @@ export class ProductPriceVariantService implements OnModuleInit {
         if (!exists) {
             return 0;
         }
-        return exists.price;
+        if (!productVariant.taxRateApplied) {
+            return 0;
+        }
+        return roundMoney(
+            productVariant.listPriceIncludesTax
+                ? productVariant.taxRateApplied.netPriceOf(exists.price)
+                : exists.price,
+        );
     }
 
     /**
@@ -203,7 +210,11 @@ export class ProductPriceVariantService implements OnModuleInit {
         if (!productVariant.taxRateApplied) {
             return 0;
         }
-        return grossPriceOf(exists.price, productVariant.taxRateApplied.value);
+        return roundMoney(
+            productVariant.listPriceIncludesTax
+                ? exists.price
+                : productVariant.taxRateApplied.grossPriceOf(exists.price),
+        );
     }
 
     /**
