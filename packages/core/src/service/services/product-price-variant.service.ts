@@ -65,39 +65,6 @@ export class ProductPriceVariantService implements OnModuleInit {
             .then(([items, totalItems]) => ({ items, totalItems }));
     }
 
-    async updatePriceVariantsForProductVariant(
-        ctx: RequestContext,
-        productVariantId: ID,
-        priceVariants: PriceVariantInput[],
-    ) {
-        const productVariant = await this.productVariantService.findOne(ctx, productVariantId);
-        if (!productVariant) {
-            return;
-        }
-        const productVariantPrice = productVariant.productVariantPrices.find(
-            i => i.channelId === ctx.channelId,
-        );
-        if (!productVariantPrice) {
-            return;
-        }
-        const attached: ID[] = [];
-        const variants: ProductVariantPriceToPriceVariant[] = [];
-        const allPriceVariants = await this.connection.getRepository(ctx, ProductVariantPriceVariant).find();
-        priceVariants.forEach(item => {
-            const productVariantPriceVariant = allPriceVariants.find(i => i.id === item.id);
-            if (productVariantPriceVariant && !attached.includes(productVariantPriceVariant.id)) {
-                attached.push(productVariantPriceVariant.id);
-                const variant = new ProductVariantPriceToPriceVariant({
-                    price: item.price,
-                    productVariantPrice,
-                    productVariantPriceVariant,
-                });
-                variants.push(variant);
-            }
-        });
-        await this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(variants);
-    }
-
     async create(ctx: RequestContext, name: string): Promise<ProductVariantPriceVariant> {
         const priceVariant = await this.connection.getRepository(ctx, ProductVariantPriceVariant).save({
             name,
@@ -136,6 +103,39 @@ export class ProductPriceVariantService implements OnModuleInit {
             result,
             message,
         };
+    }
+
+    async updatePriceVariantsForProductVariant(
+        ctx: RequestContext,
+        productVariantId: ID,
+        priceVariants: PriceVariantInput[],
+    ) {
+        const productVariant = await this.productVariantService.findOne(ctx, productVariantId);
+        if (!productVariant) {
+            return;
+        }
+        const productVariantPrice = productVariant.productVariantPrices.find(
+            i => i.channelId === ctx.channelId,
+        );
+        if (!productVariantPrice) {
+            return;
+        }
+        const attached: ID[] = [];
+        const variants: ProductVariantPriceToPriceVariant[] = [];
+        const allPriceVariants = await this.connection.getRepository(ctx, ProductVariantPriceVariant).find();
+        priceVariants.forEach(item => {
+            const productVariantPriceVariant = allPriceVariants.find(i => i.id === item.id);
+            if (productVariantPriceVariant && !attached.includes(productVariantPriceVariant.id)) {
+                attached.push(productVariantPriceVariant.id);
+                const variant = new ProductVariantPriceToPriceVariant({
+                    price: item.price,
+                    productVariantPrice,
+                    productVariantPriceVariant,
+                });
+                variants.push(variant);
+            }
+        });
+        await this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(variants);
     }
 
     async attachPriceVariantsToProductVariant(
