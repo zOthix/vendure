@@ -9,12 +9,14 @@ import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../api/common/request-context';
 import { assertFound, ListQueryOptions } from '../../common';
+import { grossPriceOf } from '../../common/tax-utils';
 import { TransactionalConnection } from '../../connection/transactional-connection';
-import { ProductVariant } from '../../entity';
+import { ProductVariant, ProductVariantPrice } from '../../entity';
 import { ProductVariantPriceToPriceVariant } from '../../entity/product-variant/product-variant-price-price-variant.entity';
 import { ProductVariantPriceVariant } from '../../entity/product-variant/product-variant-price-variant.entity';
 import { EventBus } from '../../event-bus';
 import { PriceVariantEvent } from '../../event-bus/events/price-variant-events';
+import { EntityHydrator } from '../helpers/entity-hydrator/entity-hydrator.service';
 import { ListQueryBuilder } from '../helpers/list-query-builder/list-query-builder';
 import { ProductPriceApplicator } from '../helpers/product-price-applicator/product-price-applicator';
 
@@ -34,6 +36,7 @@ export class ProductPriceVariantService implements OnModuleInit {
         private productPriceApplicator: ProductPriceApplicator,
         private productVariantService: ProductVariantService,
         private eventBus: EventBus,
+        private entityHydrator: EntityHydrator,
     ) {}
 
     onModuleInit() {
@@ -93,6 +96,7 @@ export class ProductPriceVariantService implements OnModuleInit {
     async delete(ctx: RequestContext, id: ID): Promise<DeletionResponse> {
         const priceVariant = await this.findOne(ctx, id);
         if (priceVariant) {
+            // Remove price variant references from the conjunction table so it can be deleted
             await this.detachPriceVariantfromAllProductVariants(ctx, priceVariant);
             await this.connection.getRepository(ctx, ProductVariantPriceVariant).remove(priceVariant);
             await this.eventBus.publish(new PriceVariantEvent(ctx, priceVariant, 'deleted'));
@@ -105,132 +109,157 @@ export class ProductPriceVariantService implements OnModuleInit {
         };
     }
 
+    /**
+     * This updates the prices of the price variants
+     * for an already added product. Mainly used for
+     * csv creation/updation.
+     */
     async updatePriceVariantsForProductVariant(
         ctx: RequestContext,
-        productVariantId: ID,
-        priceVariants: PriceVariantInput[],
+        productVariant: ProductVariant,
+        priceVariantInput: PriceVariantInput[],
     ) {
-        const productVariant = await this.productVariantService.findOne(ctx, productVariantId);
-        if (!productVariant) {
+        const price = this.getChannelPrice(ctx, productVariant);
+        if (!price) {
             return;
         }
-        const productVariantPrice = productVariant.productVariantPrices.find(
-            i => i.channelId === ctx.channelId,
-        );
-        if (!productVariantPrice) {
-            return;
-        }
-        const attached: ID[] = [];
+        const attached = new Set<ID>();
+        const priceVariants = await this.findAll(ctx, {});
         const variants: ProductVariantPriceToPriceVariant[] = [];
-        const allPriceVariants = await this.connection.getRepository(ctx, ProductVariantPriceVariant).find();
-        priceVariants.forEach(item => {
-            const productVariantPriceVariant = allPriceVariants.find(i => i.id === item.id);
-            if (productVariantPriceVariant && !attached.includes(productVariantPriceVariant.id)) {
-                attached.push(productVariantPriceVariant.id);
-                const variant = new ProductVariantPriceToPriceVariant({
-                    price: item.price,
-                    productVariantPrice,
-                    productVariantPriceVariant,
-                });
-                variants.push(variant);
+        priceVariantInput.forEach(variant => {
+            const priceVariant = priceVariants.items.find(i => i.id === variant.id);
+            if (priceVariant && !attached.has(priceVariant.id)) {
+                attached.add(priceVariant.id);
+                variants.push(
+                    new ProductVariantPriceToPriceVariant({
+                        price: variant.price,
+                        productVariantPrice: price,
+                        productVariantPriceVariant: variant,
+                    }),
+                );
             }
         });
-        await this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(variants);
+        return this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(variants);
     }
 
-    async attachPriceVariantsToProductVariant(
+    /**
+     * Attach all missing price variants to
+     * the product variant. This is used when
+     * reindexing the search index table.
+     */
+    async attachAllPriceVariantsToProductVariant(
         ctx: RequestContext,
         productVariant: ProductVariant,
-    ): Promise<ProductVariantPriceToPriceVariant[] | null> {
-        const productVariantPrice = productVariant.productVariantPrices.find(
-            i => i.channelId === ctx.channelId,
-        );
-        if (!productVariantPrice) {
-            return null;
+    ): Promise<ProductVariantPriceToPriceVariant[] | undefined> {
+        const price = this.getChannelPrice(ctx, productVariant);
+        if (!price) {
+            return;
         }
-        const productPriceVariantList = await this.connection
-            .getRepository(ctx, ProductVariantPriceVariant)
-            .find();
-        const productVariantPriceToPriceVariantRepository = this.connection.getRepository(
-            ctx,
-            ProductVariantPriceToPriceVariant,
+        const missingVariants = await this.missingPriceVariants(ctx, productVariant);
+        const entities = missingVariants.map(
+            variant =>
+                new ProductVariantPriceToPriceVariant({
+                    price: price.price || 0,
+                    productVariantPriceVariant: variant,
+                    productVariantPrice: price,
+                }),
         );
-        const attachedVariantIds = productVariantPrice.productVariantPriceVariant.map(
-            i => i.productVariantPriceVariant.id,
-        );
-        const entitiesToSave = productPriceVariantList
-            .filter(variant => !attachedVariantIds.includes(variant.id))
-            .map(
-                variant =>
-                    new ProductVariantPriceToPriceVariant({
-                        price: productVariantPrice.price || 0,
-                        productVariantPriceVariant: variant,
-                        productVariantPrice,
-                    }),
-            );
-        if (entitiesToSave.length > 0) {
-            await productVariantPriceToPriceVariantRepository.save(entitiesToSave);
+        return this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(entities);
+    }
+
+    async getPrice(
+        ctx: RequestContext,
+        productVariant: ProductVariant,
+        priceVariant: ProductVariantPriceVariant,
+    ): Promise<number> {
+        const price = this.getChannelPrice(ctx, productVariant);
+        if (!price) {
+            return 0;
         }
-        return productVariantPrice.productVariantPriceVariant.map(
+        const exists = this.getPriceVariant(ctx, price, priceVariant);
+        if (!exists) {
+            return 0;
+        }
+        return exists.price;
+    }
+
+    /**
+     * Get the price variant price with the
+     * tax applied.
+     */
+    getPriceWithTax(
+        ctx: RequestContext,
+        productVariant: ProductVariant,
+        priceVariant: ProductVariantPriceVariant,
+    ) {
+        const price = this.getChannelPrice(ctx, productVariant);
+        if (!price) {
+            return 0;
+        }
+        const exists = this.getPriceVariant(ctx, price, priceVariant);
+        if (!exists) {
+            return 0;
+        }
+        if (!productVariant.taxRateApplied) {
+            return 0;
+        }
+        return grossPriceOf(exists.price, productVariant.taxRateApplied.value);
+    }
+
+    /**
+     * Get all the price variants from current
+     * channel price of the product variant. Prices
+     * should be joined with product variant.
+     */
+    async channelPriceVariantsPrice(ctx: RequestContext, productVariant: ProductVariant) {
+        const price = productVariant.productVariantPrices.find(i => i.channelId === ctx.channelId);
+        if (!price) {
+            return;
+        }
+        return price.productVariantPriceVariant.map(
             variant =>
                 new ProductVariantPriceToPriceVariant({
                     price: variant.price || 0,
                     productVariantPriceVariant: variant.productVariantPriceVariant,
-                    productVariantPrice,
+                    productVariantPrice: price,
                 }),
         );
     }
 
-    async getPrice(ctx: RequestContext, productVariant: ProductVariant, priceVariantId: ID): Promise<number> {
-        const variant = await this.connection.getRepository(ctx, ProductVariant).findOne({
-            where: {
-                id: productVariant.id,
-            },
-        });
-        if (!variant) {
-            return 0;
+    async getAllPriceVariantPricesForProductVariant(ctx: RequestContext, productVariant: ProductVariant) {
+        const price = this.getChannelPrice(ctx, productVariant);
+        if (!price) {
+            return;
         }
-        return variant.priceVariantPrice(ctx.channelId, priceVariantId);
+        return price.productVariantPriceVariant;
     }
 
-    async getPriceWithTax(
-        ctx: RequestContext,
-        productVariant: ProductVariant,
-        priceVariantId: ID,
-    ): Promise<number> {
-        const variant = await this.connection.getRepository(ctx, ProductVariant).findOne({
-            where: {
-                id: productVariant.id,
-            },
-        });
-        if (!variant) {
-            return 0;
-        }
-        await this.productPriceApplicator.applyChannelPriceAndTax(variant, ctx, undefined);
-        return variant.priceVariantPrice(ctx.channelId, priceVariantId);
-    }
-
+    /**
+     * Attaches the new price variant to each product
+     * variant that already exists. This is in case
+     * a new price variant has been created.
+     */
     private async attachPriceVariantToAllProductVariants(
         ctx: RequestContext,
         priceVariant: ProductVariantPriceVariant,
     ) {
         const productVariants = await this.productVariantService.findAll(ctx, {});
-        const priceVariants: ProductVariantPriceToPriceVariant[] = [];
-        productVariants.items.forEach(variant => {
+        const priceVariants = productVariants.items.map(variant => {
             const price = variant.productVariantPrices.find(p => p.channelId === ctx.channelId);
-            priceVariants.push(
-                new ProductVariantPriceToPriceVariant({
-                    productVariantPrice: price,
-                    productVariantPriceVariant: priceVariant,
-                    price: price?.price ?? 0,
-                }),
-            );
+            return new ProductVariantPriceToPriceVariant({
+                productVariantPrice: price,
+                productVariantPriceVariant: priceVariant,
+                price: price?.price ?? 0,
+            });
         });
-        return await this.connection
-            .getRepository(ctx, ProductVariantPriceToPriceVariant)
-            .save(priceVariants);
+        return this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(priceVariants);
     }
 
+    /**
+     * Removes all conjunction rows for the
+     * price variant so that the price variant
+     * itself can be delted.
+     */
     private async detachPriceVariantfromAllProductVariants(
         ctx: RequestContext,
         priceVariant: ProductVariantPriceVariant,
@@ -239,8 +268,48 @@ export class ProductPriceVariantService implements OnModuleInit {
         const priceVariants = await repository.findBy({
             productVariantPriceVariantId: priceVariant.id,
         });
-        return await this.connection
-            .getRepository(ctx, ProductVariantPriceToPriceVariant)
-            .remove(priceVariants);
+        return repository.remove(priceVariants);
+    }
+
+    /**
+     * Returns the missing price variants for
+     * a product variant
+     */
+    private async missingPriceVariants(ctx: RequestContext, productVariant: ProductVariant) {
+        const priceVariants = await this.findAll(ctx, {});
+        const price = this.getChannelPrice(ctx, productVariant);
+        const missingVariants: ProductVariantPriceVariant[] = [];
+        priceVariants.items.forEach(variant => {
+            const exists = price?.productVariantPriceVariant.find(
+                i => i.productVariantPriceVariantId === variant.id,
+            );
+            if (!exists) {
+                missingVariants.push(variant);
+            }
+        });
+        return missingVariants;
+    }
+
+    private async missingPriceVariantIds(ctx: RequestContext, productVariant: ProductVariant) {
+        const missingVariants = (await this.missingPriceVariants(ctx, productVariant)).map(i => i.id);
+        return missingVariants;
+    }
+
+    private getChannelPrice(ctx: RequestContext, productVariant: ProductVariant) {
+        const price = productVariant.productVariantPrices.find(i => i.channelId === ctx.channelId);
+        if (!price) {
+            return;
+        }
+        return price;
+    }
+
+    private getPriceVariant(
+        ctx: RequestContext,
+        price: ProductVariantPrice,
+        priceVariant: ProductVariantPriceVariant,
+    ) {
+        return price.productVariantPriceVariant.find(
+            i => i.productVariantPriceVariant.id === priceVariant.id,
+        );
     }
 }

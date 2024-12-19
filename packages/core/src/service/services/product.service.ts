@@ -325,7 +325,7 @@ export class ProductService {
                 const createdVariants = await this.productVariantService.create(ctx, [productVariant]);
                 await this.productPriceVariantService.updatePriceVariantsForProductVariant(
                     ctx,
-                    createdVariants[0].id,
+                    createdVariants[0],
                     input.priceVariants ?? [],
                 );
             }
