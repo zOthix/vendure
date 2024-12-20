@@ -94,15 +94,20 @@ export class ProductPriceVariantService implements OnModuleInit {
     }
 
     async delete(ctx: RequestContext, id: ID): Promise<DeletionResponse> {
+        let message: string;
+        let result: DeletionResult;
         const priceVariant = await this.findOne(ctx, id);
         if (priceVariant) {
             // Remove price variant references from the conjunction table so it can be deleted
             await this.detachPriceVariantfromAllProductVariants(ctx, priceVariant);
             await this.connection.getRepository(ctx, ProductVariantPriceVariant).remove(priceVariant);
             await this.eventBus.publish(new PriceVariantEvent(ctx, priceVariant, 'deleted'));
+            message = '';
+            result = DeletionResult.DELETED;
+        } else {
+            message = 'Price variant does not exist.';
+            result = DeletionResult.NOT_DELETED;
         }
-        const message = '';
-        const result = DeletionResult.DELETED;
         return {
             result,
             message,
@@ -222,21 +227,6 @@ export class ProductPriceVariantService implements OnModuleInit {
      * channel price of the product variant. Prices
      * should be joined with product variant.
      */
-    async channelPriceVariantsPrice(ctx: RequestContext, productVariant: ProductVariant) {
-        const price = productVariant.productVariantPrices.find(i => i.channelId === ctx.channelId);
-        if (!price) {
-            return;
-        }
-        return price.productVariantPriceVariant.map(
-            variant =>
-                new ProductVariantPriceToPriceVariant({
-                    price: variant.price || 0,
-                    productVariantPriceVariant: variant.productVariantPriceVariant,
-                    productVariantPrice: price,
-                }),
-        );
-    }
-
     async getAllPriceVariantPricesForProductVariant(ctx: RequestContext, productVariant: ProductVariant) {
         const price = this.getChannelPrice(ctx, productVariant);
         if (!price) {
