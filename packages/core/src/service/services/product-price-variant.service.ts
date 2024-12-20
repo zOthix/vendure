@@ -303,8 +303,6 @@ export class ProductPriceVariantService implements OnModuleInit {
         price: ProductVariantPrice,
         priceVariant: ProductVariantPriceVariant,
     ) {
-        return price.productVariantPriceVariant.find(
-            i => i.productVariantPriceVariant.id === priceVariant.id,
-        );
+        return price.productVariantPriceVariant.find(i => i.productVariantPriceVariantId === priceVariant.id);
     }
 }
