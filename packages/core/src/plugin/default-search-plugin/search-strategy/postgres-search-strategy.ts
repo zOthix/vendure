@@ -87,11 +87,12 @@ export class PostgresSearchStrategy implements SearchStrategy {
         ctx: RequestContext,
         input: SearchInput,
         enabledOnly: boolean,
+        customer?: Customer,
     ): Promise<SearchResult[]> {
         const take = input.take || 25;
         const skip = input.skip || 0;
         const sort = input.sort;
-        let priceVariantId: ID;
+        const priceVariantId = customer?.priceVariant?.id;
         const qb = this.connection
             .getRepository(ctx, SearchIndexItem)
             .createQueryBuilder('si')
@@ -127,28 +128,11 @@ export class PostgresSearchStrategy implements SearchStrategy {
         qb.addSelect('jsonb_agg(si.priceVariants)', 'priceVariants');
         qb.addSelect('jsonb_agg(si.priceVariantsWithTax)', 'priceVariantsWithTax');
 
-        // Get the price variant and category of the customer
-        // so that the products have the correct price
-        // for each variant. And are also filtered by category
-        if (ctx.activeUserId) {
-            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
-                ctx,
-                ctx.activeUserId,
-            );
-            if (customer && customer.priceVariant && customer.priceVariant !== null) {
-                priceVariantId = customer.priceVariant.id;
-            }
-            if (customer && customer.category && customer.category !== null) {
+        if (customer) {
+            if (customer.category) {
                 qb.andWhere(":id && string_to_array(si.collectionIds, ',')", {
                     id: customer.category.map(i => i.id),
                 });
-            } else {
-                qb.andWhere(":id = ANY(string_to_array(si.collectionIds, ','))", {
-                    id: null,
-                });
-            }
-            if (!customer) {
-                qb.andWhere('1=0');
             }
         }
 

@@ -773,17 +773,10 @@ export class OrderModifier {
         productVariant: ProductVariant,
     ): Promise<OrderLine> {
         if (ctx.activeUserId) {
-            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
-                ctx,
-                ctx.activeUserId,
-            );
+            const customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
             if (customer && customer.priceVariant) {
-                const priceVariant = customer.priceVariant.id;
-                const price = await this.productPriceVariantService.getPrice(
-                    ctx,
-                    productVariant,
-                    priceVariant,
-                );
+                const priceVariant = customer.priceVariant;
+                const price = this.productPriceVariantService.getPrice(ctx, productVariant, priceVariant);
                 const updatedOrderLine = orderLine;
                 updatedOrderLine.listPrice = price;
                 return updatedOrderLine;

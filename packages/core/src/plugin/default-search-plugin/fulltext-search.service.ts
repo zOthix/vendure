@@ -5,11 +5,12 @@ import { Omit } from '@vendure/common/lib/omit';
 import { RequestContext } from '../../api/common/request-context';
 import { InternalServerError } from '../../common/error/errors';
 import { TransactionalConnection } from '../../connection/transactional-connection';
-import { Collection, FacetValue } from '../../entity';
+import { Collection, Customer, FacetValue } from '../../entity';
 import { EventBus } from '../../event-bus/event-bus';
 import { SearchEvent } from '../../event-bus/events/search-event';
 import { Job } from '../../job-queue/job';
 import { CollectionService } from '../../service/services/collection.service';
+import { CustomerService } from '../../service/services/customer.service';
 import { FacetValueService } from '../../service/services/facet-value.service';
 import { ProductVariantService } from '../../service/services/product-variant.service';
 import { SearchService } from '../../service/services/search.service';
@@ -39,6 +40,7 @@ export class FulltextSearchService {
         private productVariantService: ProductVariantService,
         private searchIndexService: SearchIndexService,
         private searchService: SearchService,
+        private customerService: CustomerService,
         @Inject(PLUGIN_INIT_OPTIONS) private options: DefaultSearchPluginInitOptions,
     ) {
         this.searchService.adopt(this);
@@ -53,8 +55,12 @@ export class FulltextSearchService {
         input: SearchInput,
         enabledOnly: boolean = false,
     ): Promise<Omit<Omit<SearchResponse, 'facetValues'>, 'collections'>> {
-        const items = await this._searchStrategy.getSearchResults(ctx, input, enabledOnly);
-        const totalItems = await this._searchStrategy.getTotalCount(ctx, input, enabledOnly);
+        let customer: Customer | undefined;
+        if (ctx.activeUserId) {
+            customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
+        }
+        const items = await this._searchStrategy.getSearchResults(ctx, input, enabledOnly, customer);
+        const totalItems = await this._searchStrategy.getTotalCount(ctx, input, enabledOnly, customer);
         await this.eventBus.publish(new SearchEvent(ctx, input));
 
         return {

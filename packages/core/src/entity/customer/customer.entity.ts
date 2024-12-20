@@ -58,11 +58,11 @@ export class Customer extends VendureEntity implements ChannelAware, HasCustomFi
     orders: Order[];
 
     @ManyToOne(type => ProductVariantPriceVariant, { nullable: true, eager: true })
-    priceVariant?: ProductVariantPriceVariant | null;
+    priceVariant: ProductVariantPriceVariant | null;
 
     @ManyToMany(type => Collection, collection => collection.customer, { nullable: true, eager: true })
     @JoinTable()
-    category?: Collection[] | null;
+    category: Collection[] | null;
 
     @OneToOne(type => User, { eager: true })
     @JoinColumn()
@@ -105,11 +105,4 @@ export class Customer extends VendureEntity implements ChannelAware, HasCustomFi
     @OneToOne(type => NotificationToken, { eager: true })
     @JoinColumn()
     pushToken: NotificationToken | null;
-
-    get priceVariantAndCategory() {
-        return {
-            priceVariant: this.priceVariant,
-            category: this.category,
-        };
-    }
 }

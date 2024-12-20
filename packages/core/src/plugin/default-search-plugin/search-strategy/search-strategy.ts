@@ -3,6 +3,7 @@ import { ID } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../../api';
 import { InjectableStrategy } from '../../../common';
+import { Customer } from '../../../entity';
 
 /**
  * @description
@@ -19,8 +20,18 @@ import { InjectableStrategy } from '../../../common';
  * @docsCategory DefaultSearchPlugin
  */
 export interface SearchStrategy extends InjectableStrategy {
-    getSearchResults(ctx: RequestContext, input: SearchInput, enabledOnly: boolean): Promise<SearchResult[]>;
-    getTotalCount(ctx: RequestContext, input: SearchInput, enabledOnly: boolean): Promise<number>;
+    getSearchResults(
+        ctx: RequestContext,
+        input: SearchInput,
+        enabledOnly: boolean,
+        customer?: Customer,
+    ): Promise<SearchResult[]>;
+    getTotalCount(
+        ctx: RequestContext,
+        input: SearchInput,
+        enabledOnly: boolean,
+        customer?: Customer,
+    ): Promise<number>;
     /**
      * Returns a map of `facetValueId` => `count`, providing the number of times that
      * facetValue occurs in the result set.

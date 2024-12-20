@@ -151,6 +151,7 @@ export class CustomerService {
             .leftJoin('customer.channels', 'channel')
             .leftJoinAndSelect('customer.user', 'user')
             .leftJoinAndSelect('customer.priceVariant', 'priceVariant')
+            .leftJoinAndSelect('customer.category', 'category')
             .where('user.id = :userId', { userId })
             .andWhere('customer.deletedAt is null');
         if (filterOnChannel) {
@@ -1048,6 +1049,11 @@ export class CustomerService {
         }
     }
 
+    async getCustomerPriceVariant(ctx: RequestContext, userId: ID) {
+        const customer = await this.findOneByUserId(ctx, userId);
+        return customer?.priceVariant;
+    }
+
     async getCustomerPriceVariantAndCategory(ctx: RequestContext, userId: ID) {
         if (userId) {
             const customer = await this.connection
@@ -1061,7 +1067,10 @@ export class CustomerService {
                 .andWhere('customer.deletedAt is null')
                 .getOne();
             if (customer) {
-                return customer.priceVariantAndCategory;
+                return {
+                    category: customer.category,
+                    priceVariant: customer.priceVariant,
+                };
             }
         }
     }

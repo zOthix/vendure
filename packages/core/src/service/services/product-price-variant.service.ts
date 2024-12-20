@@ -9,18 +9,13 @@ import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../api/common/request-context';
 import { assertFound, ListQueryOptions, roundMoney } from '../../common';
-import { grossPriceOf } from '../../common/tax-utils';
 import { TransactionalConnection } from '../../connection/transactional-connection';
 import { ProductVariant, ProductVariantPrice } from '../../entity';
 import { ProductVariantPriceToPriceVariant } from '../../entity/product-variant/product-variant-price-price-variant.entity';
 import { ProductVariantPriceVariant } from '../../entity/product-variant/product-variant-price-variant.entity';
 import { EventBus } from '../../event-bus';
 import { PriceVariantEvent } from '../../event-bus/events/price-variant-events';
-import { EntityHydrator } from '../helpers/entity-hydrator/entity-hydrator.service';
 import { ListQueryBuilder } from '../helpers/list-query-builder/list-query-builder';
-import { ProductPriceApplicator } from '../helpers/product-price-applicator/product-price-applicator';
-
-import { ProductVariantService } from './product-variant.service';
 
 /**
  * @description
@@ -33,10 +28,7 @@ export class ProductPriceVariantService implements OnModuleInit {
     constructor(
         private connection: TransactionalConnection,
         private listQueryBuilder: ListQueryBuilder,
-        private productPriceApplicator: ProductPriceApplicator,
-        private productVariantService: ProductVariantService,
         private eventBus: EventBus,
-        private entityHydrator: EntityHydrator,
     ) {}
 
     onModuleInit() {
@@ -244,9 +236,11 @@ export class ProductPriceVariantService implements OnModuleInit {
         ctx: RequestContext,
         priceVariant: ProductVariantPriceVariant,
     ) {
-        const productVariants = await this.productVariantService.findAll(ctx, {});
-        const priceVariants = productVariants.items.map(variant => {
-            const price = variant.productVariantPrices.find(p => p.channelId === ctx.channelId);
+        const productVariants = await this.connection
+            .getRepository(ctx, ProductVariant)
+            .find({ relations: ['productVariantPrices'] });
+        const priceVariants = productVariants.map(variant => {
+            const price = this.getChannelPrice(ctx, variant);
             return new ProductVariantPriceToPriceVariant({
                 productVariantPrice: price,
                 productVariantPriceVariant: priceVariant,

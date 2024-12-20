@@ -190,10 +190,7 @@ export class CollectionService implements OnModuleInit {
         }
 
         if (ctx.apiType === 'shop' && ctx.activeUserId) {
-            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
-                ctx,
-                ctx.activeUserId,
-            );
+            const customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
             if (customer && customer.category) {
                 return qb.getManyAndCount().then(async ([collections, totalItems]) => {
                     const items = collections
