@@ -263,10 +263,9 @@ export class OrderService {
                         ),
                         ctx,
                     );
-                    line.listPrice = line.productVariant.price;
                 }
             }
-            return order;
+            return this.applyOrderPriceVariantAdjustments(ctx, order);
         }
     }
 
@@ -1823,6 +1822,24 @@ export class OrderService {
             }
         } else {
             throw new Error('User not found.');
+        }
+    }
+
+    /**
+     * This function should be applied when working with
+     * price variants for customers. To get the correct
+     * prices for different customers for each product
+     * variant. Also calculates the total price of the order.
+     */
+    private async applyOrderPriceVariantAdjustments(ctx: RequestContext, order: Order) {
+        try {
+            await this.checkIfCustomerIsValid(ctx);
+            order.lines.forEach(line => {
+                line.listPrice = line.productVariant.price;
+            });
+            return order;
+        } catch (e: any) {
+            return order;
         }
     }
 }
