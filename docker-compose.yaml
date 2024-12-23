@@ -23,7 +23,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./packages/dev-server/assets:/home/vendure/packages/dev-server/assets
+      - assets:/home/vendure/packages/dev-server/assets
     restart: always
 
   admin:
@@ -37,4 +37,6 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  assets:
     driver: local
