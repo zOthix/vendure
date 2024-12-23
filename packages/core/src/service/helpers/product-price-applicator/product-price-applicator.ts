@@ -45,7 +45,6 @@ export class ProductPriceApplicator {
     constructor(
         private configService: ConfigService,
         private taxRateService: TaxRateService,
-        private customerService: CustomerService,
         private zoneService: ZoneService,
         private requestCache: RequestContextCacheService,
     ) {}
@@ -91,58 +90,15 @@ export class ProductPriceApplicator {
             `applicableTaxRate-${activeTaxZone.id}-${variant.taxCategory.id}`,
             () => this.taxRateService.getApplicableTaxRate(ctx, activeTaxZone, variant.taxCategory),
         );
-        let price = 0;
-        let priceIncludesTax = false;
-        if (ctx.apiType === 'shop' && ctx.activeUserId) {
-            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
-                ctx,
-                ctx.activeUserId,
-            );
-            if (customer && customer.priceVariant) {
-                const { priceVariant } = customer;
-                const priceVariantPrice = variant.priceVariantPrice(ctx.channelId, priceVariant.id);
-                const calculated = await productVariantPriceCalculationStrategy.calculate({
-                    inputPrice: priceVariantPrice ?? 0,
-                    taxCategory: variant.taxCategory,
-                    productVariant: variant,
-                    activeTaxZone,
-                    ctx,
-                });
-                price = calculated.price;
-                priceIncludesTax = calculated.priceIncludesTax;
-            }
-        } else if (ctx.apiType === 'admin' && order && order.customer && order.customer.user) {
-            const customer = await this.customerService.getCustomerPriceVariantAndCategory(
-                ctx,
-                order.customer.user.id,
-            );
-            if (customer && customer.priceVariant) {
-                const { priceVariant } = customer;
-                const priceVariantPrice = variant.priceVariantPrice(ctx.channelId, priceVariant.id);
-                const calculated = await productVariantPriceCalculationStrategy.calculate({
-                    inputPrice: priceVariantPrice ?? 0,
-                    taxCategory: variant.taxCategory,
-                    productVariant: variant,
-                    activeTaxZone,
-                    ctx,
-                });
-                price = calculated.price;
-                priceIncludesTax = calculated.priceIncludesTax;
-            }
-        } else {
-            const calculated = await productVariantPriceCalculationStrategy.calculate({
-                inputPrice: channelPrice?.price ?? 0,
-                taxCategory: variant.taxCategory,
-                productVariant: variant,
-                activeTaxZone,
-                ctx,
-            });
-            price = calculated.price;
-            priceIncludesTax = calculated.priceIncludesTax;
-        }
-
-        variant.listPrice = price;
-        variant.listPriceIncludesTax = priceIncludesTax;
+        const calculated = await productVariantPriceCalculationStrategy.calculate({
+            inputPrice: channelPrice?.price ?? 0,
+            taxCategory: variant.taxCategory,
+            productVariant: variant,
+            activeTaxZone,
+            ctx,
+        });
+        variant.listPrice = calculated.price;
+        variant.listPriceIncludesTax = calculated.priceIncludesTax;
         variant.taxRateApplied = applicableTaxRate;
         variant.currencyCode = channelPrice?.currencyCode ?? ctx.currencyCode;
         return variant;

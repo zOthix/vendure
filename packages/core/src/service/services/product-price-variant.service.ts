@@ -215,6 +215,20 @@ export class ProductPriceVariantService implements OnModuleInit {
     }
 
     /**
+     * Apply the price variant price instead of the
+     * default price.
+     */
+    applyPriceVariantPrice(
+        ctx: RequestContext,
+        productVariant: ProductVariant,
+        priceVariant: ProductVariantPriceVariant,
+    ) {
+        const price = this.getPrice(ctx, productVariant, priceVariant);
+        productVariant.listPrice = price;
+        return productVariant;
+    }
+
+    /**
      * Get all the price variants from current
      * channel price of the product variant. Prices
      * should be joined with product variant.

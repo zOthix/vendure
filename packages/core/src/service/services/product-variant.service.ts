@@ -55,8 +55,10 @@ import { samplesEach } from '../helpers/utils/samples-each';
 
 import { AssetService } from './asset.service';
 import { ChannelService } from './channel.service';
+import { CustomerService } from './customer.service';
 import { FacetValueService } from './facet-value.service';
 import { GlobalSettingsService } from './global-settings.service';
+import { ProductPriceVariantService } from './product-price-variant.service';
 import { RoleService } from './role.service';
 import { StockLevelService } from './stock-level.service';
 import { StockMovementService } from './stock-movement.service';
@@ -88,6 +90,8 @@ export class ProductVariantService {
         private requestCache: RequestContextCacheService,
         private productPriceApplicator: ProductPriceApplicator,
         private translator: TranslatorService,
+        private productPriceVariantService: ProductPriceVariantService,
+        private customerService: CustomerService,
     ) {}
 
     async findAll(
@@ -841,6 +845,23 @@ export class ProductVariantService {
         order?: Order,
         throwIfNoPriceFound = false,
     ): Promise<ProductVariant> {
+        // Apply the price variant if user is logged in
+        if (ctx.activeUserId) {
+            const customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
+            if (customer && customer.priceVariant) {
+                const productVariant = await this.productPriceApplicator.applyChannelPriceAndTax(
+                    variant,
+                    ctx,
+                    order,
+                    throwIfNoPriceFound,
+                );
+                return this.productPriceVariantService.applyPriceVariantPrice(
+                    ctx,
+                    productVariant,
+                    customer.priceVariant,
+                );
+            }
+        }
         return this.productPriceApplicator.applyChannelPriceAndTax(variant, ctx, order, throwIfNoPriceFound);
     }
 
