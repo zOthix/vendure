@@ -10,7 +10,5 @@ scripts
 docker-compose.yaml
 Dockerfile
 packages/cli
-packages/create
 packages/dev-server/assets
 packages/dev-server/test-emails
-packages/testing
