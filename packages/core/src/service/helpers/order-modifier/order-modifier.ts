@@ -170,21 +170,17 @@ export class OrderModifier {
 
         const productVariant = await this.getProductVariantOrThrow(ctx, productVariantId);
         const orderLine = await this.connection.getRepository(ctx, OrderLine).save(
-            await this.applyPriceVariantToOrderLine(
-                ctx,
-                new OrderLine({
-                    productVariant,
-                    taxCategory: productVariant.taxCategory,
-                    featuredAsset: productVariant.featuredAsset ?? productVariant.product.featuredAsset,
-                    listPrice: productVariant.listPrice,
-                    listPriceIncludesTax: productVariant.listPriceIncludesTax,
-                    adjustments: [],
-                    taxLines: [],
-                    customFields,
-                    quantity: 0,
-                }),
+            new OrderLine({
                 productVariant,
-            ),
+                taxCategory: productVariant.taxCategory,
+                featuredAsset: productVariant.featuredAsset ?? productVariant.product.featuredAsset,
+                listPrice: productVariant.listPrice,
+                listPriceIncludesTax: productVariant.listPriceIncludesTax,
+                adjustments: [],
+                taxLines: [],
+                customFields,
+                quantity: 0,
+            }),
         );
         const { orderSellerStrategy } = this.configService.orderOptions;
         if (typeof orderSellerStrategy.setOrderLineSellerChannel === 'function') {
@@ -765,24 +761,6 @@ export class OrderModifier {
             });
         }
         return order;
-    }
-
-    async applyPriceVariantToOrderLine(
-        ctx: RequestContext,
-        orderLine: OrderLine,
-        productVariant: ProductVariant,
-    ): Promise<OrderLine> {
-        if (ctx.activeUserId) {
-            const customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
-            if (customer && customer.priceVariant) {
-                const priceVariant = customer.priceVariant;
-                const price = this.productPriceVariantService.getPrice(ctx, productVariant, priceVariant);
-                const updatedOrderLine = orderLine;
-                updatedOrderLine.listPrice = price;
-                return updatedOrderLine;
-            }
-        }
-        return orderLine;
     }
 
     private noChangesSpecified(input: ModifyOrderInput): boolean {
