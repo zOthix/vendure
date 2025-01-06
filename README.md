@@ -38,6 +38,98 @@ vendure/
     ├── docs/       # Scripts used to generate documentation markdown from the source
 ```
 
+## Deploying a Containerized Vendure Setup
+
+This guide will help you set up and run a containerized Vendure application, including the Admin UI, the dev server (API), and the database, using Docker Compose.
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/) installed on your machine
+- [Docker Compose](https://docs.docker.com/compose/) installed
+### 1. Install top-level dependencies
+
+  
+
+`npm install`
+
+### 2. Build all packages
+
+  
+
+`npm run build`
+
+  
+
+Packages must be built (i.e. TypeScript compiled, admin ui app built, certain assets copied etc.) before being used.
+
+  
+
+Note that this can take a few minutes.
+
+### 3. Set up environment variables
+
+Copy all contents from `.env.example` file and paste into a newly created `.env` file at the root of the project. Adjust the values as needed. 
+
+Default ones are good to start up but for prod; make sure to change the credentials (POSTGRES_PASSWORD, SUPERADMIN_PASSWORD) to something more secure.
+
+### 4. Starting the containers
+
+   Use the following command to start up the containers:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+   This will bring up the following services:
+
+   - **Dev Server (API):** Runs on port `4090` by default
+   - **Admin UI:** Runs on port `4091` by default
+   - **Database:** A PostgreSQL instance used by Vendure
+
+ **Accessing the Services**
+
+   - **Dev Server (API):** Visit `http://localhost:4090`
+   - **Admin UI:** Visit `http://localhost:4091`
+
+**Stopping the Containers**
+
+   To stop the containers, use:
+
+   ```bash
+   docker compose down
+   ```
+
+### 5. Customizing Ports
+
+The default ports for the Dev Server and Admin UI can be customized:
+
+- **Dev Server (API):** Update the port in the `shared-constants.ts` file.
+- **Admin UI:** Update the port in the `vendure-ui-config.json` file.
+
+After making changes, rebuild and restart the containers:
+
+```bash
+npm run build
+```
+```bash
+docker compose down && docker compose up -d --build
+```
+
+## Troubleshooting
+
+- Ensure Docker and Docker Compose are properly installed and running.
+- Check for port conflicts if the services fail to start.
+- Review the logs for any errors:
+
+  ```bash
+  docker compose logs
+  ```
+
+## Additional Resources
+
+- [Vendure Documentation](https://www.vendure.io/docs/)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
+
 ## Development
 
 > [!IMPORTANT]
