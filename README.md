@@ -103,8 +103,9 @@ Default ones are good to start up but for prod; make sure to change the credenti
 
 The default ports for the Dev Server and Admin UI can be customized:
 
-- **Dev Server (API):** Update the port in the `shared-constants.ts` file.
-- **Admin UI:** Update the port in the `vendure-ui-config.json` file.
+-  **Dev Server (API):** Update the `API_PORT` in the `.env` file.
+-  **Admin UI:** Update the `ADMIN_UI_PORT` in the `.env` file. 
+-  **API Access:** Ensure that you edit the `apiPort` and `apiHost` in the `vendure-ui-config.json` file so the API can be accessed properly from the frontend.
 
 After making changes, rebuild and restart the containers:
 
