@@ -115,6 +115,10 @@ npm  run  build
 docker  compose  down && docker  compose  up  -d  --build
 ``` 
 
+### 6. Final steps
+
+Update the `SYNCHRONIZE` flag to `false` in the `.env` file.
+
 ## Troubleshooting
 
 - Ensure Docker and Docker Compose are properly installed and running.
