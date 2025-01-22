@@ -11,3 +11,4 @@ export * from './src/types';
 export * from './src/email-send-event';
 export * from './src/generator/email-generator';
 export * from './src/sender/email-sender';
+export * from './src/sender/turbo-smtp-email-sender';

@@ -20,7 +20,7 @@ import {
 } from '@vendure/core';
 import { ElasticsearchPlugin } from '@vendure/elasticsearch-plugin';
 import { TranzilaPlugin } from '@vendure/payments-plugin/src/tranzila';
-import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
+import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader, TurboSMTPEmailSender } from '@vendure/email-plugin';
 import { BullMQJobQueuePlugin } from '@vendure/job-queue-plugin/package/bullmq';
 import 'dotenv/config';
 import { compileUiExtensions } from '@vendure/ui-devkit/compiler';
@@ -108,8 +108,6 @@ export const devConfig: VendureConfig = {
         //     bufferUpdates: true,
         // }),
         EmailPlugin.init({
-            devMode: true,
-            route: 'mailbox',
             handlers: defaultEmailHandlers,
             templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../email-plugin/templates')),
             outputPath: path.join(__dirname, 'test-emails'),
@@ -118,6 +116,8 @@ export const devConfig: VendureConfig = {
                 passwordResetUrl: 'http://localhost:4201/reset-password',
                 changeEmailAddressUrl: 'http://localhost:4201/change-email-address',
             },
+            transport: { type: "none" },
+            emailSender: new TurboSMTPEmailSender()
         }),
         AdminUiPlugin.init({
             route: 'admin',
