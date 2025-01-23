@@ -30,6 +30,7 @@ import { createRoutes } from './customer.routes';
 import { CustomerGroupDetailComponent } from './components/customer-group-detail/customer-group-detail.component';
 import { CustomerUnapprovedListComponent } from './components/customer-unapproved-list/customer-unapproved-list.component';
 import { SendCustomerNotificationListComponent } from './components/send-customer-notification/send-customer-notification-list.component';
+import { CustomerRejectReasonDialogComponent } from './components/customer-reject-reason-dialog/customer-reject-reason-dialog.component';
 
 @NgModule({
     imports: [SharedModule, RouterModule.forChild([])],
@@ -51,6 +52,7 @@ import { SendCustomerNotificationListComponent } from './components/send-custome
         AddCustomerToGroupDialogComponent,
         CustomerGroupMemberListComponent,
         SelectCustomerGroupDialogComponent,
+        CustomerRejectReasonDialogComponent,
         CustomerHistoryComponent,
         AddressDetailDialogComponent,
         CustomerHistoryEntryHostComponent,
