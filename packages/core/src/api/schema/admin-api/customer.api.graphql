@@ -29,6 +29,9 @@ type Mutation {
     "Approve a customer"
     approveCustomer(id: ID!): Customer!
 
+    "Reject a customer"
+    rejectCustomer(id: ID!, reason: String): Customer!
+
     addNoteToCustomer(input: AddNoteToCustomerInput!): Customer!
     updateCustomerNote(input: UpdateCustomerNoteInput!): HistoryEntry!
     deleteCustomerNote(id: ID!): DeletionResponse!

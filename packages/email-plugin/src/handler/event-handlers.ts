@@ -1,10 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { AccountRegistrationEvent, AccountVerifiedEvent, NativeAuthenticationMethod } from '@vendure/core';
+import {
+    AccountRegistrationEvent,
+    AccountVerifiedEvent,
+    NativeAuthenticationMethod,
+    CustomerRejectedEvent,
+} from '@vendure/core';
 
 import { EmailEventListener } from '../event-listener';
 
 import { EmailEventHandler } from './event-handler';
-import { mockAccountRegistrationEvent } from './mock-events';
 
 /**
  * Extending the default email handlers.
@@ -29,7 +33,17 @@ export const customerVerifiedHandler = new EmailEventListener('customer-verified
     .setFrom('{{ fromAddress }}')
     .setSubject('Account verified');
 
+export const customerDeclinedHandler = new EmailEventListener('customer-rejected')
+    .on(CustomerRejectedEvent)
+    .setRecipient(event => event.customer.emailAddress)
+    .setFrom('{{ fromAddress }}')
+    .setTemplateVars(event => ({
+        reason: event.reason ?? 'the data you provided is invalid',
+    }))
+    .setSubject('Your account has been rejected');
+
 export const eventHandlers: Array<EmailEventHandler<any, any>> = [
     customerRegistrationHandler,
     customerVerifiedHandler,
+    customerDeclinedHandler,
 ];

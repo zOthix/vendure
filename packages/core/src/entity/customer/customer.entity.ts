@@ -68,6 +68,9 @@ export class Customer extends VendureEntity implements ChannelAware, HasCustomFi
     @JoinColumn()
     user?: User;
 
+    @Column({ default: false })
+    isRejected: boolean;
+
     @Column(type => CustomCustomerFields)
     customFields: CustomCustomerFields;
 

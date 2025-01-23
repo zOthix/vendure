@@ -10,6 +10,7 @@ import {
     MutationDeleteCustomerArgs,
     MutationDeleteCustomerNoteArgs,
     MutationDeleteCustomersArgs,
+    MutationRejectCustomerArgs,
     MutationUpdateCustomerAddressArgs,
     MutationUpdateCustomerArgs,
     MutationUpdateCustomerNoteArgs,
@@ -108,6 +109,13 @@ export class CustomerResolver {
     @Allow(Permission.UpdateCustomer)
     async approveCustomer(@Ctx() ctx: RequestContext, @Args() args: MutationApproveCustomerArgs) {
         return this.customerService.approveCustomer(ctx, args.id);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCustomer)
+    async rejectCustomer(@Ctx() ctx: RequestContext, @Args() args: MutationRejectCustomerArgs) {
+        return this.customerService.rejectCustomer(ctx, args.id, args.reason);
     }
 
     @Transaction()

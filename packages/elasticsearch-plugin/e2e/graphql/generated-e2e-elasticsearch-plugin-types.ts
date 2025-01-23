@@ -2007,6 +2007,7 @@ export enum HistoryEntryType {
     CUSTOMER_PASSWORD_RESET_VERIFIED = 'CUSTOMER_PASSWORD_RESET_VERIFIED',
     CUSTOMER_PASSWORD_UPDATED = 'CUSTOMER_PASSWORD_UPDATED',
     CUSTOMER_REGISTERED = 'CUSTOMER_REGISTERED',
+    CUSTOMER_REJECTED = 'CUSTOMER_REJECTED',
     CUSTOMER_REMOVED_FROM_GROUP = 'CUSTOMER_REMOVED_FROM_GROUP',
     CUSTOMER_VERIFIED = 'CUSTOMER_VERIFIED',
     ORDER_CANCELLATION = 'ORDER_CANCELLATION',
@@ -2890,6 +2891,8 @@ export type Mutation = {
     moveCollection: Collection;
     refundOrder: RefundOrderResult;
     reindex: Job;
+    /** Reject a customer */
+    rejectCustomer: Customer;
     /** Removes Collections from the specified Channel */
     removeCollectionsFromChannel: Array<Collection>;
     /** Removes the given coupon code from the draft Order */
@@ -3441,6 +3444,11 @@ export type MutationMoveCollectionArgs = {
 
 export type MutationRefundOrderArgs = {
     input: RefundOrderInput;
+};
+
+export type MutationRejectCustomerArgs = {
+    id: Scalars['ID']['input'];
+    reason?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type MutationRemoveCollectionsFromChannelArgs = {

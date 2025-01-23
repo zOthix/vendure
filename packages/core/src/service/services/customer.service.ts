@@ -58,6 +58,7 @@ import { AccountRegistrationEvent } from '../../event-bus/events/account-registr
 import { AccountVerifiedEvent } from '../../event-bus/events/account-verified-event';
 import { CustomerAddressEvent } from '../../event-bus/events/customer-address-event';
 import { CustomerEvent } from '../../event-bus/events/customer-event';
+import { CustomerRejectedEvent } from '../../event-bus/events/customer-rejected-event';
 import { IdentifierChangeEvent } from '../../event-bus/events/identifier-change-event';
 import { IdentifierChangeRequestEvent } from '../../event-bus/events/identifier-change-request-event';
 import { PasswordResetEvent } from '../../event-bus/events/password-reset-event';
@@ -409,6 +410,7 @@ export class CustomerService {
         const customer = await this.findOne(ctx, id);
         if (customer && customer.user) {
             customer.user.verified = true;
+            customer.isRejected = false;
             await this.connection.getRepository(ctx, User).save(customer.user);
             if (ctx.channelId) {
                 await this.channelService.assignToChannels(ctx, Customer, customer.id, [ctx.channelId]);
@@ -426,6 +428,30 @@ export class CustomerService {
             return user;
         } else {
             throw new InternalServerError('error.cannot-locate-customer-for-user');
+        }
+    }
+
+    async rejectCustomer(ctx: RequestContext, id: ID, reason?: string) {
+        const customer = await this.findOne(ctx, id);
+        if (customer && customer.user) {
+            if (customer.isRejected) {
+                throw new InternalServerError('Customer is already rejected');
+            }
+            customer.user.verified = false;
+            customer.isRejected = true;
+            await this.connection.getRepository(ctx, Customer).save(customer);
+            await this.historyService.createHistoryEntryForCustomer({
+                customerId: customer.id,
+                ctx,
+                type: HistoryEntryType.CUSTOMER_REJECTED,
+                data: {
+                    reason: reason ?? 'The provided data is invalid',
+                },
+            });
+            await this.eventBus.publish(new CustomerRejectedEvent(ctx, customer, reason));
+            return assertFound(this.findOne(ctx, id));
+        } else {
+            throw new InternalServerError('error.customer-does-not-exist');
         }
     }
 
