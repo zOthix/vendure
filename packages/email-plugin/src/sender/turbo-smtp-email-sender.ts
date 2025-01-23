@@ -13,10 +13,10 @@ import { EmailSender } from './email-sender';
  */
 export class TurboSMTPEmailSender implements EmailSender {
     async send(email: EmailDetails) {
-        const fromAddress = process.env.fromAddress ?? '';
-        const url = process.env.turboURL ?? '';
-        const consumerKey = process.env.consumerKey ?? '';
-        const consumerSecret = process.env.consumerSecret ?? '';
+        const fromAddress = process.env.FROM_ADDRESS ?? '';
+        const url = process.env.TURBO_URL ?? '';
+        const consumerKey = process.env.CONSUMER_KEY ?? '';
+        const consumerSecret = process.env.CONSUMER_SECRET ?? '';
 
         await axios.post(
             url,
