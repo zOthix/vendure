@@ -6,6 +6,8 @@
     "cannot-delete-sole-superadmin": "The sole SuperAdmin cannot be deleted",
     "cannot-locate-customer-for-user": "Cannot locate a Customer for the user",
     "customer-does-not-exist": "Customer does not exist",
+    "customer-already-rejected": "Customer is already rejected",
+    "customer-already-verified":"Customer is already verified",
     "cannot-modify-role": "The role \"{ roleCode }\" cannot be modified",
     "cannot-move-collection-into-self": "Cannot move a Collection into itself",
     "cannot-transition-payment-from-to": "Cannot transition Payment from \"{ fromState }\" to \"{ toState }\"",

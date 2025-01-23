@@ -38,10 +38,10 @@
                 <time [dateTime]="lastLogin">{{ lastLogin | timeAgo }}</time>
             </vdr-labeled-data>
         </vdr-card>
-        <vdr-card [title]="'customer.approve-or-reject-customer' | translate">
+        <vdr-card [title]="'common.verification' | translate">
             <div class="buttons-container">
-                <button class="button-small bg-weight-150" (click)="approveCustomer()">Approve</button>
-                <button class="button-small bg-weight-150" (click)="rejectCustomer()">Reject</button>
+                <button class="button-small bg-weight-150" (click)="approveCustomer()">{{ 'common.approve' | translate }}</button>
+                <button class="button-small bg-weight-150" (click)="rejectCustomer()">{{ 'common.reject' | translate }}</button>
             </div>
         </vdr-card>
         <vdr-card *ngIf="!(isNew$ | async)" [title]="'customer.pay-without-credit-card' | translate">

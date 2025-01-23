@@ -410,7 +410,7 @@ export class CustomerService {
         const customer = await this.findOne(ctx, id);
         if (customer && customer.user) {
             if (customer.user.verified === true) {
-                throw new InternalServerError('Customer is already verified');
+                throw new InternalServerError('error.customer-already-verified');
             }
             customer.user.verified = true;
             customer.isRejected = false;
@@ -439,7 +439,7 @@ export class CustomerService {
         const customer = await this.findOne(ctx, id);
         if (customer && customer.user) {
             if (customer.isRejected === true) {
-                throw new InternalServerError('Customer is already rejected');
+                throw new InternalServerError('error.customer-already-rejected');
             }
             customer.user.verified = false;
             customer.isRejected = true;

@@ -264,9 +264,9 @@ export class CustomerDetailComponent
                 }),
             )
             .subscribe(result => {
-                this.notificationService.success(_('common.notify-update-success'), {
-                    entity: 'Note',
-                });
+                this.notificationService.success(_('common.notify-customer-reject-success'));
+                this.refreshCustomer().subscribe();
+                this.fetchHistory.next();
             });
     }
 
