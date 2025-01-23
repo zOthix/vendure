@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { AccountRegistrationEvent, NativeAuthenticationMethod } from '@vendure/core';
+import { AccountRegistrationEvent, AccountVerifiedEvent, NativeAuthenticationMethod } from '@vendure/core';
 
 import { EmailEventListener } from '../event-listener';
 
@@ -21,7 +21,15 @@ export const customerRegistrationHandler = new EmailEventListener('customer-regi
     })
     .setRecipient(event => event.user.identifier)
     .setFrom('{{ fromAddress }}')
-    .setSubject('Welcome to the Business Club')
-    .setMockEvent(mockAccountRegistrationEvent);
+    .setSubject('Welcome to the Business Club');
 
-export const eventHandlers: Array<EmailEventHandler<any, any>> = [customerRegistrationHandler];
+export const customerVerifiedHandler = new EmailEventListener('customer-verified')
+    .on(AccountVerifiedEvent)
+    .setRecipient(event => event.customer.emailAddress)
+    .setFrom('{{ fromAddress }}')
+    .setSubject('Account verified');
+
+export const eventHandlers: Array<EmailEventHandler<any, any>> = [
+    customerRegistrationHandler,
+    customerVerifiedHandler,
+];
