@@ -1,0 +1,11 @@
+<ng-template vdrDialogTitle>
+    {{ 'common.rejection-reason' | translate }}
+</ng-template>
+
+<textarea [(ngModel)]="reason" name="reason" class="note"></textarea>
+<ng-template vdrDialogButtons>
+    <button type="button" class="btn" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+    <button type="submit" (click)="confirm()" class="btn btn-primary" [disabled]="reason.length === 0">
+        {{ 'common.confirm' | translate }}
+    </button>
+</ng-template>
