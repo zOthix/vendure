@@ -317,3 +317,11 @@ export const SEND_NOTIFICATION_TO_CUSTOMER = gql`
         }
     }
 `;
+
+export const REJECT_CUSTOMER = gql`
+    mutation RejectCustomer($id: ID!, $reason: String) {
+        rejectCustomer(id: $id, reason: $reason) {
+            id
+        }
+    }
+`;

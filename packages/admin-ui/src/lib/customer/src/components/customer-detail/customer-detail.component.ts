@@ -41,6 +41,7 @@ import {
 } from 'rxjs/operators';
 
 import { SelectCustomerGroupDialogComponent } from '../select-customer-group-dialog/select-customer-group-dialog.component';
+import { CustomerRejectReasonDialogComponent } from '../customer-reject-reason-dialog/customer-reject-reason-dialog.component';
 
 type CustomerWithOrders = NonNullable<CustomerDetailQueryQuery['customer']>;
 
@@ -108,6 +109,7 @@ export class CustomerDetailComponent
         }),
         addresses: new UntypedFormArray([]),
     });
+    customerId: string;
     categories: string[] = [];
     availableCountries$: Observable<GetAvailableCountriesQuery['countries']['items']>;
     orders$: Observable<CustomerWithOrders['orders']['items']>;
@@ -171,6 +173,7 @@ export class CustomerDetailComponent
         customerWithUpdates$.subscribe(customer => {
             if (customer) {
                 this.payWithoutCreditCard = customer.payWithoutCreditCard ?? false;
+                this.customerId = customer.id;
             }
         });
     }
@@ -238,6 +241,52 @@ export class CustomerDetailComponent
         const input = event.target as HTMLInputElement;
         this.payWithoutCreditCard = input.checked;
         this.detailForm.get('customer')?.markAsDirty();
+    }
+
+    rejectCustomer() {
+        const customer = this.detailForm.get('customer')?.value;
+        const customerFirstName = customer?.firstName;
+        const customerLastName = customer?.lastName;
+        this.modalService
+            .fromComponent(CustomerRejectReasonDialogComponent, {
+                closable: true,
+                locals: {
+                    reason: '',
+                },
+            })
+            .pipe(
+                switchMap(result => {
+                    if (result) {
+                        return this.dataService.customer.rejectCustomer(this.customerId, result.reason);
+                    } else {
+                        return EMPTY;
+                    }
+                }),
+            )
+            .subscribe(result => {
+                this.notificationService.success(_('common.notify-update-success'), {
+                    entity: 'Note',
+                });
+            });
+    }
+
+    approveCustomer() {
+        const customer = this.detailForm.get('customer')?.value;
+        const customerFirstName = customer?.firstName;
+        const customerLastName = customer?.lastName;
+        this.dataService.customer.approveCustomer(this.customerId).subscribe(
+            data => {
+                this.notificationService.success(_('common.notify-approve-customer-success'), {
+                    user: `${customerFirstName} ${customerLastName}`,
+                });
+                this.refreshCustomer().subscribe();
+            },
+            err => {
+                this.notificationService.error(_('common.notify-approve-customer-error'), {
+                    user: `${customerFirstName} ${customerLastName}`,
+                });
+            },
+        );
     }
 
     create() {

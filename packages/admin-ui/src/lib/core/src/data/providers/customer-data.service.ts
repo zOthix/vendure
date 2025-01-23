@@ -17,6 +17,7 @@ import {
     GET_CUSTOMER_GROUPS,
     GET_CUSTOMER_HISTORY,
     GET_CUSTOMER_LIST,
+    REJECT_CUSTOMER,
     REMOVE_CUSTOMERS_FROM_GROUP,
     SEND_NOTIFICATION_TO_CUSTOMER,
     UPDATE_CUSTOMER,
@@ -256,6 +257,16 @@ export class CustomerDataService {
                 days,
                 noOrderCustomers,
             },
+        });
+    }
+
+    rejectCustomer(id: string, reason?: string) {
+        return this.baseDataService.mutate<
+            Codegen.RejectCustomerMutation,
+            Codegen.RejectCustomerMutationVariables
+        >(REJECT_CUSTOMER, {
+            id: id,
+            reason: reason,
         });
     }
 }

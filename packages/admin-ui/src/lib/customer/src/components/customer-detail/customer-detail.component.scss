@@ -7,3 +7,10 @@
 .to-delete {
     opacity: 0.5;
 }
+
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    align-items: flex-start;
+}

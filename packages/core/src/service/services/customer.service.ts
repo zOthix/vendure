@@ -409,9 +409,13 @@ export class CustomerService {
     async approveCustomer(ctx: RequestContext, id: ID) {
         const customer = await this.findOne(ctx, id);
         if (customer && customer.user) {
+            if (customer.user.verified === true) {
+                throw new InternalServerError('Customer is already verified');
+            }
             customer.user.verified = true;
             customer.isRejected = false;
             await this.connection.getRepository(ctx, User).save(customer.user);
+            await this.connection.getRepository(ctx, Customer).save(customer);
             if (ctx.channelId) {
                 await this.channelService.assignToChannels(ctx, Customer, customer.id, [ctx.channelId]);
             }
@@ -434,11 +438,12 @@ export class CustomerService {
     async rejectCustomer(ctx: RequestContext, id: ID, reason?: string) {
         const customer = await this.findOne(ctx, id);
         if (customer && customer.user) {
-            if (customer.isRejected) {
+            if (customer.isRejected === true) {
                 throw new InternalServerError('Customer is already rejected');
             }
             customer.user.verified = false;
             customer.isRejected = true;
+            await this.connection.getRepository(ctx, User).save(customer.user);
             await this.connection.getRepository(ctx, Customer).save(customer);
             await this.historyService.createHistoryEntryForCustomer({
                 customerId: customer.id,
