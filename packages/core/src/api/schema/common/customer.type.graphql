@@ -23,6 +23,7 @@ type Customer implements Node {
     priceVariant: ProductVariantPriceVariant
     category: [Collection]
     pushToken: String
+    isRejected: Boolean
 }
 
 type CustomerList implements PaginatedList {

@@ -349,6 +349,7 @@
     "reset-columns": "Reset columns",
     "results-count": "{ count } {count, plural, one {result} other {results}}",
     "reject": "Reject",
+    "rejected": "Rejected",
     "rejection-reason": "Rejection reason",
     "sample-formatting": "Sample formatting",
     "save-filter-preset": "Save as preset",

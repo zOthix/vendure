@@ -45,6 +45,7 @@ export const CUSTOMER_FRAGMENT = gql`
         VAT
         address
         managerAddress
+        isRejected
         user {
             id
             identifier
