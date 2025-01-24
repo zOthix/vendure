@@ -13,6 +13,7 @@ export * from './components/customer-history/customer-history-entry-host.compone
 export * from './components/customer-history/customer-history.component';
 export * from './components/customer-list/customer-list-bulk-actions';
 export * from './components/customer-list/customer-list.component';
+export * from './components/customer-reject-reason-dialog/customer-reject-reason-dialog.component';
 export * from './components/customer-status-label/customer-status-label.component';
 export * from './components/customer-unapproved-list/customer-unapproved-list-bulk-actions';
 export * from './components/customer-unapproved-list/customer-unapproved-list.component';
