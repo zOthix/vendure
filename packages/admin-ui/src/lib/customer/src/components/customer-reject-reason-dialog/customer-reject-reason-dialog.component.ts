@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
-import { Dialog } from '../../../../core/src/providers/modal/modal.types';
+import { Dialog } from '@vendure/admin-ui/core';
 
 @Component({
     selector: 'vdr-customer-reject-reason-dialog',
