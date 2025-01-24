@@ -813,7 +813,7 @@ export type CreateCustomerInput = {
   contactPersonPhone: Scalars['String']['input'];
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   emailAddress: Scalars['String']['input'];
-  fax: Scalars['String']['input'];
+  fax?: InputMaybe<Scalars['String']['input']>;
   firstName: Scalars['String']['input'];
   lastName: Scalars['String']['input'];
   managerAddress: Scalars['String']['input'];

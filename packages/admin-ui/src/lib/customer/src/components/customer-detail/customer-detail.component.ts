@@ -102,7 +102,7 @@ export class CustomerDetailComponent
             businessName: ['', Validators.required],
             businessPhone: ['', Validators.required],
             contactPersonPhone: ['', Validators.required],
-            fax: ['', Validators.required],
+            fax: '',
             VAT: ['', Validators.required],
             address: ['', Validators.required],
             managerAddress: ['', Validators.required],
