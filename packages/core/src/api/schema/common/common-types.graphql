@@ -200,7 +200,7 @@ input CreateCustomerInput {
     VAT: String!
     businessPhone: String!
     contactPersonPhone: String!
-    fax: String!
+    fax: String
     accountingPhone: String!
     accountingEmail: String!
     address: String!
