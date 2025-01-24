@@ -1407,6 +1407,7 @@ export type Customer = Node & {
   groups: Array<CustomerGroup>;
   history: HistoryEntryList;
   id: Scalars['ID']['output'];
+  isRejected?: Maybe<Scalars['Boolean']['output']>;
   lastName: Scalars['String']['output'];
   managerAddress: Scalars['String']['output'];
   orders: OrderList;
@@ -1444,6 +1445,7 @@ export type CustomerFilterParameter = {
   fax?: InputMaybe<StringOperators>;
   firstName?: InputMaybe<StringOperators>;
   id?: InputMaybe<IdOperators>;
+  isRejected?: InputMaybe<BooleanOperators>;
   lastName?: InputMaybe<StringOperators>;
   managerAddress?: InputMaybe<StringOperators>;
   payWithoutCreditCard?: InputMaybe<BooleanOperators>;
