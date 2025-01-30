@@ -20,12 +20,12 @@ import {
 } from '@vendure/core';
 import { ElasticsearchPlugin } from '@vendure/elasticsearch-plugin';
 import { TranzilaPlugin } from '@vendure/payments-plugin/src/tranzila';
-import { 
-    defaultEmailHandlers, 
-    EmailPlugin, 
-    FileBasedTemplateLoader, 
-    TurboSMTPEmailSender, 
-    eventHandlers 
+import {
+    defaultEmailHandlers,
+    EmailPlugin,
+    FileBasedTemplateLoader,
+    TurboSMTPEmailSender,
+    eventHandlers,
 } from '@vendure/email-plugin';
 import { BullMQJobQueuePlugin } from '@vendure/job-queue-plugin/package/bullmq';
 import 'dotenv/config';
@@ -43,6 +43,7 @@ const IS_DEV = process.env.APP_ENV === 'dev';
  */
 export const devConfig: VendureConfig = {
     apiOptions: {
+        cors: { origin: process.env.CORS ?? '*', credentials: true },
         port: API_PORT,
         adminApiPath: ADMIN_API_PATH,
         adminApiPlayground: {
@@ -122,8 +123,8 @@ export const devConfig: VendureConfig = {
                 passwordResetUrl: 'http://localhost:4201/reset-password',
                 changeEmailAddressUrl: 'http://localhost:4201/change-email-address',
             },
-            transport: { type: "none" },
-            emailSender: new TurboSMTPEmailSender()
+            transport: { type: 'none' },
+            emailSender: new TurboSMTPEmailSender(),
         }),
         AdminUiPlugin.init({
             route: 'admin',

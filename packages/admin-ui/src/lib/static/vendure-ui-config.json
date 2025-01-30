@@ -1,6 +1,6 @@
 {
-    "apiHost": "http://64.176.164.234",
-    "apiPort": "4090",
+    "apiHost": "https://backend.newtec-il.com",
+    "apiPort": "443",
     "adminApiPath": "admin-api",
     "tokenMethod": "bearer",
     "authTokenHeaderKey": "vendure-auth-token",
