@@ -166,6 +166,18 @@ export class BaseNavComponent implements OnInit, OnDestroy {
                 ],
             },
             {
+                id: 'website',
+                label: _('nav.website'),
+                items: [
+                    {
+                        id: 'edit-website',
+                        label: _('nav.edit-website'),
+                        routerLink: ['/website', 'website'],
+                        icon: 'pencil',
+                    },
+                ],
+            },
+            {
                 id: 'notifications',
                 label: _('nav.notifications'),
                 requiresPermission: allow(Permission.ReadCustomer, Permission.ReadCustomerGroup),

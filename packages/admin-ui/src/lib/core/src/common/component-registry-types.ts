@@ -97,6 +97,7 @@ export type PageLocationId =
     | 'tax-category-list'
     | 'tax-rate-detail'
     | 'tax-rate-list'
+    | 'edit-website'
     | 'zone-detail'
     | 'zone-list';
 
