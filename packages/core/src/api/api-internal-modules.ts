@@ -40,6 +40,7 @@ import { StockLocationResolver } from './resolvers/admin/stock-location.resolver
 import { TagResolver } from './resolvers/admin/tag.resolver';
 import { TaxCategoryResolver } from './resolvers/admin/tax-category.resolver';
 import { TaxRateResolver } from './resolvers/admin/tax-rate.resolver';
+import { WebsiteResolver } from './resolvers/admin/website.resolver';
 import { ZoneResolver } from './resolvers/admin/zone.resolver';
 import { AdministratorEntityResolver } from './resolvers/entity/administrator-entity.resolver';
 import { AssetEntityResolver } from './resolvers/entity/asset-entity.resolver';
@@ -122,6 +123,7 @@ const adminResolvers = [
     TaxRateResolver,
     SellerResolver,
     ZoneResolver,
+    WebsiteResolver,
 ];
 
 const shopResolvers = [

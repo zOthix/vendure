@@ -1,2 +1,32 @@
-
-<p>Hi from edit website</p>
+<vdr-page-block>
+    <vdr-action-bar>
+        <vdr-ab-left> </vdr-ab-left>
+        <vdr-ab-right>
+            <vdr-action-bar-items locationId="edit-website"></vdr-action-bar-items>
+            <button class="btn btn-primary hidden">
+                {{ 'common.create' | translate }}
+            </button>
+            <vdr-action-bar-dropdown-menu locationId="edit-website" />
+        </vdr-ab-right>
+    </vdr-action-bar>
+</vdr-page-block>
+<vdr-page-detail-layout>
+    <vdr-page-block>
+        <form class="form" [formGroup]="detailForm">
+            <vdr-card [title]="'website.edit-website' | translate">
+                <div class="form-grid">
+                    <vdr-form-field
+                        class="form-grid-span"
+                        [label]="'common.footer' | translate"
+                        for="footerContent"
+                        [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }"
+                    >
+                        <vdr-rich-text-editor
+                            formControlName="footerContent"
+                        ></vdr-rich-text-editor>
+                    </vdr-form-field>
+                </div>
+            </vdr-card>
+        </form>
+    </vdr-page-block>
+</vdr-page-detail-layout>
