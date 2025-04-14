@@ -54,6 +54,7 @@
     "send-notification-to-customer": "שלח הודעה ללקוח",
     "tax-categories": "קטגוריות מס",
     "tax-rates": "שיעורי מס",
+    "website": "אֲתַר אִינטֶרנֶט",
     "zones": "אזורים"
   },
   "catalog": {
@@ -573,6 +574,7 @@
     "customer-groups": "קבוצות לקוחות",
     "customers": "לקוחות",
     "customers-unapproved": "לקוחות לא מאושרים",
+    "edit-website": "ערוך אתר",
     "facets": "תכונות",
     "global-settings": "הגדרות גלובליות",
     "job-queue": "תור עבודה",
@@ -593,6 +595,7 @@
     "send-notification": "שלח הודעה",
     "tax-categories": "קטגוריות מס",
     "tax-rates": "שערי מס",
+    "website":"אֲתַר אִינטֶרנֶט",
     "zones": "אזורים"
   },
   "order": {
