@@ -71,6 +71,7 @@ import { Tag } from './tag/tag.entity';
 import { TaxCategory } from './tax-category/tax-category.entity';
 import { TaxRate } from './tax-rate/tax-rate.entity';
 import { User } from './user/user.entity';
+import { Website } from './website/website.entity';
 import { Zone } from './zone/zone.entity';
 
 /**
@@ -151,4 +152,5 @@ export const coreEntitiesMap = {
     ProductVariantPriceVariant,
     ProductVariantPriceToPriceVariant,
     NotificationToken,
+    Website,
 };

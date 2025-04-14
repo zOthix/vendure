@@ -1,0 +1,5 @@
+type Website implements Node {
+    id: ID!
+    content: String!
+    footerContent: String!
+}

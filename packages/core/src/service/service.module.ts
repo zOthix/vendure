@@ -68,6 +68,7 @@ import { TagService } from './services/tag.service';
 import { TaxCategoryService } from './services/tax-category.service';
 import { TaxRateService } from './services/tax-rate.service';
 import { UserService } from './services/user.service';
+import { WebsiteService } from './services/website.service';
 import { ZoneService } from './services/zone.service';
 
 const services = [
@@ -109,6 +110,7 @@ const services = [
     ProductPriceVariantService,
     NotificationTokenService,
     NotificationService,
+    WebsiteService,
 ];
 
 const helpers = [

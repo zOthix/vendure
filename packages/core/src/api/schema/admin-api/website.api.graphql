@@ -1,0 +1,14 @@
+type Query {
+  "Get website details"
+  getWebsite: Website
+}
+
+type Mutation {
+  "Update website details"
+  updateWebsite(input: UpdateWebsiteInput!): Website!
+}
+
+input UpdateWebsiteInput {
+    content: String
+    footerContent: String
+}
