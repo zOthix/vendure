@@ -2,4 +2,14 @@ type Website implements Node {
     id: ID!
     content: String!
     footerContent: String!
+    announcementBarText: String!
+    weblinks: [WebLink]!
+}
+
+type WebLink implements Node {
+    id: ID!
+    link: String!
+    linkText: String!
+    position: Int
+    featuredAsset: Asset!
 }

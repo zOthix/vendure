@@ -6,9 +6,20 @@ type Query {
 type Mutation {
   "Update website details"
   updateWebsite(input: UpdateWebsiteInput!): Website!
+  "Create weblink"
+  createWebLink(input: CreateWebLinkInput!): WebLink!
 }
 
 input UpdateWebsiteInput {
     content: String
     footerContent: String
+    announcementBarText: String
+    weblinks: [ID!]
+}
+
+input CreateWebLinkInput {
+    link: String!
+    linkText: String!
+    position: Int
+    featuredAsset: ID!
 }

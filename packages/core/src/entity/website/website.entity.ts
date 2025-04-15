@@ -1,10 +1,12 @@
 import { DeepPartial } from '@vendure/common/lib/shared-types';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { SoftDeletable } from '../../common/types/common-types';
 import { HasCustomFields } from '../../config/custom-field/custom-field-types';
 import { VendureEntity } from '../base/base.entity';
 import { CustomProductFields } from '../custom-entity-fields';
+
+import { WebLink } from './web-link.entity';
 
 /**
  * @description
@@ -26,6 +28,12 @@ export class Website extends VendureEntity implements HasCustomFields, SoftDelet
 
     @Column({ default: '' })
     footerContent: string;
+
+    @Column({ default: '' })
+    announcementBarText: string;
+
+    @OneToMany(() => WebLink, weblink => weblink.website)
+    weblinks: WebLink[];
 
     @Column({ type: Date, nullable: true })
     deletedAt: Date | null;
