@@ -3,8 +3,8 @@
         <vdr-ab-left> </vdr-ab-left>
         <vdr-ab-right>
             <vdr-action-bar-items locationId="edit-website"></vdr-action-bar-items>
-            <button class="btn btn-primary hidden">
-                {{ 'common.create' | translate }}
+            <button (click)="save()" [disabled]="detailForm.invalid || detailForm.pristine" class="btn btn-primary">
+                {{ 'common.update' | translate }}
             </button>
             <vdr-action-bar-dropdown-menu locationId="edit-website" />
         </vdr-ab-right>
@@ -15,15 +15,13 @@
         <form class="form" [formGroup]="detailForm">
             <vdr-card [title]="'website.edit-website' | translate">
                 <div class="form-grid">
-                    <vdr-form-field
-                        class="form-grid-span"
-                        [label]="'common.footer' | translate"
-                        for="footerContent"
-                        [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }"
-                    >
-                        <vdr-rich-text-editor
-                            formControlName="footerContent"
-                        ></vdr-rich-text-editor>
+                    <vdr-form-field class="form-grid-span" [label]="'common.content' | translate" for="content"
+                        [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
+                        <vdr-rich-text-editor formControlName="content"></vdr-rich-text-editor>
+                    </vdr-form-field>
+                    <vdr-form-field class="form-grid-span" [label]="'common.footer-content' | translate" for="footerContent"
+                        [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
+                        <vdr-rich-text-editor formControlName="footerContent"></vdr-rich-text-editor>
                     </vdr-form-field>
                 </div>
             </vdr-card>

@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
-import { DataService, GetWebsiteDocument, Website, GetWebsiteQuery } from '@vendure/admin-ui/core';
-import { gql } from 'apollo-angular';
-import { Observable, shareReplay, takeUntil, Subject } from 'rxjs';
+import { DataService, GetWebsiteDocument, Website, NotificationService } from '@vendure/admin-ui/core';
+import { takeUntil, Subject } from 'rxjs';
 
 @Component({
     selector: 'vdr-edit-website',
@@ -13,15 +12,15 @@ import { Observable, shareReplay, takeUntil, Subject } from 'rxjs';
 })
 export class EditWebsiteComponent implements OnInit {
     detailForm = this.formBuilder.group({
-        content: '',
-        footerContent: '',
+        content: ['', Validators.required],
+        footerContent: ['', Validators.required],
     });
-    websiteDetails$ = Observable<GetWebsiteQuery['getWebsite']>;
 
     constructor(
         private formBuilder: FormBuilder,
         protected dataService: DataService,
         private changeDetector: ChangeDetectorRef,
+        private notificationService: NotificationService,
     ) {}
 
     private destroy$ = new Subject<void>();
@@ -41,6 +40,27 @@ export class EditWebsiteComponent implements OnInit {
         this.detailForm.patchValue({
             content: entity.content,
             footerContent: entity.footerContent,
+        });
+    }
+
+    save() {
+        const input = {
+            content: this.detailForm.get('content')?.value || '',
+            footerContent: this.detailForm.get('footerContent')?.value || '',
+        };
+        this.dataService.website.updateWebsite(input).subscribe({
+            next: res => {
+                this.notificationService.success(_('common.notify-update-success'), {
+                    entity: 'Website',
+                });
+                this.detailForm.markAsPristine();
+                this.changeDetector.markForCheck();
+            },
+            error: err => {
+                this.notificationService.error(_('common.notify-update-error'), {
+                    entity: 'Website',
+                });
+            },
         });
     }
 }
