@@ -15,15 +15,22 @@
         <form class="form" [formGroup]="detailForm">
             <vdr-card [title]="'website.edit-website' | translate">
                 <div class="form-grid">
+                    <vdr-form-field [label]="'website.announcement-bar-text' | translate" for="announcementBarText">
+                        <input id="announcementBarText" type="text" formControlName="announcementBarText" />
+                    </vdr-form-field>
                     <vdr-form-field class="form-grid-span" [label]="'common.content' | translate" for="content"
                         [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
                         <vdr-rich-text-editor formControlName="content"></vdr-rich-text-editor>
                     </vdr-form-field>
-                    <vdr-form-field class="form-grid-span" [label]="'common.footer-content' | translate" for="footerContent"
-                        [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
+                    <vdr-form-field class="form-grid-span" [label]="'common.footer-content' | translate"
+                        for="footerContent" [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
                         <vdr-rich-text-editor formControlName="footerContent"></vdr-rich-text-editor>
                     </vdr-form-field>
                 </div>
+            </vdr-card>
+            <vdr-card [title]="'catalog.assets' | translate">
+                <vdr-single-asset [featuredAsset]="assetChanges.featuredAsset"
+                    (change)="assetChanges = $event"></vdr-single-asset>
             </vdr-card>
         </form>
     </vdr-page-block>

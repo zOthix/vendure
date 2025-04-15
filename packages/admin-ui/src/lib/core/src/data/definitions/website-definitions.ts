@@ -4,6 +4,7 @@ export const WEBSITE_FRAGMENT = gql`
     fragment Website on Website {
         content
         footerContent
+        announcementBarText
         id
     }
 `;

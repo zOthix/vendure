@@ -1,0 +1,66 @@
+<div *ngIf="!compact; else compactView" class="standard-view-container">
+    <div class="featured-asset">
+        <img
+            *ngIf="featuredAsset"
+            [src]="featuredAsset | assetPreview : 'small'"
+            (click)="previewAsset(featuredAsset)"
+        />
+        <div class="placeholder" *ngIf="!featuredAsset" (click)="selectAsset()">
+            <clr-icon shape="image" size="128"></clr-icon>
+            <div>{{ 'catalog.no-featured-asset' | translate }}</div>
+        </div>
+    </div>
+
+    <div class="all-assets-container" *vdrIfPermissions="updatePermissions">
+        <button
+            *ngIf="!featuredAsset"
+            class="btn"
+            (click)="selectAsset()"
+        >
+            <clr-icon shape="attachment"></clr-icon>
+            {{ 'asset.add-asset' | translate }}
+        </button>
+
+        <button
+            *ngIf="featuredAsset"
+            class="btn btn-warning"
+            (click)="removeAsset()"
+        >
+            <clr-icon shape="trash"></clr-icon>
+            {{ 'asset.remove-asset' | translate }}
+        </button>
+    </div>
+</div>
+
+<ng-template #compactView>
+    <div class="featured-asset compact">
+        <img
+            *ngIf="featuredAsset"
+            [src]="featuredAsset | assetPreview : 'thumb'"
+            (click)="previewAsset(featuredAsset)"
+        />
+        <div class="placeholder" *ngIf="!featuredAsset" (click)="selectAsset()">
+            <clr-icon shape="image" size="150"></clr-icon>
+        </div>
+    </div>
+
+    <button
+        *vdrIfPermissions="updatePermissions && !featuredAsset"
+        class="compact-select btn btn-icon btn-sm btn-block"
+        [title]="'asset.add-asset' | translate"
+        (click)="selectAsset()"
+    >
+        <clr-icon shape="attachment"></clr-icon>
+        {{ 'asset.add-asset' | translate }}
+    </button>
+
+    <button
+        *vdrIfPermissions="updatePermissions && featuredAsset"
+        class="compact-remove btn btn-icon btn-sm btn-block btn-warning"
+        [title]="'asset.remove-asset' | translate"
+        (click)="removeAsset()"
+    >
+        <clr-icon shape="trash"></clr-icon>
+        {{ 'asset.remove-asset' | translate }}
+    </button>
+</ng-template>
