@@ -12,8 +12,36 @@
 </vdr-page-block>
 <vdr-page-detail-layout>
     <vdr-page-block>
-        <form class="form" [formGroup]="detailForm">
-            <vdr-card [title]="'website.edit-website' | translate">
+        <vdr-card [title]="'website.edit-links' | translate">
+            <clr-tabs>
+                <clr-tab *ngFor="let weblink of webLinks; let i = index">
+                    <button clrTabLink id="link{{i+1}}">Link {{ i + 1 }}</button>
+                    <clr-tab-content id="content{{i+1}}">
+                        <div class="form-grid mt-4">
+                            <vdr-form-field [label]="'website.link' | translate" for="link-{{ i }}">
+                                <input id="link-{{ i }}" type="text" [value]="weblink.link"
+                                    (input)="onWeblinkChange(i, 'link', $event.target.value)" name="link-{{ i }}" />
+                            </vdr-form-field>
+                            <vdr-form-field [label]="'website.link-text' | translate" for="link-text-{{ i }}">
+                                <input id="link-text-{{ i }}" type="text" [value]="weblink.linkText"
+                                    (input)="onWeblinkChange(i, 'linkText', $event.target.value)"
+                                    name="linkText-{{ i }}" />
+                            </vdr-form-field>
+                            <vdr-form-field [label]="'website.position' | translate" for="position-{{ i }}">
+                                <input id="position-{{ i }}" type="number" [value]="weblink.position"
+                                    (input)="onWeblinkChange(i, 'position', $event.target.value)"
+                                    name="position-{{ i }}" />
+                            </vdr-form-field>
+                            <div></div>
+                            <vdr-single-asset [featuredAsset]="weblink.featuredAsset"
+                                (change)="weblink.featuredAsset = $event.featuredAsset"></vdr-single-asset>
+                        </div>
+                    </clr-tab-content>
+                </clr-tab>
+            </clr-tabs>
+        </vdr-card>
+        <vdr-card [title]="'website.edit-website' | translate">
+            <form class="form" [formGroup]="detailForm">
                 <div class="form-grid">
                     <vdr-form-field [label]="'website.announcement-bar-text' | translate" for="announcementBarText">
                         <input id="announcementBarText" type="text" formControlName="announcementBarText" />
@@ -27,11 +55,7 @@
                         <vdr-rich-text-editor formControlName="footerContent"></vdr-rich-text-editor>
                     </vdr-form-field>
                 </div>
-            </vdr-card>
-            <vdr-card [title]="'catalog.assets' | translate">
-                <vdr-single-asset [featuredAsset]="assetChanges.featuredAsset"
-                    (change)="assetChanges = $event"></vdr-single-asset>
-            </vdr-card>
-        </form>
+            </form>
+        </vdr-card>
     </vdr-page-block>
 </vdr-page-detail-layout>

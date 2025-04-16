@@ -10,9 +10,17 @@
 
 .standard-view-container {
     display: flex;
+    justify-content: flex-start;
     gap: calc(var(--space-unit) * 2);
 }
 
+.w-max {
+    width: max-content;
+}
+
+.self-end {
+    align-self: flex-end;
+}
 
 .all-assets-container {
     display: flex;

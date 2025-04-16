@@ -14,7 +14,7 @@
     <div class="all-assets-container" *vdrIfPermissions="updatePermissions">
         <button
             *ngIf="!featuredAsset"
-            class="btn"
+            class="btn w-max self-end"
             (click)="selectAsset()"
         >
             <clr-icon shape="attachment"></clr-icon>
@@ -23,7 +23,7 @@
 
         <button
             *ngIf="featuredAsset"
-            class="btn btn-warning"
+            class="btn btn-warning w-max self-end"
             (click)="removeAsset()"
         >
             <clr-icon shape="trash"></clr-icon>

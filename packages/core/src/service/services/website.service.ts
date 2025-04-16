@@ -40,7 +40,11 @@ export class WebsiteService {
 
     async update(ctx: RequestContext, input: UpdateWebsiteInput): Promise<Website> {
         const websiteRepository = this.connection.getRepository(ctx, Website);
-        const website = await websiteRepository.find({ order: { id: 'ASC' }, take: 1 });
+        const website = await websiteRepository.find({
+            relations: ['weblinks', 'weblinks.featuredAsset'],
+            order: { id: 'ASC' },
+            take: 1,
+        });
         if (website.length === 0) {
             const newWebsite = new Website({
                 ...input,
@@ -117,7 +121,7 @@ export class WebsiteService {
         if (input.position) {
             weblink.position = input.position;
         }
-        if (input.featuredAsset) {
+        if (input.featuredAsset || input.featuredAsset === null) {
             weblink.featuredAsset = featuredAsset;
         }
         return weblinkRepo.save(weblink);

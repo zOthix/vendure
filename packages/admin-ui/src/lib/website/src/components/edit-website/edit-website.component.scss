@@ -1,3 +1,17 @@
 .ng-select {
     min-width: 100%;
 }
+
+.tab-btn-container {
+    display: flex;
+}
+
+.tab-btn-container > button {
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+.mt-4 {
+    margin-top: 20px;
+}
