@@ -177,6 +177,7 @@ import { RenameFilterPresetDialogComponent } from './components/data-table-filte
 import { ActionBarDropdownMenuComponent } from './components/action-bar-dropdown-menu/action-bar-dropdown-menu.component';
 import { DuplicateEntityDialogComponent } from './components/duplicate-entity-dialog/duplicate-entity-dialog.component';
 import { MultiSelectComponent } from './components/multiselect/multiselect.component';
+import { SingleAssetComponent } from './components/single-asset/single-asset.component';
 
 const IMPORTS = [
     ClarityModule,
@@ -326,6 +327,7 @@ const DECLARATIONS = [
     RenameFilterPresetDialogComponent,
     DuplicateEntityDialogComponent,
     MultiSelectComponent,
+    SingleAssetComponent,
 ];
 
 const DYNAMIC_FORM_INPUTS = [
