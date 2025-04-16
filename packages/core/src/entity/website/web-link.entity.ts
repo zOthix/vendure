@@ -28,11 +28,11 @@ export class WebLink extends VendureEntity {
     linkText: string;
 
     @Column({ type: 'int', nullable: true })
-    position: number | null;
+    position?: number;
 
     @Index()
     @ManyToOne(type => Asset, asset => asset.featuredInWeblink, { onDelete: 'SET NULL' })
-    featuredAsset: Asset;
+    featuredAsset?: Asset;
 
     @ManyToOne(() => Website, website => website.weblinks, { onDelete: 'CASCADE' })
     website: Website;

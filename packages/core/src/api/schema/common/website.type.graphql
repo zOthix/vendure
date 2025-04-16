@@ -11,5 +11,5 @@ type WebLink implements Node {
     link: String!
     linkText: String!
     position: Int
-    featuredAsset: Asset!
+    featuredAsset: Asset
 }

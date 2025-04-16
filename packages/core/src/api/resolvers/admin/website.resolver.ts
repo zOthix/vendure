@@ -1,6 +1,12 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
-import { MutationUpdateWebsiteArgs, Permission } from '@vendure/common/lib/generated-types';
+import {
+    MutationUpdateWebsiteArgs,
+    Permission,
+    MutationCreateWebLinkArgs,
+    MutationUpdateWebLinksArgs,
+} from '@vendure/common/lib/generated-types';
 
+import { WebLink } from '../../../entity/website/web-link.entity';
 import { Website } from '../../../entity/website/website.entity';
 import { WebsiteService } from '../../../service/services/website.service';
 import { RequestContext } from '../../common/request-context';
@@ -22,5 +28,19 @@ export class WebsiteResolver {
     updateWebsite(@Ctx() ctx: RequestContext, @Args() args: MutationUpdateWebsiteArgs): Promise<Website> {
         const { input } = args;
         return this.websiteService.update(ctx, input);
+    }
+
+    @Mutation()
+    @Allow(Permission.Authenticated)
+    createWebLink(@Ctx() ctx: RequestContext, @Args() args: MutationCreateWebLinkArgs): Promise<WebLink> {
+        const { input } = args;
+        return this.websiteService.createWeblink(ctx, input);
+    }
+
+    @Mutation()
+    @Allow(Permission.Authenticated)
+    updateWebLinks(@Ctx() ctx: RequestContext, @Args() args: MutationUpdateWebLinksArgs): Promise<WebLink[]> {
+        const { input } = args;
+        return this.websiteService.updateWebLinks(ctx, input);
     }
 }

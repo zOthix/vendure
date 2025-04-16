@@ -1,25 +1,39 @@
 type Query {
-  "Get website details"
-  getWebsite: Website
+    "Get website details"
+    getWebsite: Website
 }
 
 type Mutation {
-  "Update website details"
-  updateWebsite(input: UpdateWebsiteInput!): Website!
-  "Create weblink"
-  createWebLink(input: CreateWebLinkInput!): WebLink!
+    "Update website details"
+    updateWebsite(input: UpdateWebsiteInput!): Website!
+    "Create weblink"
+    createWebLink(input: CreateWebLinkInput!): WebLink!
+    "Update weblinks"
+    updateWebLinks(input: UpdateWebLinksInput!): [WebLink]!
 }
 
 input UpdateWebsiteInput {
     content: String
     footerContent: String
     announcementBarText: String
-    weblinks: [ID!]
+    weblinks: [ID]
 }
 
 input CreateWebLinkInput {
     link: String!
     linkText: String!
     position: Int
-    featuredAsset: ID!
+    featuredAsset: ID
+}
+
+input UpdateWebLinksInput {
+    links: [UpdateWebLinkInput!]
+}
+
+input UpdateWebLinkInput {
+    id: ID!
+    link: String
+    linkText: String
+    position: Int
+    featuredAsset: ID
 }

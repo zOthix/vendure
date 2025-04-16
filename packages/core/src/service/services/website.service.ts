@@ -1,11 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { CreateWebLinkInput, UpdateWebsiteInput } from '@vendure/common/lib/generated-types';
+import {
+    CreateWebLinkInput,
+    UpdateWebLinkInput,
+    UpdateWebLinksInput,
+    UpdateWebsiteInput,
+} from '@vendure/common/lib/generated-types';
+import { ID } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../api/common/request-context';
 import { TransactionalConnection } from '../../connection/transactional-connection';
 import { Asset } from '../../entity';
 import { WebLink } from '../../entity/website/web-link.entity';
 import { Website } from '../../entity/website/website.entity';
+
+import { AssetService } from './asset.service';
 
 /**
  * @description
@@ -15,7 +23,10 @@ import { Website } from '../../entity/website/website.entity';
  */
 @Injectable()
 export class WebsiteService {
-    constructor(private connection: TransactionalConnection) {}
+    constructor(
+        private connection: TransactionalConnection,
+        private assetService: AssetService,
+    ) {}
 
     async getOne(ctx: RequestContext): Promise<Website | undefined> {
         const website = await this.connection
@@ -50,10 +61,20 @@ export class WebsiteService {
         return websiteRepository.save(tempWebsite);
     }
 
+    async findWebLink(ctx: RequestContext, id: ID): Promise<WebLink | undefined> {
+        const weblink = await this.connection.getRepository(ctx, WebLink).findOneBy({
+            id: id as number,
+        });
+        if (!weblink) {
+            return;
+        }
+        return weblink;
+    }
+
     async createWeblink(ctx: RequestContext, input: CreateWebLinkInput): Promise<WebLink> {
         const weblinkRepository = this.connection.getRepository(ctx, WebLink);
         const weblinkList = await weblinkRepository.count();
-        if (weblinkList > 4) {
+        if (weblinkList >= 4) {
             throw new Error('Cannot make more than 4 weblinks.');
         }
         const assetRepository = this.connection.getRepository(ctx, Asset);
@@ -70,6 +91,42 @@ export class WebsiteService {
             website,
         });
         return weblinkRepository.save(tempWebLink);
+    }
+
+    async updateWebLink(ctx: RequestContext, input: UpdateWebLinkInput): Promise<WebLink> {
+        const weblinkRepo = this.connection.getRepository(ctx, WebLink);
+        let featuredAsset: Asset | undefined;
+        if (input.featuredAsset) {
+            featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
+        }
+        const weblink = await this.findWebLink(ctx, input.id);
+        if (!weblink) {
+            return this.createWeblink(ctx, {
+                link: input.link || '',
+                linkText: input.linkText || '',
+                position: input.position,
+                featuredAsset: featuredAsset ? featuredAsset.id : undefined,
+            });
+        }
+        if (input.link) {
+            weblink.link = input.link;
+        }
+        if (input.linkText) {
+            weblink.linkText = input.linkText;
+        }
+        if (input.position) {
+            weblink.position = input.position;
+        }
+        if (input.featuredAsset) {
+            weblink.featuredAsset = featuredAsset;
+        }
+        return weblinkRepo.save(weblink);
+    }
+
+    async updateWebLinks(ctx: RequestContext, input: UpdateWebLinksInput) {
+        const links = input.links || [];
+        const operations = links.map(i => this.updateWebLink(ctx, i));
+        return Promise.all(operations);
     }
 
     async getWebLinks(ctx: RequestContext): Promise<WebLink[]> {
