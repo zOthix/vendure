@@ -34,7 +34,7 @@
                             </vdr-form-field>
                             <div></div>
                             <vdr-single-asset [featuredAsset]="weblink.featuredAsset"
-                                (change)="weblink.featuredAsset = $event.featuredAsset"></vdr-single-asset>
+                                (assetChange)="onAssetChange($event, weblink)"></vdr-single-asset>
                         </div>
                     </clr-tab-content>
                 </clr-tab>
