@@ -6,6 +6,7 @@ import { HasCustomFields } from '../../config/custom-field/custom-field-types';
 import { VendureEntity } from '../base/base.entity';
 import { CustomProductFields } from '../custom-entity-fields';
 
+import { CarousalItem } from './carousal-item.entity';
 import { WebLink } from './web-link.entity';
 
 /**
@@ -34,6 +35,9 @@ export class Website extends VendureEntity implements HasCustomFields, SoftDelet
 
     @OneToMany(() => WebLink, weblink => weblink.website)
     weblinks: WebLink[];
+
+    @OneToMany(() => CarousalItem, carousalItem => carousalItem.website)
+    carousalItems: CarousalItem[];
 
     @Column({ type: Date, nullable: true })
     deletedAt: Date | null;

@@ -4,6 +4,7 @@ type Website implements Node {
     footerContent: String!
     announcementBarText: String!
     weblinks: [WebLink]!
+    carousalItems: [CarousalItem]!
 }
 
 type WebLink implements Node {
@@ -12,4 +13,10 @@ type WebLink implements Node {
     linkText: String!
     position: Int
     featuredAsset: Asset
+}
+
+type CarousalItem implements Node {
+    id: ID!
+    position: Int!
+    featuredAsset: Asset!
 }

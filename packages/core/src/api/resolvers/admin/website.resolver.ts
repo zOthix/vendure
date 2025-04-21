@@ -18,7 +18,6 @@ export class WebsiteResolver {
     constructor(private websiteService: WebsiteService) {}
 
     @Query()
-    @Allow(Permission.Authenticated)
     getWebsite(@Ctx() ctx: RequestContext): Promise<Website | undefined> {
         return this.websiteService.getOne(ctx);
     }

@@ -10,6 +10,8 @@ type Mutation {
     createWebLink(input: CreateWebLinkInput!): WebLink!
     "Update weblinks"
     updateWebLinks(input: UpdateWebLinksInput!): [WebLink]!
+    "Create carousalItem"
+    createCarousalItem(input: CreateCarousalItemInput!): CarousalItem!
 }
 
 input UpdateWebsiteInput {
@@ -34,6 +36,17 @@ input UpdateWebLinkInput {
     id: ID!
     link: String
     linkText: String
+    position: Int
+    featuredAsset: ID
+}
+
+input CreateCarousalItemInput {
+    position: Int!
+    featuredAsset: ID!
+}
+
+input UpdateCarousalItemInput {
+    id: ID!
     position: Int
     featuredAsset: ID
 }

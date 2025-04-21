@@ -11,6 +11,7 @@ import { CustomAssetFields } from '../custom-entity-fields';
 import { Product } from '../product/product.entity';
 import { ProductVariant } from '../product-variant/product-variant.entity';
 import { Tag } from '../tag/tag.entity';
+import { CarousalItem } from '../website/carousal-item.entity';
 import { WebLink } from '../website/web-link.entity';
 
 /**
@@ -64,6 +65,9 @@ export class Asset extends VendureEntity implements Taggable, ChannelAware, HasC
 
     @OneToMany(type => WebLink, weblink => weblink.featuredAsset)
     featuredInWeblink?: WebLink[];
+
+    @OneToMany(type => CarousalItem, carousalItem => carousalItem.featuredAsset)
+    featuredCarousalItem?: CarousalItem[];
 
     @Column(type => CustomAssetFields)
     customFields: CustomAssetFields;

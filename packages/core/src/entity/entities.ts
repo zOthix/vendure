@@ -1,3 +1,5 @@
+import { CarousalItem } from '../../dist/entity/website/carousal-item.entity';
+
 import { Address } from './address/address.entity';
 import { Administrator } from './administrator/administrator.entity';
 import { Asset } from './asset/asset.entity';
@@ -88,6 +90,7 @@ export const coreEntitiesMap = {
     AuthenticationMethod,
     Cancellation,
     Channel,
+    CarousalItem,
     Collection,
     CollectionAsset,
     CollectionTranslation,
