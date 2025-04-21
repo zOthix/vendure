@@ -24,6 +24,9 @@ export class CarousalItem extends VendureEntity {
     @Column({ type: 'int', nullable: true })
     position: number;
 
+    @Column({ default: true })
+    isActive: boolean;
+
     @Index()
     @ManyToOne(type => Asset, asset => asset.featuredCarousalItem, { onDelete: 'SET NULL' })
     featuredAsset: Asset;

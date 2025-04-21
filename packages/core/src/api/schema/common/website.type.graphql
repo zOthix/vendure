@@ -19,4 +19,5 @@ type CarousalItem implements Node {
     id: ID!
     position: Int!
     featuredAsset: Asset!
+    isActive: Boolean!
 }

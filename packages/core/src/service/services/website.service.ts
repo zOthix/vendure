@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
+    CreateCarousalItemInput,
     CreateWebLinkInput,
     UpdateWebLinkInput,
     UpdateWebLinksInput,
@@ -10,6 +11,7 @@ import { ID } from '@vendure/common/lib/shared-types';
 import { RequestContext } from '../../api/common/request-context';
 import { TransactionalConnection } from '../../connection/transactional-connection';
 import { Asset } from '../../entity';
+import { CarousalItem } from '../../entity/website/carousal-item.entity';
 import { WebLink } from '../../entity/website/web-link.entity';
 import { Website } from '../../entity/website/website.entity';
 
@@ -136,5 +138,15 @@ export class WebsiteService {
     async getWebLinks(ctx: RequestContext): Promise<WebLink[]> {
         const weblinkRepository = this.connection.getRepository(ctx, WebLink);
         return weblinkRepository.find({ order: { id: 'ASC' }, take: 4 });
+    }
+
+    async createCarousalItem(ctx: RequestContext, input: CreateCarousalItemInput): Promise<CarousalItem> {
+        const carousalItemRepository = this.connection.getRepository(ctx, CarousalItem);
+        const featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
+        const newCarousalItem = new CarousalItem({
+            featuredAsset,
+            position: input.position,
+        });
+        return carousalItemRepository.save(newCarousalItem);
     }
 }
