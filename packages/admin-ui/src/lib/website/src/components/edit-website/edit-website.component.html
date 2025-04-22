@@ -13,27 +13,32 @@
 <vdr-page-detail-layout>
     <vdr-page-block>
         <vdr-card [title]="'website.carousal-items' | translate">
-            <vdr-tabs [tabs]="carousalItemTabs" [addNewTab]="true" (newTabClicked)="addNewCarousalItem()">
+            <vdr-tabs [tabs]="carousalItemTabs" [addNewTab]="true" (newTabClicked)="addNewCarousalItem()"
+                (selectedTab)="updateCarousalItemTab($event)">
                 <ng-container *ngFor="let item of carousalItems; let i = index">
-                    <vdr-tab title="Link {{ i+1 }}" [active]="carousalItemTabs[i].active">
+                    <vdr-tab title="Link {{ i+1 }}" [active]="i == activeCarousalItemTab">
                         <div class="form-grid mt-4">
                             <vdr-form-field [label]="'website.position' | translate" for="position-{{ i }}">
                                 <input id="position-{{ i }}" type="number" [value]="item.position"
-                                    (input)="onWeblinkChange(i, 'position', $event.target.value)"
+                                    (input)="onCarousalItemChange(i, 'position', $event.target.value)"
                                     name="position-{{ i }}" />
                             </vdr-form-field>
-                            <div></div>
+                            <vdr-form-field [label]="'website.is-active' | translate" for="isActive-{{ i }}">
+                                <input id="isActive-{{ i }}" type="checkbox" [checked]="item.isActive"
+                                    (input)="onCarousalItemChange(i, 'isActive', $event.target.value)"
+                                    name="position-{{ i }}" />
+                            </vdr-form-field>
                             <vdr-single-asset [featuredAsset]="item.featuredAsset"
-                                (assetChange)="onAssetChange($event, item)"></vdr-single-asset>
+                                (assetChange)="onCarousalItemssetChange($event, item)"></vdr-single-asset>
                         </div>
                     </vdr-tab>
                 </ng-container>
             </vdr-tabs>
         </vdr-card>
         <vdr-card [title]="'website.edit-links' | translate">
-            <vdr-tabs [tabs]="webLinkTabs">
+            <vdr-tabs [tabs]="webLinkTabs" (selectedTab)="updateWeblinkTab($event)">
                 <ng-container *ngFor="let weblink of webLinks; let i = index">
-                    <vdr-tab title="Link {{ i+1 }}" [active]="webLinkTabs[i].active">
+                    <vdr-tab title="Link {{ i+1 }}" [active]="i === activeWeblinkItemTab">
                         <div class="form-grid mt-4">
                             <vdr-form-field [label]="'website.link' | translate" for="link-{{ i }}">
                                 <input id="link-{{ i }}" type="text" [value]="weblink.link"
@@ -51,7 +56,7 @@
                             </vdr-form-field>
                             <div></div>
                             <vdr-single-asset [featuredAsset]="weblink.featuredAsset"
-                                (assetChange)="onAssetChange($event, weblink)"></vdr-single-asset>
+                                (assetChange)="onWeblinkAssetChange($event, weblink)"></vdr-single-asset>
                         </div>
                     </vdr-tab>
                 </ng-container>

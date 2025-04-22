@@ -1,5 +1,23 @@
 import { gql } from 'apollo-angular';
 
+export const CAROUSAL_ITEM_FRAGMENT = gql`
+    fragment CarousalItem on CarousalItem {
+        id
+        position
+        isActive
+        featuredAsset {
+            id
+            createdAt
+            updatedAt
+            preview
+            focalPoint {
+                x
+                y
+            }
+        }
+    }
+`;
+
 export const WEBLINK_FRAGMENT = gql`
     fragment WebLink on WebLink {
         id
@@ -28,8 +46,12 @@ export const WEBSITE_FRAGMENT = gql`
         weblinks {
             ...WebLink
         }
+        carousalItems {
+            ...CarousalItem
+        }
     }
     ${WEBLINK_FRAGMENT}
+    ${CAROUSAL_ITEM_FRAGMENT}
 `;
 
 export const GET_WEBSITE_QUERY = gql`

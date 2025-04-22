@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import {
     CreateCarousalItemInput,
     CreateWebLinkInput,
+    UpdateCarousalItemInput,
+    UpdateCarousalItemsInput,
     UpdateWebLinkInput,
     UpdateWebLinksInput,
     UpdateWebsiteInput,
@@ -31,9 +33,11 @@ export class WebsiteService {
     ) {}
 
     async getOne(ctx: RequestContext): Promise<Website | undefined> {
-        const website = await this.connection
-            .getRepository(ctx, Website)
-            .find({ relations: ['weblinks', 'weblinks.featuredAsset'], order: { id: 'ASC' }, take: 1 });
+        const website = await this.connection.getRepository(ctx, Website).find({
+            relations: ['weblinks', 'weblinks.featuredAsset', 'carousalItems', 'carousalItems.featuredAsset'],
+            order: { id: 'ASC' },
+            take: 1,
+        });
         if (website.length === 0) {
             return;
         }
@@ -43,7 +47,7 @@ export class WebsiteService {
     async update(ctx: RequestContext, input: UpdateWebsiteInput): Promise<Website> {
         const websiteRepository = this.connection.getRepository(ctx, Website);
         const website = await websiteRepository.find({
-            relations: ['weblinks', 'weblinks.featuredAsset'],
+            relations: ['weblinks', 'weblinks.featuredAsset', 'carousalItems', 'carousalItems.featuredAsset'],
             order: { id: 'ASC' },
             take: 1,
         });
@@ -75,6 +79,16 @@ export class WebsiteService {
             return;
         }
         return weblink;
+    }
+
+    async findCarousalItem(ctx: RequestContext, id: ID): Promise<CarousalItem | undefined> {
+        const item = await this.connection.getRepository(ctx, CarousalItem).findOneBy({
+            id: id as number,
+        });
+        if (!item) {
+            return;
+        }
+        return item;
     }
 
     async createWeblink(ctx: RequestContext, input: CreateWebLinkInput): Promise<WebLink> {
@@ -143,10 +157,44 @@ export class WebsiteService {
     async createCarousalItem(ctx: RequestContext, input: CreateCarousalItemInput): Promise<CarousalItem> {
         const carousalItemRepository = this.connection.getRepository(ctx, CarousalItem);
         const featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
+        const website = await this.getOne(ctx);
+        if (!website) {
+            throw new Error('Website not generated.');
+        }
         const newCarousalItem = new CarousalItem({
             featuredAsset,
             position: input.position,
+            website,
         });
         return carousalItemRepository.save(newCarousalItem);
+    }
+
+    async updateCarousalItem(
+        ctx: RequestContext,
+        input: UpdateCarousalItemInput,
+    ): Promise<CarousalItem | undefined> {
+        const carousalItemRepository = this.connection.getRepository(ctx, CarousalItem);
+        let featuredAsset: Asset | undefined;
+        if (input.featuredAsset) {
+            featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
+        }
+        const item = await this.findCarousalItem(ctx, input.id);
+        if (!item) {
+            return;
+        }
+        if (input.position) {
+            item.position = input.position;
+        }
+        if (input.featuredAsset && featuredAsset) {
+            item.featuredAsset = featuredAsset;
+        }
+        return carousalItemRepository.save(item);
+    }
+
+    async updateCarousalItems(ctx: RequestContext, input: UpdateCarousalItemsInput) {
+        const links = input.items || [];
+        const operations = links.map(i => this.updateCarousalItem(ctx, i));
+        const result = await Promise.all(operations);
+        return result.filter(i => i !== undefined);
     }
 }

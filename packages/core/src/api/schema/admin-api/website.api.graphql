@@ -12,6 +12,8 @@ type Mutation {
     updateWebLinks(input: UpdateWebLinksInput!): [WebLink]!
     "Create carousalItem"
     createCarousalItem(input: CreateCarousalItemInput!): CarousalItem!
+    "Update carousal items"
+    updateCarousalItems(input: UpdateCarousalItemsInput!): [CarousalItem]!
 }
 
 input UpdateWebsiteInput {
@@ -43,10 +45,16 @@ input UpdateWebLinkInput {
 input CreateCarousalItemInput {
     position: Int!
     featuredAsset: ID!
+    isActive: Boolean!
+}
+
+input UpdateCarousalItemsInput {
+    items: [UpdateCarousalItemInput!]
 }
 
 input UpdateCarousalItemInput {
     id: ID!
     position: Int
     featuredAsset: ID
+    isActive: Boolean
 }
