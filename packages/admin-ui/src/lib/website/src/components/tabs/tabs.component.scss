@@ -1,0 +1,25 @@
+/* tabs.component.scss */
+.tabs-container {
+
+}
+
+.tab-headers {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-bottom: 1px solid #ccc;
+    gap: 10px 20px;
+
+    li {
+        padding: 0.5rem 0.2rem;
+        cursor: pointer;
+        user-select: none;
+
+        &.active {
+            border-bottom: 2px solid #007bff;
+        }
+    }
+}

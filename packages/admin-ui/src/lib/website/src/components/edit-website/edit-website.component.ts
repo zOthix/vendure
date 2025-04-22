@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    OnInit,
+    ViewChild,
+    TemplateRef,
+} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
 import {
@@ -26,12 +33,24 @@ interface MinimalAsset {
     focalPoint?: { x: number; y: number } | null;
 }
 
+interface Tab {
+    title: string;
+    active: boolean;
+}
+
 interface WebLink {
     id: ID;
     link: string;
     linkText: string;
     featuredAsset?: MinimalAsset | null;
     position?: number | null;
+}
+
+interface CarousalItem {
+    id: ID;
+    position?: number | null;
+    featuredAsset?: MinimalAsset | null;
+    isActive: boolean;
 }
 
 @Component({
@@ -41,6 +60,8 @@ interface WebLink {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditWebsiteComponent implements OnInit {
+    @ViewChild('tabTemplate', { static: true }) tabTemplate!: TemplateRef<any>;
+
     detailForm = this.formBuilder.group({
         content: ['', Validators.required],
         footerContent: ['', Validators.required],
@@ -54,17 +75,44 @@ export class EditWebsiteComponent implements OnInit {
         private notificationService: NotificationService,
     ) {}
 
+    activeTab = 0;
     website: Observable<GetWebsiteQuery['getWebsite']>;
     assetChanges: SelectedAssets = {};
+    webLinkTabs: Tab[] = [];
+    carousalItemTabs: Tab[] = [];
     webLinks: WebLink[] = Array.from({ length: 4 }, (_, i) => ({
         id: 0,
         link: '',
         linkText: '',
         position: i + 1,
         featuredAsset: null,
+        tabState: i === 0,
+        title: `Link ${i + 1}`,
+        content: this.tabTemplate,
+        active: i === 0,
+    }));
+    carousalItems: CarousalItem[] = Array.from({ length: 4 }, (_, i) => ({
+        id: 0,
+        position: i + 1,
+        featuredAsset: null,
+        isActive: true,
+        tabState: i === 0,
+        title: `Item ${i + 1}`,
+        content: '',
+        active: i === 0,
     }));
 
     ngOnInit(): void {
+        this.webLinkTabs = Array.from({ length: 4 }, (_, i) => ({
+            active: i == 0,
+            title: `Link ${i + 1}`,
+        }));
+
+        this.carousalItemTabs = Array.from({ length: 4 }, (_, i) => ({
+            active: i == 0,
+            title: `Item ${i + 1}`,
+        }));
+
         this.website = this.dataService.website
             .getWebsite()
             .mapSingle(result => result.getWebsite)
@@ -76,11 +124,28 @@ export class EditWebsiteComponent implements OnInit {
                 website.weblinks
                     .filter(i => i !== null)
                     .forEach((link, index) => {
-                        this.webLinks[index] = { ...link! };
+                        this.webLinks[index] = {
+                            ...link!,
+                        };
                     });
                 this.changeDetector.markForCheck();
             }
         });
+    }
+
+    addNewCarousalItem() {
+        this.carousalItemTabs.forEach(item => (item.active = false));
+        this.carousalItemTabs.push({
+            active: true,
+            title: `Item ${this.carousalItemTabs.length + 1}`,
+        });
+        const newItem: CarousalItem = {
+            id: 0,
+            isActive: true,
+            featuredAsset: null,
+            position: 0,
+        };
+        this.carousalItems.push(newItem);
     }
 
     protected setFormValues(entity: Website): void {

@@ -12,11 +12,28 @@
 </vdr-page-block>
 <vdr-page-detail-layout>
     <vdr-page-block>
+        <vdr-card [title]="'website.carousal-items' | translate">
+            <vdr-tabs [tabs]="carousalItemTabs" [addNewTab]="true" (newTabClicked)="addNewCarousalItem()">
+                <ng-container *ngFor="let item of carousalItems; let i = index">
+                    <vdr-tab title="Link {{ i+1 }}" [active]="carousalItemTabs[i].active">
+                        <div class="form-grid mt-4">
+                            <vdr-form-field [label]="'website.position' | translate" for="position-{{ i }}">
+                                <input id="position-{{ i }}" type="number" [value]="item.position"
+                                    (input)="onWeblinkChange(i, 'position', $event.target.value)"
+                                    name="position-{{ i }}" />
+                            </vdr-form-field>
+                            <div></div>
+                            <vdr-single-asset [featuredAsset]="item.featuredAsset"
+                                (assetChange)="onAssetChange($event, item)"></vdr-single-asset>
+                        </div>
+                    </vdr-tab>
+                </ng-container>
+            </vdr-tabs>
+        </vdr-card>
         <vdr-card [title]="'website.edit-links' | translate">
-            <clr-tabs>
-                <clr-tab *ngFor="let weblink of webLinks; let i = index">
-                    <button clrTabLink id="link{{i+1}}">Link {{ i + 1 }}</button>
-                    <clr-tab-content id="content{{i+1}}">
+            <vdr-tabs [tabs]="webLinkTabs">
+                <ng-container *ngFor="let weblink of webLinks; let i = index">
+                    <vdr-tab title="Link {{ i+1 }}" [active]="webLinkTabs[i].active">
                         <div class="form-grid mt-4">
                             <vdr-form-field [label]="'website.link' | translate" for="link-{{ i }}">
                                 <input id="link-{{ i }}" type="text" [value]="weblink.link"
@@ -36,9 +53,9 @@
                             <vdr-single-asset [featuredAsset]="weblink.featuredAsset"
                                 (assetChange)="onAssetChange($event, weblink)"></vdr-single-asset>
                         </div>
-                    </clr-tab-content>
-                </clr-tab>
-            </clr-tabs>
+                    </vdr-tab>
+                </ng-container>
+            </vdr-tabs>
         </vdr-card>
         <vdr-card [title]="'website.edit-website' | translate">
             <form class="form" [formGroup]="detailForm">

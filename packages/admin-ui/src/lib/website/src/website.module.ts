@@ -5,8 +5,10 @@ import { BulkActionRegistryService, PageService, SharedModule } from '@vendure/a
 
 import { createRoutes } from './website.routes';
 import { EditWebsiteComponent } from './components/edit-website/edit-website.component';
+import { TabsComponent } from './components/tabs/tabs.component';
+import { TabComponent } from './components/tab/tab.component';
 
-const WEBSITE_COMPONENTS = [EditWebsiteComponent];
+const WEBSITE_COMPONENTS = [EditWebsiteComponent, TabsComponent, TabComponent];
 
 @NgModule({
     imports: [SharedModule, RouterModule.forChild([])],
