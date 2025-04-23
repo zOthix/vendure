@@ -27,6 +27,9 @@ export class Website extends VendureEntity implements HasCustomFields, SoftDelet
     @Column({ default: '' })
     content: string;
 
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    contentUpdatedAt: Date;
+
     @Column({ default: '' })
     footerContent: string;
 

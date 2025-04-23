@@ -47,6 +47,7 @@ export class WebsiteService {
     }
 
     async update(ctx: RequestContext, input: UpdateWebsiteInput): Promise<Website> {
+        const now = new Date();
         const websiteRepository = this.connection.getRepository(ctx, Website);
         const website = await websiteRepository.find({
             relations: ['weblinks', 'weblinks.featuredAsset', 'carousalItems', 'carousalItems.featuredAsset'],
@@ -56,13 +57,16 @@ export class WebsiteService {
         if (website.length === 0) {
             const newWebsite = new Website({
                 ...input,
+                contentUpdatedAt: now,
                 weblinks: [],
+                carousalItems: [],
             });
             return await websiteRepository.save(newWebsite);
         }
         const tempWebsite = website[0];
         if (input.content) {
             tempWebsite.content = input.content;
+            tempWebsite.contentUpdatedAt = now;
         }
         if (input.footerContent) {
             tempWebsite.footerContent = input.footerContent;
