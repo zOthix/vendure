@@ -519,4 +519,13 @@ export class ProductDataService {
             input: input,
         });
     }
+
+    assignProductsToHotProducts(input: Codegen.AssignProductsToHotProductsInput) {
+        return this.baseDataService.mutate<
+            Codegen.AssignProductsToHotProductsMutation,
+            Codegen.AssignProductsToHotProductsMutationVariables
+        >(CREATE_OR_UPDATE_PRODUCTS, {
+            input,
+        });
+    }
 }

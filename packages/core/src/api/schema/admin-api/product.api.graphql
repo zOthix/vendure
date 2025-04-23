@@ -64,6 +64,9 @@ type Mutation {
 
     "Removes ProductVariants from the specified Channel"
     removeProductVariantsFromChannel(input: RemoveProductVariantsFromChannelInput!): [ProductVariant!]!
+
+    "Assigns hot products"
+    assignProductsToHotProducts(input: AssignProductsToHotProductsInput!): [Product!]!
 }
 
 input StockMovementListOptions {
@@ -245,3 +248,8 @@ type ProductOptionInUseError implements ErrorResult {
 }
 
 union RemoveOptionGroupFromProductResult = Product | ProductOptionInUseError
+
+
+input AssignProductsToHotProductsInput {
+    productIds: [ID!]!
+}

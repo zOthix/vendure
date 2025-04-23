@@ -944,3 +944,12 @@ export const CREATE_OR_UPDATE_PRODUCTS = gql`
     }
     ${PRODUCT_FOR_LIST_FRAGMENT}
 `;
+
+export const ASSIGN_PRODUCTS_TO_HOT_PRODUCTS = gql`
+    mutation AssignProductsToHotProducts($input: AssignProductsToHotProductsInput!) {
+        assignProductsToHotProducts(input: $input) {
+            ...ProductDetail
+        }
+    }
+    ${PRODUCT_DETAIL_FRAGMENT}
+`;

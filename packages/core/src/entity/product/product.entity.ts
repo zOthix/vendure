@@ -43,6 +43,9 @@ export class Product
     @Column({ default: true })
     enabled: boolean;
 
+    @Column({ default: false })
+    isHottest: boolean;
+
     @Index()
     @ManyToOne(type => Asset, asset => asset.featuredInProducts, { onDelete: 'SET NULL' })
     featuredAsset: Asset;

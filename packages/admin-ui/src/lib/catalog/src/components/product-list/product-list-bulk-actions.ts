@@ -183,3 +183,34 @@ export const duplicateProductsBulkAction: BulkAction<
             });
     },
 };
+
+export const assignHotProducts: BulkAction<ItemOf<GetProductListQuery, 'products'>, ProductListComponent> = {
+    location: 'product-list',
+    label: _('common.assign-hot-products'),
+    icon: 'flame',
+    onClick: ({ injector, selection }) => {
+        console.log(selection);
+        const modalService = injector.get(ModalService);
+        const dataService = injector.get(DataService);
+        modalService
+            .dialog({
+                title: _('common.confirm-bulk-assign-hot-products'),
+                body: `${selection.map(item => item.name).join(',\n')}`,
+                buttons: [
+                    { type: 'secondary', label: _('common.cancel') },
+                    { type: 'primary', label: _('common.confirm'), returnValue: true },
+                ],
+            })
+            .subscribe(response => {
+                if (response) {
+                    const productIds = selection.map(item => item.id);
+                    dataService.product
+                        .assignProductsToHotProducts({ productIds: productIds })
+                        .subscribe(result => {
+                            console.log(result);
+                        });
+                    console.log('response:', response);
+                }
+            });
+    },
+};

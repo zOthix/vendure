@@ -16,6 +16,7 @@ import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 import { unique } from '@vendure/common/lib/unique';
 import { FindOptionsUtils, In, IsNull } from 'typeorm';
 
+import { AssignProductsToHotProductsInput } from '../../../e2e/graphql/generated-e2e-admin-types';
 import { RequestContext } from '../../api/common/request-context';
 import { RelationPaths } from '../../api/decorators/relations.decorator';
 import { ErrorResultUnion } from '../../common/error/error-result';
@@ -517,6 +518,22 @@ export class ProductService {
             new ProductOptionGroupChangeEvent(ctx, product, optionGroupId, 'removed'),
         );
         return assertFound(this.findOne(ctx, productId));
+    }
+
+    async assignProductToHotProducts(ctx: RequestContext, id: ID) {
+        const productRepository = this.connection.getRepository(ctx, Product);
+        const product = await this.findOne(ctx, id);
+        if (product) {
+            product.isHottest = true;
+            await productRepository.save(product);
+            return assertFound(this.findOne(ctx, id));
+        }
+    }
+
+    async assignProductsToHotProducts(ctx: RequestContext, input: AssignProductsToHotProductsInput) {
+        const { productIds } = input;
+        const operations = productIds.map(id => this.assignProductToHotProducts(ctx, id));
+        return await Promise.all(operations);
     }
 
     private async getProductWithOptionGroups(ctx: RequestContext, productId: ID): Promise<Product> {

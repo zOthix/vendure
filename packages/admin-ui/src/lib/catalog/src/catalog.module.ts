@@ -57,6 +57,7 @@ import {
     deleteProductsBulkAction,
     duplicateProductsBulkAction,
     removeProductsFromChannelBulkAction,
+    assignHotProducts,
 } from './components/product-list/product-list-bulk-actions';
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductOptionsEditorComponent } from './components/product-options-editor/product-options-editor.component';
@@ -138,6 +139,7 @@ export class CatalogModule {
         bulkActionRegistryService.registerBulkAction(assignFacetValuesToProductsBulkAction);
         bulkActionRegistryService.registerBulkAction(assignProductsToChannelBulkAction);
         bulkActionRegistryService.registerBulkAction(duplicateProductsBulkAction);
+        bulkActionRegistryService.registerBulkAction(assignHotProducts);
         bulkActionRegistryService.registerBulkAction(removeProductsFromChannelBulkAction);
         bulkActionRegistryService.registerBulkAction(deleteProductsBulkAction);
 

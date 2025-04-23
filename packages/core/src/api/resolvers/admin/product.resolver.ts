@@ -27,6 +27,7 @@ import {
 } from '@vendure/common/lib/generated-types';
 import { PaginatedList } from '@vendure/common/lib/shared-types';
 
+import { MutationAssignProductsToHotProductsArgs } from '../../../../e2e/graphql/generated-e2e-admin-types';
 import { ErrorResultUnion } from '../../../common/error/error-result';
 import { UserInputError } from '../../../common/error/errors';
 import { Translated } from '../../../common/types/locale-types';
@@ -285,5 +286,16 @@ export class ProductResolver {
         @Args() args: MutationRemoveProductVariantsFromChannelArgs,
     ): Promise<Array<Translated<ProductVariant>>> {
         return this.productVariantService.removeProductVariantsFromChannel(ctx, args.input);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async assignProductsToHotProducts(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationAssignProductsToHotProductsArgs,
+    ) {
+        const { input } = args;
+        return this.productService.assignProductsToHotProducts(ctx, input);
     }
 }
