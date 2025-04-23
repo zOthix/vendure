@@ -12,6 +12,23 @@
 </vdr-page-block>
 <vdr-page-detail-layout>
     <vdr-page-block>
+        <vdr-card [title]="'website.edit-website' | translate">
+            <form class="form" [formGroup]="detailForm">
+                <div class="form-grid">
+                    <vdr-form-field [label]="'website.announcement-bar-text' | translate" for="announcementBarText">
+                        <input id="announcementBarText" type="text" formControlName="announcementBarText" />
+                    </vdr-form-field>
+                    <vdr-form-field class="form-grid-span" [label]="'common.content' | translate" for="content"
+                        [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
+                        <vdr-rich-text-editor formControlName="content"></vdr-rich-text-editor>
+                    </vdr-form-field>
+                    <vdr-form-field class="form-grid-span" [label]="'common.footer-content' | translate"
+                        for="footerContent" [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
+                        <vdr-rich-text-editor formControlName="footerContent"></vdr-rich-text-editor>
+                    </vdr-form-field>
+                </div>
+            </form>
+        </vdr-card>
         <vdr-card [title]="'website.carousal-items' | translate">
             <vdr-tabs [tabs]="carousalItemTabs" [addNewTab]="true" (newTabClicked)="addNewCarousalItem()"
                 (selectedTab)="updateCarousalItemTab($event)">
@@ -25,11 +42,11 @@
                             </vdr-form-field>
                             <vdr-form-field [label]="'website.is-active' | translate" for="isActive-{{ i }}">
                                 <input id="isActive-{{ i }}" type="checkbox" [checked]="item.isActive"
-                                    (input)="onCarousalItemChange(i, 'isActive', $event.target.value)"
-                                    name="position-{{ i }}" />
+                                    (input)="onCarousalItemChange(i, 'isActive', $event.target.checked)"
+                                    name="isActive-{{ i }}" />
                             </vdr-form-field>
                             <vdr-single-asset [featuredAsset]="item.featuredAsset"
-                                (assetChange)="onCarousalItemssetChange($event, item)"></vdr-single-asset>
+                                (assetChange)="onCarousalItemAssetChange($event, item)"></vdr-single-asset>
                         </div>
                     </vdr-tab>
                 </ng-container>
@@ -61,23 +78,6 @@
                     </vdr-tab>
                 </ng-container>
             </vdr-tabs>
-        </vdr-card>
-        <vdr-card [title]="'website.edit-website' | translate">
-            <form class="form" [formGroup]="detailForm">
-                <div class="form-grid">
-                    <vdr-form-field [label]="'website.announcement-bar-text' | translate" for="announcementBarText">
-                        <input id="announcementBarText" type="text" formControlName="announcementBarText" />
-                    </vdr-form-field>
-                    <vdr-form-field class="form-grid-span" [label]="'common.content' | translate" for="content"
-                        [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
-                        <vdr-rich-text-editor formControlName="content"></vdr-rich-text-editor>
-                    </vdr-form-field>
-                    <vdr-form-field class="form-grid-span" [label]="'common.footer-content' | translate"
-                        for="footerContent" [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
-                        <vdr-rich-text-editor formControlName="footerContent"></vdr-rich-text-editor>
-                    </vdr-form-field>
-                </div>
-            </form>
         </vdr-card>
     </vdr-page-block>
 </vdr-page-detail-layout>

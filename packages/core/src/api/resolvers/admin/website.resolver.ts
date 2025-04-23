@@ -5,6 +5,7 @@ import {
     MutationCreateWebLinkArgs,
     MutationUpdateWebLinksArgs,
     MutationCreateCarousalItemArgs,
+    MutationUpdateCarousalItemsArgs,
 } from '@vendure/common/lib/generated-types';
 
 import { CarousalItem } from '../../../entity/website/carousal-item.entity';
@@ -55,13 +56,13 @@ export class WebsiteResolver {
         return this.websiteService.createCarousalItem(ctx, input);
     }
 
-    // @Mutation()
-    // @Allow(Permission.Authenticated)
-    // updateCarousalItems(
-    //     @Ctx() ctx: RequestContext,
-    //     @Args() args: MutationUpdateWebLinksArgs,
-    // ): Promise<WebLink[]> {
-    //     const { input } = args;
-    //     return this.websiteService.updateWebLinks(ctx, input);
-    // }
+    @Mutation()
+    @Allow(Permission.Authenticated)
+    updateCarousalItems(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationUpdateCarousalItemsArgs,
+    ): Promise<CarousalItem[]> {
+        const { input } = args;
+        return this.websiteService.updateCarousalItems(ctx, input);
+    }
 }

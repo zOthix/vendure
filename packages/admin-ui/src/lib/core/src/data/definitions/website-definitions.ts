@@ -80,3 +80,12 @@ export const UPDATE_WEBLINK_MUTATION = gql`
     }
     ${WEBLINK_FRAGMENT}
 `;
+
+export const UPDATE_CAROUSAL_ITEM_MUTATION = gql`
+    mutation UpdateCarousalItems($input: UpdateCarousalItemsInput!) {
+        updateCarousalItems(input: $input) {
+            ...CarousalItem
+        }
+    }
+    ${CAROUSAL_ITEM_FRAGMENT}
+`;

@@ -11,19 +11,15 @@ import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
 import {
     DataService,
     NotificationService,
-    Asset,
     GetWebsiteQuery,
     Website,
     UpdateWebLinksInput,
     UpdateWebLinkInput,
+    UpdateCarousalItemsInput,
+    UpdateCarousalItemInput,
 } from '@vendure/admin-ui/core';
 import { ID } from '@vendure/common/lib/shared-types';
-import { shareReplay, Observable } from 'rxjs';
-
-interface SelectedAssets {
-    assets?: Asset[];
-    featuredAsset?: Asset;
-}
+import { shareReplay, Observable, switchMap, forkJoin } from 'rxjs';
 
 interface MinimalAsset {
     id: ID;
@@ -76,7 +72,7 @@ export class EditWebsiteComponent implements OnInit {
         private notificationService: NotificationService,
     ) {}
 
-    website: Observable<GetWebsiteQuery['getWebsite']>;
+    website$: Observable<GetWebsiteQuery['getWebsite']>;
 
     activeCarousalItemTab = 0;
     carousalItems: CarousalItem[] = [];
@@ -94,49 +90,24 @@ export class EditWebsiteComponent implements OnInit {
         this.activeWeblinkItemTab = tab.index;
     }
 
-    ngOnInit(): void {
-        this.website = this.dataService.website
+    getWebsiteDate() {
+        this.website$ = this.dataService.website
             .getWebsite()
             .mapSingle(result => result.getWebsite)
             .pipe(shareReplay(1));
 
-        this.website.subscribe(website => {
+        this.website$.subscribe(website => {
             if (website) {
                 this.setFormValues(website as Website);
-                website.carousalItems.forEach((item, index) => {
-                    if (item !== null) {
-                        this.carousalItems.push({
-                            id: item.id,
-                            isActive: item.isActive,
-                            featuredAsset: item?.featuredAsset,
-                            position: item.position,
-                        });
-                        this.carousalItemTabs.push({
-                            index: index,
-                            active: index === 0,
-                            title: `Item ${index + 1}`,
-                        });
-                    }
-                });
-                website.weblinks.forEach((link, index) => {
-                    if (link !== null) {
-                        this.webLinks.push({
-                            id: link.id,
-                            link: link.link,
-                            linkText: link.linkText,
-                            featuredAsset: link.featuredAsset,
-                            position: link.position,
-                        });
-                        this.webLinkTabs.push({
-                            index: index,
-                            active: index === 0,
-                            title: `Link ${index + 1}`,
-                        });
-                    }
-                });
+                this.populateWebLinks(website.weblinks);
+                this.populateCarousalItems(website.carousalItems);
                 this.changeDetector.markForCheck();
             }
         });
+    }
+
+    ngOnInit(): void {
+        this.getWebsiteDate();
     }
 
     addNewCarousalItem() {
@@ -154,19 +125,11 @@ export class EditWebsiteComponent implements OnInit {
         this.carousalItems.push(newItem);
     }
 
-    protected setFormValues(entity: Website): void {
-        this.detailForm.patchValue({
-            content: entity.content,
-            footerContent: entity.footerContent,
-            announcementBarText: entity.announcementBarText,
-        });
-    }
-
     onCarousalItemChange(index: number, field: keyof CarousalItem, value: any) {
-        const item = this.carousalItems.find((_, i) => i === index);
+        const item = this.carousalItems[index];
         if (item) {
             if (field === 'isActive') {
-                item['position'] = Number(value);
+                item['isActive'] = value;
             }
             if (field === 'position') {
                 item['position'] = Number(value);
@@ -179,7 +142,7 @@ export class EditWebsiteComponent implements OnInit {
     }
 
     onWeblinkChange(index: number, field: keyof WebLink, value: any) {
-        const link = this.webLinks.find((_, i) => i === index);
+        const link = this.webLinks[index];
         if (link) {
             if (field === 'link') {
                 link['link'] = value;
@@ -202,13 +165,9 @@ export class EditWebsiteComponent implements OnInit {
         this.detailForm.markAsDirty();
     }
 
-    onCarousalItemssetChange(event: { featuredAsset: MinimalAsset }, item: CarousalItem) {
+    onCarousalItemAssetChange(event: { featuredAsset: MinimalAsset }, item: CarousalItem) {
         item.featuredAsset = event.featuredAsset;
         this.detailForm.markAsDirty();
-    }
-
-    range(n: number): number[] {
-        return Array.from({ length: n }, (_, i) => i);
     }
 
     save() {
@@ -217,43 +176,147 @@ export class EditWebsiteComponent implements OnInit {
             footerContent: this.detailForm.get('footerContent')?.value || '',
             announcementBarText: this.detailForm.get('announcementBarText')?.value || '',
         };
-        this.dataService.website.updateWebsite(input).subscribe({
-            next: res => {
-                this.notificationService.success(_('common.notify-update-success'), {
-                    entity: 'Website',
-                });
-                const input: UpdateWebLinksInput = {
-                    links: this.webLinks.map(
-                        link =>
-                            ({
-                                id: link.id,
-                                link: link.link,
-                                linkText: link.linkText,
-                                position: link.position,
-                                featuredAsset: link.featuredAsset ? link.featuredAsset.id : null,
-                            }) as UpdateWebLinkInput,
-                    ),
-                };
-                this.dataService.website.updateWebLinks(input).subscribe({
-                    next: res => {
-                        this.notificationService.success(_('common.notify-update-success'), {
-                            entity: 'WebLinks',
-                        });
-                    },
-                    error: err => {
-                        this.notificationService.error(_('common.notify-update-error'), {
-                            entity: 'WebLinks',
-                        });
-                    },
-                });
-                this.detailForm.markAsPristine();
-                this.changeDetector.markForCheck();
-            },
-            error: err => {
-                this.notificationService.error(_('common.notify-update-error'), {
-                    entity: 'Website',
-                });
-            },
+
+        const carousalItemsInput: UpdateCarousalItemsInput = {
+            items: this.carousalItems.map(
+                item =>
+                    ({
+                        id: item.id,
+                        featuredAsset: item.featuredAsset?.id,
+                        isActive: item.isActive,
+                        position: item.position,
+                    }) as UpdateCarousalItemInput,
+            ),
+        };
+
+        const webLinksInput: UpdateWebLinksInput = {
+            links: this.webLinks.map(
+                link =>
+                    ({
+                        id: link.id,
+                        link: link.link,
+                        linkText: link.linkText,
+                        position: link.position,
+                        featuredAsset: link.featuredAsset?.id || null,
+                    }) as UpdateWebLinkInput,
+            ),
+        };
+
+        this.dataService.website
+            .updateWebsite(input)
+            .pipe(
+                switchMap(() => {
+                    this.notificationService.success(_('common.notify-update-success'), {
+                        entity: 'Website',
+                    });
+                    return forkJoin([
+                        this.dataService.website.updateCarousalItems(carousalItemsInput),
+                        this.dataService.website.updateWebLinks(webLinksInput),
+                    ]);
+                }),
+            )
+            .subscribe({
+                next: ([carousalRes, webLinksRes]) => {
+                    this.notificationService.success(_('common.notify-update-success'), {
+                        entity: 'Carousal Items',
+                    });
+                    this.notificationService.success(_('common.notify-update-success'), {
+                        entity: 'WebLinks',
+                    });
+
+                    this.detailForm.markAsPristine();
+                    this.changeDetector.markForCheck();
+                    this.refreshWebsite();
+                },
+                error: err => {
+                    this.notificationService.error(_('common.notify-update-error'), {
+                        entity: 'Website',
+                    });
+                },
+            });
+    }
+
+    protected setFormValues(entity: Website): void {
+        this.detailForm.patchValue({
+            content: entity.content,
+            footerContent: entity.footerContent,
+            announcementBarText: entity.announcementBarText,
         });
+    }
+
+    private populateCarousalItems(items: any[]): void {
+        this.carousalItems = [];
+        this.carousalItemTabs = [];
+
+        if (items.length === 0) {
+            this.carousalItems.push({
+                id: 0,
+                isActive: true,
+                featuredAsset: null,
+                position: 0,
+            });
+            this.carousalItemTabs.push({
+                index: 0,
+                active: true,
+                title: `Item ${0 + 1}`,
+            });
+        } else {
+            items?.filter(Boolean).forEach((item, index) => {
+                this.carousalItems.push({
+                    id: item.id,
+                    isActive: item.isActive,
+                    featuredAsset: item.featuredAsset,
+                    position: item.position,
+                });
+                this.carousalItemTabs.push({
+                    index,
+                    active: index === 0,
+                    title: `Item ${index + 1}`,
+                });
+            });
+            this.activeCarousalItemTab = 0;
+        }
+    }
+
+    private populateWebLinks(links: any[]): void {
+        const lengthOfLinks = 4;
+
+        this.webLinks = [];
+        this.webLinkTabs = [];
+
+        for (let i = 0; i < lengthOfLinks; i++) {
+            this.webLinks.push({
+                id: 0,
+                link: '',
+                linkText: '',
+                featuredAsset: null,
+                position: 0,
+            });
+            this.webLinkTabs.push({
+                index: i,
+                active: i === 0,
+                title: `Link ${i + 1}`,
+            });
+        }
+        links.forEach((item, i) => {
+            if (item !== null) {
+                this.webLinks[i] = { ...item };
+            }
+        });
+        this.activeWeblinkItemTab = 0;
+    }
+
+    private refreshWebsite() {
+        this.dataService.website
+            .getWebsite()
+            .mapSingle(result => result.getWebsite)
+            .subscribe(website => {
+                if (website) {
+                    this.setFormValues(website as Website);
+                    this.populateWebLinks(website.weblinks);
+                    this.populateCarousalItems(website.carousalItems);
+                    this.changeDetector.markForCheck();
+                }
+            });
     }
 }

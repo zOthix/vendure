@@ -16,6 +16,7 @@ import { Asset } from '../../entity';
 import { CarousalItem } from '../../entity/website/carousal-item.entity';
 import { WebLink } from '../../entity/website/web-link.entity';
 import { Website } from '../../entity/website/website.entity';
+import { EntityHydrator } from '../helpers/entity-hydrator/entity-hydrator.service';
 
 import { AssetService } from './asset.service';
 
@@ -30,6 +31,7 @@ export class WebsiteService {
     constructor(
         private connection: TransactionalConnection,
         private assetService: AssetService,
+        private entityHydrator: EntityHydrator,
     ) {}
 
     async getOne(ctx: RequestContext): Promise<Website | undefined> {
@@ -169,32 +171,40 @@ export class WebsiteService {
         return carousalItemRepository.save(newCarousalItem);
     }
 
-    async updateCarousalItem(
-        ctx: RequestContext,
-        input: UpdateCarousalItemInput,
-    ): Promise<CarousalItem | undefined> {
+    async updateCarousalItem(ctx: RequestContext, input: UpdateCarousalItemInput): Promise<CarousalItem> {
         const carousalItemRepository = this.connection.getRepository(ctx, CarousalItem);
+        const shouldIsActiveUpdate = input.isActive !== undefined;
         let featuredAsset: Asset | undefined;
         if (input.featuredAsset) {
             featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
         }
         const item = await this.findCarousalItem(ctx, input.id);
         if (!item) {
-            return;
+            if (!featuredAsset) {
+                throw new Error('Asset is required for carousal items.');
+            }
+            return this.createCarousalItem(ctx, {
+                featuredAsset: featuredAsset.id,
+                isActive: input.isActive ?? true,
+                position: input.position ?? 0,
+            });
         }
         if (input.position) {
             item.position = input.position;
         }
+        if (shouldIsActiveUpdate) {
+            item.isActive = input.isActive as boolean;
+        }
         if (input.featuredAsset && featuredAsset) {
             item.featuredAsset = featuredAsset;
         }
-        return carousalItemRepository.save(item);
+        const savedItem = await carousalItemRepository.save(item);
+        return this.entityHydrator.hydrate(ctx, savedItem, { relations: ['featuredAsset' as never] });
     }
 
     async updateCarousalItems(ctx: RequestContext, input: UpdateCarousalItemsInput) {
         const links = input.items || [];
         const operations = links.map(i => this.updateCarousalItem(ctx, i));
-        const result = await Promise.all(operations);
-        return result.filter(i => i !== undefined);
+        return await Promise.all(operations);
     }
 }

@@ -1,6 +1,7 @@
 import * as Codegen from '../../common/generated-types';
 import {
     GET_WEBSITE_QUERY,
+    UPDATE_CAROUSAL_ITEM_MUTATION,
     UPDATE_WEBLINK_MUTATION,
     UPDATE_WEBSITE_MUTATION,
 } from '../definitions/website-definitions';
@@ -30,6 +31,15 @@ export class WebsiteDataService {
             Codegen.UpdateWebLinksMutation,
             Codegen.UpdateWebLinksMutationVariables
         >(UPDATE_WEBLINK_MUTATION, {
+            input,
+        });
+    }
+
+    updateCarousalItems(input: Codegen.UpdateCarousalItemsInput) {
+        return this.baseDataService.mutate<
+            Codegen.UpdateCarousalItemsMutation,
+            Codegen.UpdateCarousalItemsMutationVariables
+        >(UPDATE_CAROUSAL_ITEM_MUTATION, {
             input,
         });
     }
