@@ -142,6 +142,24 @@ export const createRoutes = (pageService: PageService): Route[] => [
         },
         children: pageService.getPageTabRoutes('asset-detail'),
     },
+    {
+        path: 'brands',
+        component: PageComponent,
+        data: {
+            locationId: 'brand-list',
+            breadcrumb: _('breadcrumb.brands'),
+        },
+        children: pageService.getPageTabRoutes('brand-list'),
+    },
+    // {
+    //     path: 'brands/:id',
+    //     component: PageComponent,
+    //     data: {
+    //         locationId: 'asset-detail',
+    //         breadcrumb: { label: _('breadcrumb.assets'), link: ['../', 'assets'] },
+    //     },
+    //     children: pageService.getPageTabRoutes('asset-detail'),
+    // },
 ];
 
 export function productOptionsEditorBreadcrumb(data: any, params: any) {

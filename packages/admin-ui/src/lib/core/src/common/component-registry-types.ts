@@ -54,6 +54,8 @@ export type PageLocationId =
     | 'administrator-list'
     | 'asset-detail'
     | 'asset-list'
+    | 'brand-list'
+    | 'brand-detail'
     | 'channel-detail'
     | 'channel-list'
     | 'collection-detail'

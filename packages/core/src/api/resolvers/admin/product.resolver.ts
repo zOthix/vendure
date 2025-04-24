@@ -5,9 +5,11 @@ import {
     MutationAssignProductsToChannelArgs,
     MutationAssignProductsToHotProductsArgs,
     MutationAssignProductVariantsToChannelArgs,
+    MutationCreateBrandArgs,
     MutationCreateOrUpdateProductsArgs,
     MutationCreateProductArgs,
     MutationCreateProductVariantsArgs,
+    MutationDeleteBrandArgs,
     MutationDeleteProductArgs,
     MutationDeleteProductsArgs,
     MutationDeleteProductVariantArgs,
@@ -15,6 +17,7 @@ import {
     MutationRemoveOptionGroupFromProductArgs,
     MutationRemoveProductsFromChannelArgs,
     MutationRemoveProductVariantsFromChannelArgs,
+    MutationUpdateBrandArgs,
     MutationUpdateProductArgs,
     MutationUpdateProductsArgs,
     MutationUpdateProductVariantsArgs,
@@ -308,5 +311,38 @@ export class ProductResolver {
     ) {
         const { input } = args;
         return this.productService.removeProductsFromHotProducts(ctx, input);
+    }
+
+    @Query()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async brands(@Ctx() ctx: RequestContext) {
+        return this.productService.getBrands(ctx);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async createBrand(@Ctx() ctx: RequestContext, @Args() args: MutationCreateBrandArgs) {
+        const { input } = args;
+        return this.productService.createBrand(ctx, input);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async updateBrand(@Ctx() ctx: RequestContext, @Args() args: MutationUpdateBrandArgs) {
+        const { input } = args;
+        return this.productService.updateBrand(ctx, input);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async deleteBrand(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationDeleteBrandArgs,
+    ): Promise<DeletionResponse> {
+        const { id } = args;
+        return this.productService.deleteBrand(ctx, id);
     }
 }

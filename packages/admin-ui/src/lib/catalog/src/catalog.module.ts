@@ -78,6 +78,7 @@ import { VariantPriceDetailComponent } from './components/variant-price-detail/v
 import { VariantPriceStrategyDetailComponent } from './components/variant-price-strategy-detail/variant-price-strategy-detail.component';
 import { PriceVariantListComponent } from './components/price-variant-list/price-variant-list.component';
 import { PriceVariantDetailComponent } from './components/price-variant-detail/price-variant-detail.component';
+import { BrandListComponent } from './components/brand-list/brand-list.component';
 
 const CATALOG_COMPONENTS = [
     ProductListComponent,
@@ -115,6 +116,7 @@ const CATALOG_COMPONENTS = [
     CreateFacetValueDialogComponent,
     PriceVariantListComponent,
     PriceVariantDetailComponent,
+    BrandListComponent,
 ];
 
 @NgModule({
@@ -322,6 +324,31 @@ export class CatalogModule {
                 ],
             }),
         });
+
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'brand-list',
+            tab: _('catalog.brands'),
+            route: '',
+            component: BrandListComponent,
+        });
+        // pageService.registerPageTab({
+        //     priority: 0,
+        //     location: 'asset-detail',
+        //     tab: _('catalog.asset'),
+        //     route: '',
+        //     component: detailComponentWithResolver({
+        //         component: AssetDetailComponent,
+        //         query: AssetDetailQueryDocument,
+        //         entityKey: 'asset',
+        //         getBreadcrumbs: entity => [
+        //             {
+        //                 label: `${entity?.name}`,
+        //                 link: [entity?.id],
+        //             },
+        //         ],
+        //     }),
+        // });
         CatalogModule.hasRegisteredTabsAndBulkActions = true;
     }
 }

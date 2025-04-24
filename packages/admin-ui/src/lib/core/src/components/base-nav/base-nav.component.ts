@@ -121,6 +121,13 @@ export class BaseNavComponent implements OnInit, OnDestroy {
                         icon: 'image-gallery',
                         routerLink: ['/catalog', 'assets'],
                     },
+                    {
+                        requiresPermission: allow(Permission.ReadCatalog, Permission.ReadAsset),
+                        id: 'brands',
+                        label: _('nav.brands'),
+                        icon: 'grid-chart',
+                        routerLink: ['/catalog', 'brands'],
+                    },
                 ],
             },
             {

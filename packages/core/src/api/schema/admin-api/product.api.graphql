@@ -9,6 +9,8 @@ type Query {
     productVariant(id: ID!): ProductVariant
     "Get products by ids"
     productsByIds(productIds: [ID]!): [Product]!
+    "List Brands"
+    brands: BrandList!
 }
 
 type Mutation {
@@ -70,6 +72,32 @@ type Mutation {
 
     "Remove hot products"
     removeProductsFromHotProducts(input: RemoveProductsFromHotProductsInput!): [Product!]!
+
+    "Create a brand"
+    createBrand(input: CreateBrandInput!): Brand!
+
+    "Update a brand"
+    updateBrand(input: UpdateBrandInput!): Brand!
+
+    "Delete a brand"
+    deleteBrand(id: ID!): DeletionResponse!
+}
+
+input CreateBrandInput {
+    name: String!
+    slug: String!
+    description: String
+    isActive: Boolean!
+    featuredAsset: ID!
+}
+
+input UpdateBrandInput {
+    id: ID!
+    name: String
+    slug: String
+    description: String
+    isActive: Boolean
+    featuredAsset: ID
 }
 
 input StockMovementListOptions {

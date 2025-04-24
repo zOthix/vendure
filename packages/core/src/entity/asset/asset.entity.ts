@@ -5,6 +5,7 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { ChannelAware, Taggable } from '../../common/types/common-types';
 import { HasCustomFields } from '../../config/custom-field/custom-field-types';
 import { VendureEntity } from '../base/base.entity';
+import { Brand } from '../brand/brand.entity';
 import { Channel } from '../channel/channel.entity';
 import { Collection } from '../collection/collection.entity';
 import { CustomAssetFields } from '../custom-entity-fields';
@@ -68,6 +69,9 @@ export class Asset extends VendureEntity implements Taggable, ChannelAware, HasC
 
     @OneToMany(type => CarousalItem, carousalItem => carousalItem.featuredAsset)
     featuredCarousalItem?: CarousalItem[];
+
+    @OneToMany(type => Brand, brand => brand.featuredAsset)
+    featuredBrandItem?: Brand[];
 
     @Column(type => CustomAssetFields)
     customFields: CustomAssetFields;
