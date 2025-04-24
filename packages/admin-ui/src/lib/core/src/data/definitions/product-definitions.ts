@@ -22,6 +22,20 @@ export const ASSET_FRAGMENT = gql`
     }
 `;
 
+export const BRAND_FRAGMENT = gql`
+    fragment Brand on Brand {
+        id
+        name
+        slug
+        isActive
+        description
+        featuredAsset {
+            ...Asset
+        }
+    }
+    ${ASSET_FRAGMENT}
+`;
+
 export const TAG_FRAGMENT = gql`
     fragment Tag on Tag {
         id
@@ -961,4 +975,22 @@ export const REMOVE_PRODUCTS_FROM_HOT_PRODUCTS = gql`
         }
     }
     ${PRODUCT_DETAIL_FRAGMENT}
+`;
+
+export const CREATE_BRAND = gql`
+    mutation CreateBrand($input: CreateBrandInput!) {
+        createBrand(input: $input) {
+            ...Brand
+        }
+    }
+    ${BRAND_FRAGMENT}
+`;
+
+export const UPDATE_BRAND = gql`
+    mutation UpdateBrand($input: UpdateBrandInput!) {
+        updateBrand(input: $input) {
+            ...Brand
+        }
+    }
+    ${BRAND_FRAGMENT}
 `;

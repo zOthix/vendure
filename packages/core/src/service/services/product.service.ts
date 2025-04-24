@@ -569,9 +569,13 @@ export class ProductService {
     }
 
     async findBrand(ctx: RequestContext, id: ID) {
-        return this.connection.getRepository(ctx, Brand).findOneBy({
+        const brand = await this.connection.getRepository(ctx, Brand).findOneBy({
             id: id as number,
         });
+        if (!brand) {
+            return;
+        }
+        return this.entityHydrator.hydrate(ctx, brand, { relations: ['featuredAsset' as never] });
     }
 
     async getBrands(ctx: RequestContext): Promise<PaginatedList<Brand>> {

@@ -6,6 +6,7 @@ import {
     BulkActionRegistryService,
     CollectionDetailQueryDocument,
     detailComponentWithResolver,
+    GetBrandDetailDocument,
     GetFacetDetailDocument,
     GetProductDetailDocument,
     GetProductVariantDetailDocument,
@@ -79,6 +80,7 @@ import { VariantPriceStrategyDetailComponent } from './components/variant-price-
 import { PriceVariantListComponent } from './components/price-variant-list/price-variant-list.component';
 import { PriceVariantDetailComponent } from './components/price-variant-detail/price-variant-detail.component';
 import { BrandListComponent } from './components/brand-list/brand-list.component';
+import { BrandDetailComponent } from './components/brand-detail/brand-detail.component';
 
 const CATALOG_COMPONENTS = [
     ProductListComponent,
@@ -117,6 +119,7 @@ const CATALOG_COMPONENTS = [
     PriceVariantListComponent,
     PriceVariantDetailComponent,
     BrandListComponent,
+    BrandDetailComponent,
 ];
 
 @NgModule({
@@ -332,23 +335,23 @@ export class CatalogModule {
             route: '',
             component: BrandListComponent,
         });
-        // pageService.registerPageTab({
-        //     priority: 0,
-        //     location: 'asset-detail',
-        //     tab: _('catalog.asset'),
-        //     route: '',
-        //     component: detailComponentWithResolver({
-        //         component: AssetDetailComponent,
-        //         query: AssetDetailQueryDocument,
-        //         entityKey: 'asset',
-        //         getBreadcrumbs: entity => [
-        //             {
-        //                 label: `${entity?.name}`,
-        //                 link: [entity?.id],
-        //             },
-        //         ],
-        //     }),
-        // });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'brand-detail',
+            tab: _('catalog.brand'),
+            route: '',
+            component: detailComponentWithResolver({
+                component: BrandDetailComponent,
+                query: GetBrandDetailDocument,
+                entityKey: 'brand',
+                getBreadcrumbs: entity => [
+                    {
+                        label: entity ? entity.name : _('catalog.create-new-brand'),
+                        link: [entity?.id],
+                    },
+                ],
+            }),
+        });
         CatalogModule.hasRegisteredTabsAndBulkActions = true;
     }
 }

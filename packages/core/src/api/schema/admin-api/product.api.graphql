@@ -11,6 +11,8 @@ type Query {
     productsByIds(productIds: [ID]!): [Product]!
     "List Brands"
     brands: BrandList!
+    "Get a brand by id"
+    brand(id: ID!): Brand
 }
 
 type Mutation {

@@ -1,0 +1,42 @@
+<vdr-page-block>
+    <vdr-action-bar>
+        <vdr-ab-right>
+            <vdr-action-bar-items locationId="brand-detail"></vdr-action-bar-items>
+            <button class="btn btn-primary" *ngIf="isNew$ | async; else updateButton" (click)="create()"
+                [disabled]="detailForm.invalid || detailForm.pristine">
+                {{ 'common.create' | translate }}
+            </button>
+            <ng-template #updateButton>
+                <button class="btn btn-primary" (click)="save()" [disabled]="detailForm.invalid || detailForm.pristine">
+                    {{ 'common.update' | translate }}
+                </button>
+            </ng-template>
+            <vdr-action-bar-dropdown-menu locationId="brand-detail"></vdr-action-bar-dropdown-menu>
+        </vdr-ab-right>
+    </vdr-action-bar>
+</vdr-page-block>
+<form class="form" [formGroup]="detailForm">
+    <vdr-page-detail-layout>
+        <vdr-page-block>
+            <button type="submit" hidden x-data="prevents enter key from triggering other buttons"></button>
+            <vdr-card>
+                <div class="form-grid">
+                    <vdr-form-field [label]="'catalog.brand-name' | translate" for="name">
+                        <input id="name" type="text" formControlName="name" />
+                    </vdr-form-field>
+                    <vdr-form-field [label]="'catalog.brand-slug' | translate" for="slug">
+                        <input id="slug" type="text" formControlName="slug" />
+                    </vdr-form-field>
+                    <vdr-form-field [label]="'catalog.brand-description' | translate" for="description">
+                        <input id="description" type="text" formControlName="description" />
+                    </vdr-form-field>
+                    <vdr-form-field [label]="'catalog.brand-is-active' | translate" for="is-active">
+                        <input id="is-active" type="checkbox" formControlName="isActive" />
+                    </vdr-form-field>
+                    <vdr-single-asset [featuredAsset]="featuredAsset"
+                        (assetChange)="onAssetChange($event)"></vdr-single-asset>
+                </div>
+            </vdr-card>
+        </vdr-page-block>
+    </vdr-page-detail-layout>
+</form>

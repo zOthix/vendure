@@ -1,6 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
-import { ProductListQueryDocument, TypedBaseListComponent } from '@vendure/admin-ui/core';
+import {
+    BrandListQueryDocument,
+    DataService,
+    JobQueueService,
+    ModalService,
+    NotificationService,
+    ProductListQueryDocument,
+    TypedBaseListComponent,
+} from '@vendure/admin-ui/core';
 import { ID } from '@vendure/common/lib/shared-types';
 import { EMPTY, firstValueFrom, lastValueFrom } from 'rxjs';
 import { delay, switchMap } from 'rxjs/operators';
@@ -11,5 +19,19 @@ import { delay, switchMap } from 'rxjs/operators';
     styleUrls: ['./brand-list.component.scss'],
 })
 export class BrandListComponent
-    extends TypedBaseListComponent<typeof ProductListQueryDocument, 'products'>
-    implements OnInit {}
+    extends TypedBaseListComponent<typeof BrandListQueryDocument, 'brands'>
+    implements OnInit
+{
+    constructor(
+        protected dataService: DataService,
+        private modalService: ModalService,
+        private notificationService: NotificationService,
+        private jobQueueService: JobQueueService,
+    ) {
+        super();
+        this.configure({
+            document: BrandListQueryDocument,
+            getItems: data => data.brands,
+        });
+    }
+}

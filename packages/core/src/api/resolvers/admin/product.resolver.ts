@@ -22,6 +22,7 @@ import {
     MutationUpdateProductsArgs,
     MutationUpdateProductVariantsArgs,
     Permission,
+    QueryBrandArgs,
     QueryProductArgs,
     QueryProductsArgs,
     QueryProductsByIdsArgs,
@@ -317,6 +318,12 @@ export class ProductResolver {
     @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
     async brands(@Ctx() ctx: RequestContext) {
         return this.productService.getBrands(ctx);
+    }
+
+    @Query()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async brand(@Ctx() ctx: RequestContext, @Args() args: QueryBrandArgs) {
+        return this.productService.findBrand(ctx, args.id);
     }
 
     @Transaction()

@@ -9,6 +9,7 @@ import {
     ASSIGN_PRODUCTS_TO_HOT_PRODUCTS,
     ASSIGN_VARIANTS_TO_CHANNEL,
     CREATE_ASSETS,
+    CREATE_BRAND,
     CREATE_OR_UPDATE_PRODUCTS,
     CREATE_PRICE_VARIANT,
     CREATE_PRODUCT,
@@ -46,6 +47,7 @@ import {
     REMOVE_VARIANTS_FROM_CHANNEL,
     SEARCH_PRODUCTS,
     UPDATE_ASSET,
+    UPDATE_BRAND,
     UPDATE_PRICE_VARIANT,
     UPDATE_PRODUCT,
     UPDATE_PRODUCT_OPTION,
@@ -538,5 +540,23 @@ export class ProductDataService {
         >(REMOVE_PRODUCTS_FROM_HOT_PRODUCTS, {
             input,
         });
+    }
+
+    createBrand(input: Codegen.CreateBrandInput) {
+        return this.baseDataService.mutate<Codegen.CreateBrandMutation, Codegen.CreateBrandMutationVariables>(
+            CREATE_BRAND,
+            {
+                input,
+            },
+        );
+    }
+
+    updateBrand(input: Codegen.UpdateBrandInput) {
+        return this.baseDataService.mutate<Codegen.UpdateBrandMutation, Codegen.UpdateBrandMutationVariables>(
+            UPDATE_BRAND,
+            {
+                input,
+            },
+        );
     }
 }
