@@ -67,6 +67,9 @@ type Mutation {
 
     "Assigns hot products"
     assignProductsToHotProducts(input: AssignProductsToHotProductsInput!): [Product!]!
+
+    "Remove hot products"
+    removeProductsFromHotProducts(input: RemoveProductsFromHotProductsInput!): [Product!]!
 }
 
 input StockMovementListOptions {
@@ -251,5 +254,9 @@ union RemoveOptionGroupFromProductResult = Product | ProductOptionInUseError
 
 
 input AssignProductsToHotProductsInput {
+    productIds: [ID!]!
+}
+
+input RemoveProductsFromHotProductsInput {
     productIds: [ID!]!
 }

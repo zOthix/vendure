@@ -155,4 +155,9 @@ export class ShopProductsResolver {
         }
         return facet;
     }
+
+    @Query()
+    async getHotProducts(@Ctx() ctx: RequestContext) {
+        return this.productService.getHotProducts(ctx);
+    }
 }

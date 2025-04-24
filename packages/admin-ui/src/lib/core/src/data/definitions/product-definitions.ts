@@ -953,3 +953,12 @@ export const ASSIGN_PRODUCTS_TO_HOT_PRODUCTS = gql`
     }
     ${PRODUCT_DETAIL_FRAGMENT}
 `;
+
+export const REMOVE_PRODUCTS_FROM_HOT_PRODUCTS = gql`
+    mutation RemoveProductsFromHotProducts($input: RemoveProductsFromHotProductsInput!) {
+        removeProductsFromHotProducts(input: $input) {
+            ...ProductDetail
+        }
+    }
+    ${PRODUCT_DETAIL_FRAGMENT}
+`;

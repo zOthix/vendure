@@ -11,12 +11,12 @@ import {
     UpdateProductInput,
     CreateOrUpdateProductInput,
     CreateProductVariantInput,
+    AssignProductsToHotProductsInput,
 } from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 import { unique } from '@vendure/common/lib/unique';
 import { FindOptionsUtils, In, IsNull } from 'typeorm';
 
-import { AssignProductsToHotProductsInput } from '../../../e2e/graphql/generated-e2e-admin-types';
 import { RequestContext } from '../../api/common/request-context';
 import { RelationPaths } from '../../api/decorators/relations.decorator';
 import { ErrorResultUnion } from '../../common/error/error-result';
@@ -534,6 +534,33 @@ export class ProductService {
         const { productIds } = input;
         const operations = productIds.map(id => this.assignProductToHotProducts(ctx, id));
         return await Promise.all(operations);
+    }
+
+    async removeProductFromHotProducts(ctx: RequestContext, id: ID) {
+        const productRepository = this.connection.getRepository(ctx, Product);
+        const product = await this.findOne(ctx, id);
+        if (product) {
+            product.isHottest = false;
+            await productRepository.save(product);
+            return assertFound(this.findOne(ctx, id));
+        }
+    }
+
+    async removeProductsFromHotProducts(ctx: RequestContext, input: AssignProductsToHotProductsInput) {
+        const { productIds } = input;
+        const operations = productIds.map(id => this.removeProductFromHotProducts(ctx, id));
+        return await Promise.all(operations);
+    }
+
+    async getHotProducts(ctx: RequestContext) {
+        const productRepository = this.connection.getRepository(ctx, Product);
+        const products = productRepository.find({
+            where: {
+                isHottest: true,
+            },
+            take: 10,
+        });
+        return products;
     }
 
     private async getProductWithOptionGroups(ctx: RequestContext, productId: ID): Promise<Product> {

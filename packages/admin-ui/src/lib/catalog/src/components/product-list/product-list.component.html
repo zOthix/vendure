@@ -235,6 +235,12 @@
             }}</vdr-chip>
         </ng-template>
     </vdr-dt2-column>
+    <vdr-dt2-column [heading]="'common.is-hot' | translate" id="enabled">
+        <ng-template let-product="item">
+            <cds-icon *ngIf="product.isHottest" shape="check-circle" solid="true" size="md"></cds-icon>
+            <cds-icon *ngIf="!product.isHottest" shape="close" size="md"></cds-icon>
+        </ng-template>
+    </vdr-dt2-column>
     <vdr-dt2-column [heading]="'catalog.number-of-variants' | translate" id="number-of-variants">
         <ng-template let-product="item">
             {{ 'catalog.variant-count' | translate: { count: product.variantList?.totalItems } }}

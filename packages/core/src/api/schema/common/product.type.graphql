@@ -7,6 +7,7 @@ type Product implements Node {
     slug: String!
     description: String!
     enabled: Boolean!
+    isHottest: Boolean!
     featuredAsset: Asset
     assets: [Asset!]!
     "Returns all ProductVariants"

@@ -45,6 +45,8 @@ type Query {
     products(options: ProductListOptions): ProductList!
     "Search Products based on the criteria set by the `SearchInput`"
     search(input: SearchInput!): SearchResponse!
+    "Get hot products"
+    getHotProducts: [Product!]!
 }
 
 type Mutation {

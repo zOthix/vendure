@@ -6,6 +6,7 @@ import {
     ADD_OPTION_GROUP_TO_PRODUCT,
     ADD_OPTION_TO_GROUP,
     ASSIGN_PRODUCTS_TO_CHANNEL,
+    ASSIGN_PRODUCTS_TO_HOT_PRODUCTS,
     ASSIGN_VARIANTS_TO_CHANNEL,
     CREATE_ASSETS,
     CREATE_OR_UPDATE_PRODUCTS,
@@ -41,6 +42,7 @@ import {
     PRODUCT_SELECTOR_SEARCH,
     REMOVE_OPTION_GROUP_FROM_PRODUCT,
     REMOVE_PRODUCTS_FROM_CHANNEL,
+    REMOVE_PRODUCTS_FROM_HOT_PRODUCTS,
     REMOVE_VARIANTS_FROM_CHANNEL,
     SEARCH_PRODUCTS,
     UPDATE_ASSET,
@@ -524,7 +526,16 @@ export class ProductDataService {
         return this.baseDataService.mutate<
             Codegen.AssignProductsToHotProductsMutation,
             Codegen.AssignProductsToHotProductsMutationVariables
-        >(CREATE_OR_UPDATE_PRODUCTS, {
+        >(ASSIGN_PRODUCTS_TO_HOT_PRODUCTS, {
+            input,
+        });
+    }
+
+    removeProductsFromHotProducts(input: Codegen.RemoveProductsFromHotProductsInput) {
+        return this.baseDataService.mutate<
+            Codegen.RemoveProductsFromHotProductsMutation,
+            Codegen.RemoveProductsFromHotProductsMutationVariables
+        >(REMOVE_PRODUCTS_FROM_HOT_PRODUCTS, {
             input,
         });
     }
