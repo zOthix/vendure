@@ -278,6 +278,10 @@ export type AssignProductsToChannelInput = {
   productIds: Array<Scalars['ID']['input']>;
 };
 
+export type AssignProductsToHotProductsInput = {
+  productIds: Array<Scalars['ID']['input']>;
+};
+
 export type AssignPromotionsToChannelInput = {
   channelId: Scalars['ID']['input'];
   promotionIds: Array<Scalars['ID']['input']>;
@@ -332,6 +336,52 @@ export type BooleanOperators = {
   isNull?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export type Brand = Node & {
+  __typename?: 'Brand';
+  description: Scalars['String']['output'];
+  featuredAsset: Asset;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+};
+
+export type BrandFilterParameter = {
+  _and?: InputMaybe<Array<BrandFilterParameter>>;
+  _or?: InputMaybe<Array<BrandFilterParameter>>;
+  description?: InputMaybe<StringOperators>;
+  id?: InputMaybe<IdOperators>;
+  isActive?: InputMaybe<BooleanOperators>;
+  name?: InputMaybe<StringOperators>;
+  slug?: InputMaybe<StringOperators>;
+};
+
+export type BrandList = PaginatedList & {
+  __typename?: 'BrandList';
+  items: Array<Brand>;
+  totalItems: Scalars['Int']['output'];
+};
+
+export type BrandListOptions = {
+  /** Allows the results to be filtered */
+  filter?: InputMaybe<BrandFilterParameter>;
+  /** Specifies whether multiple top-level "filter" fields should be combined with a logical AND or OR operation. Defaults to AND. */
+  filterOperator?: InputMaybe<LogicalOperator>;
+  /** Skips the first n results, for use in pagination */
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  /** Specifies which properties to sort the results by */
+  sort?: InputMaybe<BrandSortParameter>;
+  /** Takes n results, for use in pagination */
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type BrandSortParameter = {
+  description?: InputMaybe<SortOrder>;
+  id?: InputMaybe<SortOrder>;
+  name?: InputMaybe<SortOrder>;
+  slug?: InputMaybe<SortOrder>;
+};
+
 /** Returned if an attempting to cancel lines from an Order which is still active */
 export type CancelActiveOrderError = ErrorResult & {
   __typename?: 'CancelActiveOrderError';
@@ -371,6 +421,14 @@ export type Cancellation = Node & StockMovement & {
   quantity: Scalars['Int']['output'];
   type: StockMovementType;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CarousalItem = Node & {
+  __typename?: 'CarousalItem';
+  featuredAsset: Asset;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  position: Scalars['Int']['output'];
 };
 
 export type Channel = Node & {
@@ -746,6 +804,20 @@ export type CreateAssetInput = {
 
 export type CreateAssetResult = Asset | MimeTypeError;
 
+export type CreateBrandInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  featuredAsset: Scalars['ID']['input'];
+  isActive: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+};
+
+export type CreateCarousalItemInput = {
+  featuredAsset: Scalars['ID']['input'];
+  isActive: Scalars['Boolean']['input'];
+  position: Scalars['Int']['input'];
+};
+
 export type CreateChannelInput = {
   availableCurrencyCodes?: InputMaybe<Array<CurrencyCode>>;
   availableLanguageCodes?: InputMaybe<Array<LanguageCode>>;
@@ -990,6 +1062,13 @@ export type CreateTaxRateInput = {
   name: Scalars['String']['input'];
   value: Scalars['Float']['input'];
   zoneId: Scalars['ID']['input'];
+};
+
+export type CreateWebLinkInput = {
+  featuredAsset?: InputMaybe<Scalars['ID']['input']>;
+  link: Scalars['String']['input'];
+  linkText: Scalars['String']['input'];
+  position?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type CreateZoneInput = {
@@ -1385,6 +1464,7 @@ export type CustomFields = {
   TaxCategory: Array<CustomFieldConfig>;
   TaxRate: Array<CustomFieldConfig>;
   User: Array<CustomFieldConfig>;
+  Website: Array<CustomFieldConfig>;
   Zone: Array<CustomFieldConfig>;
 };
 
@@ -2762,6 +2842,8 @@ export type Mutation = {
   assignProductVariantsToChannel: Array<ProductVariant>;
   /** Assigns all ProductVariants of Product to the specified Channel */
   assignProductsToChannel: Array<Product>;
+  /** Assigns hot products */
+  assignProductsToHotProducts: Array<Product>;
   /** Assigns Promotions to the specified Channel */
   assignPromotionsToChannel: Array<Promotion>;
   /** Assign a Role to an Administrator */
@@ -2779,6 +2861,10 @@ export type Mutation = {
   createAdministrator: Administrator;
   /** Create a new Asset */
   createAssets: Array<CreateAssetResult>;
+  /** Create a brand */
+  createBrand: Brand;
+  /** Create carousalItem */
+  createCarousalItem: CarousalItem;
   /** Create a new Channel */
   createChannel: CreateChannelResult;
   /** Create a new Collection */
@@ -2827,6 +2913,8 @@ export type Mutation = {
   createTaxCategory: TaxCategory;
   /** Create a new TaxRate */
   createTaxRate: TaxRate;
+  /** Create weblink */
+  createWebLink: WebLink;
   /** Create a new Zone */
   createZone: Zone;
   /** Delete an Administrator */
@@ -2837,6 +2925,8 @@ export type Mutation = {
   deleteAsset: DeletionResponse;
   /** Delete multiple Assets */
   deleteAssets: DeletionResponse;
+  /** Delete a brand */
+  deleteBrand: DeletionResponse;
   /** Delete a Channel */
   deleteChannel: DeletionResponse;
   /** Delete multiple Channels */
@@ -2968,6 +3058,8 @@ export type Mutation = {
   removeProductVariantsFromChannel: Array<ProductVariant>;
   /** Removes all ProductVariants of Product from the specified Channel */
   removeProductsFromChannel: Array<Product>;
+  /** Remove hot products */
+  removeProductsFromHotProducts: Array<Product>;
   /** Removes Promotions from the specified Channel */
   removePromotionsFromChannel: Array<Promotion>;
   /** Remove all settled jobs in the given queues older than the given date. Returns the number of jobs deleted. */
@@ -3002,6 +3094,10 @@ export type Mutation = {
   updateAdministrator: Administrator;
   /** Update an existing Asset */
   updateAsset: Asset;
+  /** Update a brand */
+  updateBrand: Brand;
+  /** Update carousal items */
+  updateCarousalItems: Array<Maybe<CarousalItem>>;
   /** Update an existing Channel */
   updateChannel: UpdateChannelResult;
   /** Update an existing Collection */
@@ -3051,6 +3147,10 @@ export type Mutation = {
   updateTaxCategory: TaxCategory;
   /** Update an existing TaxRate */
   updateTaxRate: TaxRate;
+  /** Update weblinks */
+  updateWebLinks: Array<Maybe<WebLink>>;
+  /** Update website details */
+  updateWebsite: Website;
   /** Update an existing Zone */
   updateZone: Zone;
 };
@@ -3147,6 +3247,11 @@ export type MutationAssignProductsToChannelArgs = {
 };
 
 
+export type MutationAssignProductsToHotProductsArgs = {
+  input: AssignProductsToHotProductsInput;
+};
+
+
 export type MutationAssignPromotionsToChannelArgs = {
   input: AssignPromotionsToChannelInput;
 };
@@ -3196,6 +3301,16 @@ export type MutationCreateAdministratorArgs = {
 
 export type MutationCreateAssetsArgs = {
   input: Array<CreateAssetInput>;
+};
+
+
+export type MutationCreateBrandArgs = {
+  input: CreateBrandInput;
+};
+
+
+export type MutationCreateCarousalItemArgs = {
+  input: CreateCarousalItemInput;
 };
 
 
@@ -3321,6 +3436,11 @@ export type MutationCreateTaxRateArgs = {
 };
 
 
+export type MutationCreateWebLinkArgs = {
+  input: CreateWebLinkInput;
+};
+
+
 export type MutationCreateZoneArgs = {
   input: CreateZoneInput;
 };
@@ -3343,6 +3463,11 @@ export type MutationDeleteAssetArgs = {
 
 export type MutationDeleteAssetsArgs = {
   input: DeleteAssetsInput;
+};
+
+
+export type MutationDeleteBrandArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -3665,6 +3790,11 @@ export type MutationRemoveProductsFromChannelArgs = {
 };
 
 
+export type MutationRemoveProductsFromHotProductsArgs = {
+  input: RemoveProductsFromHotProductsInput;
+};
+
+
 export type MutationRemovePromotionsFromChannelArgs = {
   input: RemovePromotionsFromChannelInput;
 };
@@ -3772,6 +3902,16 @@ export type MutationUpdateAdministratorArgs = {
 
 export type MutationUpdateAssetArgs = {
   input: UpdateAssetInput;
+};
+
+
+export type MutationUpdateBrandArgs = {
+  input: UpdateBrandInput;
+};
+
+
+export type MutationUpdateCarousalItemsArgs = {
+  input: UpdateCarousalItemsInput;
 };
 
 
@@ -3907,6 +4047,16 @@ export type MutationUpdateTaxCategoryArgs = {
 
 export type MutationUpdateTaxRateArgs = {
   input: UpdateTaxRateInput;
+};
+
+
+export type MutationUpdateWebLinksArgs = {
+  input: UpdateWebLinksInput;
+};
+
+
+export type MutationUpdateWebsiteArgs = {
+  input: UpdateWebsiteInput;
 };
 
 
@@ -4669,6 +4819,7 @@ export type PriceVariantInput = {
 export type Product = Node & {
   __typename?: 'Product';
   assets: Array<Asset>;
+  brand: Brand;
   channels: Array<Channel>;
   collections: Array<Collection>;
   createdAt: Scalars['DateTime']['output'];
@@ -4678,6 +4829,7 @@ export type Product = Node & {
   facetValues: Array<FacetValue>;
   featuredAsset?: Maybe<Asset>;
   id: Scalars['ID']['output'];
+  isHottest: Scalars['Boolean']['output'];
   languageCode: LanguageCode;
   name: Scalars['String']['output'];
   optionGroups: Array<ProductOptionGroup>;
@@ -4703,6 +4855,7 @@ export type ProductFilterParameter = {
   enabled?: InputMaybe<BooleanOperators>;
   facetValueId?: InputMaybe<IdOperators>;
   id?: InputMaybe<IdOperators>;
+  isHottest?: InputMaybe<BooleanOperators>;
   languageCode?: InputMaybe<StringOperators>;
   name?: InputMaybe<StringOperators>;
   sku?: InputMaybe<StringOperators>;
@@ -5178,6 +5331,10 @@ export type Query = {
   asset?: Maybe<Asset>;
   /** Get a list of Assets */
   assets: AssetList;
+  /** Get a brand by id */
+  brand?: Maybe<Brand>;
+  /** List Brands */
+  brands: BrandList;
   channel?: Maybe<Channel>;
   channels: ChannelList;
   /** Get a Collection either by id or slug. If neither id nor slug is specified, an error will result. */
@@ -5199,6 +5356,8 @@ export type Query = {
   facetValuesCategory: Array<Maybe<FacetValue>>;
   facets: FacetList;
   fulfillmentHandlers: Array<ConfigurableOperationDefinition>;
+  /** Get website details */
+  getWebsite?: Maybe<Website>;
   globalSettings: GlobalSettings;
   job?: Maybe<Job>;
   jobBufferSize: Array<JobBufferSize>;
@@ -5281,6 +5440,16 @@ export type QueryAssetArgs = {
 
 export type QueryAssetsArgs = {
   options?: InputMaybe<AssetListOptions>;
+};
+
+
+export type QueryBrandArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryBrandsArgs = {
+  options?: InputMaybe<BrandListOptions>;
 };
 
 
@@ -5730,6 +5899,10 @@ export type RemoveProductVariantsFromChannelInput = {
 
 export type RemoveProductsFromChannelInput = {
   channelId: Scalars['ID']['input'];
+  productIds: Array<Scalars['ID']['input']>;
+};
+
+export type RemoveProductsFromHotProductsInput = {
   productIds: Array<Scalars['ID']['input']>;
 };
 
@@ -6508,6 +6681,26 @@ export type UpdateAssetInput = {
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
+export type UpdateBrandInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  featuredAsset?: InputMaybe<Scalars['ID']['input']>;
+  id: Scalars['ID']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateCarousalItemInput = {
+  featuredAsset?: InputMaybe<Scalars['ID']['input']>;
+  id: Scalars['ID']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type UpdateCarousalItemsInput = {
+  items?: InputMaybe<Array<UpdateCarousalItemInput>>;
+};
+
 export type UpdateChannelInput = {
   availableCurrencyCodes?: InputMaybe<Array<CurrencyCode>>;
   availableLanguageCodes?: InputMaybe<Array<LanguageCode>>;
@@ -6787,6 +6980,26 @@ export type UpdateTaxRateInput = {
   zoneId?: InputMaybe<Scalars['ID']['input']>;
 };
 
+export type UpdateWebLinkInput = {
+  featuredAsset?: InputMaybe<Scalars['ID']['input']>;
+  id: Scalars['ID']['input'];
+  link?: InputMaybe<Scalars['String']['input']>;
+  linkText?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type UpdateWebLinksInput = {
+  links?: InputMaybe<Array<UpdateWebLinkInput>>;
+};
+
+export type UpdateWebsiteInput = {
+  announcementBarText?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  customFields?: InputMaybe<Scalars['JSON']['input']>;
+  footerContent?: InputMaybe<Scalars['String']['input']>;
+  weblinks?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+};
+
 export type UpdateZoneInput = {
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   id: Scalars['ID']['input'];
@@ -6804,6 +7017,27 @@ export type User = Node & {
   roles: Array<Role>;
   updatedAt: Scalars['DateTime']['output'];
   verified: Scalars['Boolean']['output'];
+};
+
+export type WebLink = Node & {
+  __typename?: 'WebLink';
+  featuredAsset?: Maybe<Asset>;
+  id: Scalars['ID']['output'];
+  link: Scalars['String']['output'];
+  linkText: Scalars['String']['output'];
+  position?: Maybe<Scalars['Int']['output']>;
+};
+
+export type Website = Node & {
+  __typename?: 'Website';
+  announcementBarText: Scalars['String']['output'];
+  carousalItems: Array<Maybe<CarousalItem>>;
+  content: Scalars['String']['output'];
+  contentUpdatedAt: Scalars['DateTime']['output'];
+  customFields?: Maybe<Scalars['JSON']['output']>;
+  footerContent: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  weblinks: Array<Maybe<WebLink>>;
 };
 
 export type Zone = Node & {

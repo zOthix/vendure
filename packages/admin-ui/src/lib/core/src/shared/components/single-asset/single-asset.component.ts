@@ -11,11 +11,7 @@ import { Asset, Permission } from '../../../common/generated-types';
 import { ModalService } from '../../../providers/modal/modal.service';
 import { AssetPickerDialogComponent } from '../asset-picker-dialog/asset-picker-dialog.component';
 import { AssetPreviewDialogComponent } from '../asset-preview-dialog/asset-preview-dialog.component';
-
-export interface AssetChange {
-    assets: Asset[];
-    featuredAsset: Asset | undefined;
-}
+import { AssetChange } from '../assets/assets.component';
 
 @Component({
     selector: 'vdr-single-asset',

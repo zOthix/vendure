@@ -122,7 +122,7 @@ export class BrandDetailComponent
         this.dataService.product.createBrand(input).subscribe(
             data => {
                 this.notificationService.success(_('common.notify-create-success'), {
-                    entity: 'Price Variant',
+                    entity: 'Brand',
                 });
                 this.detailForm.markAsPristine();
                 this.changeDetector.markForCheck();
@@ -130,7 +130,7 @@ export class BrandDetailComponent
             },
             err => {
                 this.notificationService.error(_('common.notify-create-error'), {
-                    entity: 'Price Variant',
+                    entity: 'Brand',
                 });
             },
         );
@@ -160,7 +160,7 @@ export class BrandDetailComponent
                 result => {
                     if (result) {
                         this.notificationService.success(_('common.notify-update-success'), {
-                            entity: 'Price variant',
+                            entity: 'Brand',
                         });
                         this.detailForm.markAsPristine();
                         this.changeDetector.markForCheck();
@@ -168,7 +168,7 @@ export class BrandDetailComponent
                 },
                 err => {
                     this.notificationService.error(_('common.notify-update-error'), {
-                        entity: 'Price variant',
+                        entity: 'Brand',
                     });
                 },
             );

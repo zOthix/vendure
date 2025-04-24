@@ -185,6 +185,7 @@ export type CustomFields = {
     TaxCategory?: CustomFieldConfig[];
     TaxRate?: CustomFieldConfig[];
     User?: CustomFieldConfig[];
+    Website?: CustomFieldConfig[];
     Zone?: CustomFieldConfig[];
 } & { [entity: string]: CustomFieldConfig[] };
 

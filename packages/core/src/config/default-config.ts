@@ -216,6 +216,7 @@ export const defaultConfig: RuntimeVendureConfig = {
         TaxCategory: [],
         TaxRate: [],
         User: [],
+        Website: [],
         Zone: [],
     },
     plugins: [],

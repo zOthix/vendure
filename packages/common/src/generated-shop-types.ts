@@ -148,6 +148,30 @@ export type BooleanOperators = {
     isNull?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export type Brand = Node & {
+    __typename?: 'Brand';
+    description: Scalars['String']['output'];
+    featuredAsset: Asset;
+    id: Scalars['ID']['output'];
+    isActive: Scalars['Boolean']['output'];
+    name: Scalars['String']['output'];
+    slug: Scalars['String']['output'];
+};
+
+export type BrandList = PaginatedList & {
+    __typename?: 'BrandList';
+    items: Array<Brand>;
+    totalItems: Scalars['Int']['output'];
+};
+
+export type CarousalItem = Node & {
+    __typename?: 'CarousalItem';
+    featuredAsset: Asset;
+    id: Scalars['ID']['output'];
+    isActive: Scalars['Boolean']['output'];
+    position: Scalars['Int']['output'];
+};
+
 export type Channel = Node & {
     __typename?: 'Channel';
     availableCurrencyCodes: Array<CurrencyCode>;
@@ -405,7 +429,7 @@ export type CreateCustomerInput = {
     contactPersonPhone: Scalars['String']['input'];
     customFields?: InputMaybe<Scalars['JSON']['input']>;
     emailAddress: Scalars['String']['input'];
-    fax: Scalars['String']['input'];
+    fax?: InputMaybe<Scalars['String']['input']>;
     firstName: Scalars['String']['input'];
     lastName: Scalars['String']['input'];
     managerAddress: Scalars['String']['input'];
@@ -792,6 +816,7 @@ export type Customer = Node & {
     fax: Scalars['String']['output'];
     firstName: Scalars['String']['output'];
     id: Scalars['ID']['output'];
+    isRejected?: Maybe<Scalars['Boolean']['output']>;
     lastName: Scalars['String']['output'];
     managerAddress: Scalars['String']['output'];
     orders: OrderList;
@@ -823,6 +848,7 @@ export type CustomerFilterParameter = {
     fax?: InputMaybe<StringOperators>;
     firstName?: InputMaybe<StringOperators>;
     id?: InputMaybe<IdOperators>;
+    isRejected?: InputMaybe<BooleanOperators>;
     lastName?: InputMaybe<StringOperators>;
     managerAddress?: InputMaybe<StringOperators>;
     payWithoutCreditCard?: InputMaybe<BooleanOperators>;
@@ -2620,6 +2646,7 @@ export type PriceRange = {
 export type Product = Node & {
     __typename?: 'Product';
     assets: Array<Asset>;
+    brand: Brand;
     collections: Array<Collection>;
     createdAt: Scalars['DateTime']['output'];
     customFields?: Maybe<Scalars['JSON']['output']>;
@@ -2628,6 +2655,7 @@ export type Product = Node & {
     facetValues: Array<FacetValue>;
     featuredAsset?: Maybe<Asset>;
     id: Scalars['ID']['output'];
+    isHottest: Scalars['Boolean']['output'];
     languageCode: LanguageCode;
     name: Scalars['String']['output'];
     optionGroups: Array<ProductOptionGroup>;
@@ -2651,6 +2679,7 @@ export type ProductFilterParameter = {
     description?: InputMaybe<StringOperators>;
     enabled?: InputMaybe<BooleanOperators>;
     id?: InputMaybe<IdOperators>;
+    isHottest?: InputMaybe<BooleanOperators>;
     languageCode?: InputMaybe<StringOperators>;
     name?: InputMaybe<StringOperators>;
     slug?: InputMaybe<StringOperators>;
@@ -2912,6 +2941,8 @@ export type Query = {
     facet?: Maybe<Facet>;
     /** A list of Facets available to the shop */
     facets: FacetList;
+    /** Get hot products */
+    getHotProducts: Array<Product>;
     /** Returns information about the current authenticated User */
     me?: Maybe<CurrentUser>;
     /** Returns the possible next states that the activeOrder can transition to */
@@ -3475,6 +3506,27 @@ export type VerifyCustomerAccountResult =
     | PasswordValidationError
     | VerificationTokenExpiredError
     | VerificationTokenInvalidError;
+
+export type WebLink = Node & {
+    __typename?: 'WebLink';
+    featuredAsset?: Maybe<Asset>;
+    id: Scalars['ID']['output'];
+    link: Scalars['String']['output'];
+    linkText: Scalars['String']['output'];
+    position?: Maybe<Scalars['Int']['output']>;
+};
+
+export type Website = Node & {
+    __typename?: 'Website';
+    announcementBarText: Scalars['String']['output'];
+    carousalItems: Array<Maybe<CarousalItem>>;
+    content: Scalars['String']['output'];
+    contentUpdatedAt: Scalars['DateTime']['output'];
+    customFields?: Maybe<Scalars['JSON']['output']>;
+    footerContent: Scalars['String']['output'];
+    id: Scalars['ID']['output'];
+    weblinks: Array<Maybe<WebLink>>;
+};
 
 export type Zone = Node & {
     __typename?: 'Zone';
