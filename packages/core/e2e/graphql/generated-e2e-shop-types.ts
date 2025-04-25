@@ -157,7 +157,7 @@ export type BrandList = PaginatedList & {
 };
 
 export type CarousalItem = Node & {
-    featuredAsset: Asset;
+    featuredAsset?: Maybe<Asset>;
     id: Scalars['ID']['output'];
     isActive: Scalars['Boolean']['output'];
     position: Scalars['Int']['output'];
@@ -2562,7 +2562,7 @@ export type PriceRange = {
 
 export type Product = Node & {
     assets: Array<Asset>;
-    brand: Brand;
+    brand?: Maybe<Brand>;
     collections: Array<Collection>;
     createdAt: Scalars['DateTime']['output'];
     customFields?: Maybe<Scalars['JSON']['output']>;
@@ -3381,18 +3381,18 @@ export type WebLink = Node & {
     id: Scalars['ID']['output'];
     link: Scalars['String']['output'];
     linkText: Scalars['String']['output'];
-    position?: Maybe<Scalars['Int']['output']>;
+    position: Scalars['Int']['output'];
 };
 
 export type Website = Node & {
     announcementBarText: Scalars['String']['output'];
-    carousalItems: Array<Maybe<CarousalItem>>;
+    carousalItems: Array<CarousalItem>;
     content: Scalars['String']['output'];
     contentUpdatedAt: Scalars['DateTime']['output'];
     customFields?: Maybe<Scalars['JSON']['output']>;
     footerContent: Scalars['String']['output'];
     id: Scalars['ID']['output'];
-    weblinks: Array<Maybe<WebLink>>;
+    weblinks: Array<WebLink>;
 };
 
 export type Zone = Node & {

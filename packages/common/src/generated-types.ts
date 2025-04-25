@@ -425,7 +425,7 @@ export type Cancellation = Node & StockMovement & {
 
 export type CarousalItem = Node & {
   __typename?: 'CarousalItem';
-  featuredAsset: Asset;
+  featuredAsset?: Maybe<Asset>;
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   position: Scalars['Int']['output'];
@@ -925,6 +925,7 @@ export type CreateGroupOptionInput = {
 
 export type CreateOrUpdateProductInput = {
   assetIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  brand?: InputMaybe<Scalars['ID']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
   facetValueIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
@@ -949,6 +950,7 @@ export type CreatePaymentMethodInput = {
 
 export type CreateProductInput = {
   assetIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  brand?: InputMaybe<Scalars['ID']['input']>;
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
   facetValueIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -1068,7 +1070,7 @@ export type CreateWebLinkInput = {
   featuredAsset?: InputMaybe<Scalars['ID']['input']>;
   link: Scalars['String']['input'];
   linkText: Scalars['String']['input'];
-  position?: InputMaybe<Scalars['Int']['input']>;
+  position: Scalars['Int']['input'];
 };
 
 export type CreateZoneInput = {
@@ -3097,7 +3099,7 @@ export type Mutation = {
   /** Update a brand */
   updateBrand: Brand;
   /** Update carousal items */
-  updateCarousalItems: Array<Maybe<CarousalItem>>;
+  updateCarousalItems: Array<CarousalItem>;
   /** Update an existing Channel */
   updateChannel: UpdateChannelResult;
   /** Update an existing Collection */
@@ -3148,7 +3150,7 @@ export type Mutation = {
   /** Update an existing TaxRate */
   updateTaxRate: TaxRate;
   /** Update weblinks */
-  updateWebLinks: Array<Maybe<WebLink>>;
+  updateWebLinks: Array<WebLink>;
   /** Update website details */
   updateWebsite: Website;
   /** Update an existing Zone */
@@ -4819,7 +4821,7 @@ export type PriceVariantInput = {
 export type Product = Node & {
   __typename?: 'Product';
   assets: Array<Asset>;
-  brand: Brand;
+  brand?: Maybe<Brand>;
   channels: Array<Channel>;
   collections: Array<Collection>;
   createdAt: Scalars['DateTime']['output'];
@@ -6698,7 +6700,7 @@ export type UpdateCarousalItemInput = {
 };
 
 export type UpdateCarousalItemsInput = {
-  items?: InputMaybe<Array<UpdateCarousalItemInput>>;
+  items: Array<UpdateCarousalItemInput>;
 };
 
 export type UpdateChannelInput = {
@@ -6852,6 +6854,7 @@ export type UpdatePriceVariantInput = {
 
 export type UpdateProductInput = {
   assetIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  brand?: InputMaybe<Scalars['ID']['input']>;
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
   facetValueIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -6989,7 +6992,7 @@ export type UpdateWebLinkInput = {
 };
 
 export type UpdateWebLinksInput = {
-  links?: InputMaybe<Array<UpdateWebLinkInput>>;
+  links: Array<UpdateWebLinkInput>;
 };
 
 export type UpdateWebsiteInput = {
@@ -6997,7 +7000,6 @@ export type UpdateWebsiteInput = {
   content?: InputMaybe<Scalars['String']['input']>;
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   footerContent?: InputMaybe<Scalars['String']['input']>;
-  weblinks?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
 };
 
 export type UpdateZoneInput = {
@@ -7025,19 +7027,19 @@ export type WebLink = Node & {
   id: Scalars['ID']['output'];
   link: Scalars['String']['output'];
   linkText: Scalars['String']['output'];
-  position?: Maybe<Scalars['Int']['output']>;
+  position: Scalars['Int']['output'];
 };
 
 export type Website = Node & {
   __typename?: 'Website';
   announcementBarText: Scalars['String']['output'];
-  carousalItems: Array<Maybe<CarousalItem>>;
+  carousalItems: Array<CarousalItem>;
   content: Scalars['String']['output'];
   contentUpdatedAt: Scalars['DateTime']['output'];
   customFields?: Maybe<Scalars['JSON']['output']>;
   footerContent: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  weblinks: Array<Maybe<WebLink>>;
+  weblinks: Array<WebLink>;
 };
 
 export type Zone = Node & {
