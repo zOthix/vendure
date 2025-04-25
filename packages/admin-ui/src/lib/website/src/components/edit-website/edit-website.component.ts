@@ -232,6 +232,7 @@ export class EditWebsiteComponent implements OnInit {
                     this.notificationService.error(_('common.notify-update-error'), {
                         entity: 'Website',
                     });
+                    this.refreshWebsite();
                 },
             });
     }

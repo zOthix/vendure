@@ -9,29 +9,28 @@ type Mutation {
     "Create weblink"
     createWebLink(input: CreateWebLinkInput!): WebLink!
     "Update weblinks"
-    updateWebLinks(input: UpdateWebLinksInput!): [WebLink]!
+    updateWebLinks(input: UpdateWebLinksInput!): [WebLink!]!
     "Create carousalItem"
     createCarousalItem(input: CreateCarousalItemInput!): CarousalItem!
     "Update carousal items"
-    updateCarousalItems(input: UpdateCarousalItemsInput!): [CarousalItem]!
+    updateCarousalItems(input: UpdateCarousalItemsInput!): [CarousalItem!]!
 }
 
 input UpdateWebsiteInput {
     content: String
     footerContent: String
     announcementBarText: String
-    weblinks: [ID]
 }
 
 input CreateWebLinkInput {
     link: String!
     linkText: String!
-    position: Int
+    position: Int!
     featuredAsset: ID
 }
 
 input UpdateWebLinksInput {
-    links: [UpdateWebLinkInput!]
+    links: [UpdateWebLinkInput!]!
 }
 
 input UpdateWebLinkInput {
@@ -49,7 +48,7 @@ input CreateCarousalItemInput {
 }
 
 input UpdateCarousalItemsInput {
-    items: [UpdateCarousalItemInput!]
+    items: [UpdateCarousalItemInput!]!
 }
 
 input UpdateCarousalItemInput {

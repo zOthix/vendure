@@ -22,7 +22,7 @@ import { AssetService } from './asset.service';
 
 /**
  * @description
- * Contains methods relating to {@link Website} entities.
+ * Contains methods relating to {@link Website} entity.
  *
  * @docsCategory services
  */
@@ -103,8 +103,10 @@ export class WebsiteService {
         if (weblinkList >= 4) {
             throw new Error('Cannot make more than 4 weblinks.');
         }
-        const assetRepository = this.connection.getRepository(ctx, Asset);
-        const asset = await assetRepository.findOneBy({ id: input.featuredAsset });
+        let featuredAsset: Asset | undefined;
+        if (input.featuredAsset) {
+            featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
+        }
         const website = await this.getOne(ctx);
         if (!website) {
             throw new Error('Website not generated.');
@@ -113,7 +115,7 @@ export class WebsiteService {
             link: input.link,
             linkText: input.linkText,
             position: input.position,
-            featuredAsset: asset,
+            featuredAsset: featuredAsset ? featuredAsset : null,
             website,
         });
         return weblinkRepository.save(tempWebLink);
@@ -121,6 +123,10 @@ export class WebsiteService {
 
     async updateWebLink(ctx: RequestContext, input: UpdateWebLinkInput): Promise<WebLink> {
         const weblinkRepo = this.connection.getRepository(ctx, WebLink);
+        const website = await this.getOne(ctx);
+        if (!website) {
+            throw new Error('Website not generated.');
+        }
         let featuredAsset: Asset | undefined;
         if (input.featuredAsset) {
             featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
@@ -128,9 +134,9 @@ export class WebsiteService {
         const weblink = await this.findWebLink(ctx, input.id);
         if (!weblink) {
             return this.createWeblink(ctx, {
-                link: input.link || '',
-                linkText: input.linkText || '',
-                position: input.position,
+                link: input.link ?? '',
+                linkText: input.linkText ?? '',
+                position: input.position ?? 0,
                 featuredAsset: featuredAsset ? featuredAsset.id : undefined,
             });
         }
@@ -143,8 +149,10 @@ export class WebsiteService {
         if (input.position) {
             weblink.position = input.position;
         }
-        if (input.featuredAsset || input.featuredAsset === null) {
+        if (featuredAsset) {
             weblink.featuredAsset = featuredAsset;
+        } else {
+            weblink.featuredAsset = null;
         }
         return weblinkRepo.save(weblink);
     }
@@ -182,11 +190,11 @@ export class WebsiteService {
         if (input.featuredAsset) {
             featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
         }
+        if (!featuredAsset) {
+            throw new Error('Asset is required for carousal items.');
+        }
         const item = await this.findCarousalItem(ctx, input.id);
         if (!item) {
-            if (!featuredAsset) {
-                throw new Error('Asset is required for carousal items.');
-            }
             return this.createCarousalItem(ctx, {
                 featuredAsset: featuredAsset.id,
                 isActive: input.isActive ?? true,
@@ -199,7 +207,7 @@ export class WebsiteService {
         if (shouldIsActiveUpdate) {
             item.isActive = input.isActive as boolean;
         }
-        if (input.featuredAsset && featuredAsset) {
+        if (input.featuredAsset !== undefined) {
             item.featuredAsset = featuredAsset;
         }
         const savedItem = await carousalItemRepository.save(item);

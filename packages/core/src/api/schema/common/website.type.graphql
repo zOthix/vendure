@@ -6,21 +6,21 @@ type Website implements Node {
     contentUpdatedAt: DateTime!
     footerContent: String!
     announcementBarText: String!
-    weblinks: [WebLink]!
-    carousalItems: [CarousalItem]!
+    weblinks: [WebLink!]!
+    carousalItems: [CarousalItem!]!
 }
 
 type WebLink implements Node {
     id: ID!
     link: String!
     linkText: String!
-    position: Int
+    position: Int!
     featuredAsset: Asset
 }
 
 type CarousalItem implements Node {
     id: ID!
     position: Int!
-    featuredAsset: Asset!
+    featuredAsset: Asset
     isActive: Boolean!
 }

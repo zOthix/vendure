@@ -31,8 +31,8 @@ export class WebLink extends VendureEntity {
     position?: number;
 
     @Index()
-    @ManyToOne(type => Asset, asset => asset.featuredInWeblink, { onDelete: 'SET NULL' })
-    featuredAsset?: Asset;
+    @ManyToOne(type => Asset, asset => asset.featuredInWeblink, { onDelete: 'SET NULL', nullable: true })
+    featuredAsset: Asset | null;
 
     @ManyToOne(() => Website, website => website.weblinks, { onDelete: 'CASCADE' })
     website: Website;
