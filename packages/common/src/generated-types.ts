@@ -343,7 +343,14 @@ export type Brand = Node & {
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+  productList: ProductList;
+  products?: Maybe<Array<Product>>;
   slug: Scalars['String']['output'];
+};
+
+
+export type BrandProductListArgs = {
+  options?: InputMaybe<ProductListOptions>;
 };
 
 export type BrandFilterParameter = {
@@ -5992,6 +5999,8 @@ export type Sale = Node & StockMovement & {
 };
 
 export type SearchInput = {
+  brandId?: InputMaybe<Scalars['ID']['input']>;
+  brandSlug?: InputMaybe<Scalars['String']['input']>;
   collectionId?: InputMaybe<Scalars['ID']['input']>;
   collectionSlug?: InputMaybe<Scalars['String']['input']>;
   facetValueFilters?: InputMaybe<Array<FacetValueFilterInput>>;
@@ -6021,6 +6030,7 @@ export type SearchResponse = {
 
 export type SearchResult = {
   __typename?: 'SearchResult';
+  brand?: Maybe<Scalars['ID']['output']>;
   /** An array of ids of the Channels in which this result appears */
   channelIds: Array<Scalars['ID']['output']>;
   /** An array of ids of the Collections in which this result appears */

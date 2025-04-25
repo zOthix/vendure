@@ -155,7 +155,13 @@ export type Brand = Node & {
     id: Scalars['ID']['output'];
     isActive: Scalars['Boolean']['output'];
     name: Scalars['String']['output'];
+    productList: ProductList;
+    products?: Maybe<Array<Product>>;
     slug: Scalars['String']['output'];
+};
+
+export type BrandProductListArgs = {
+    options?: InputMaybe<ProductListOptions>;
 };
 
 export type BrandList = PaginatedList & {
@@ -2941,6 +2947,10 @@ export type Query = {
     facet?: Maybe<Facet>;
     /** A list of Facets available to the shop */
     facets: FacetList;
+    /** Get brand details */
+    getBrand?: Maybe<Brand>;
+    /** Get all brands */
+    getBrands: Array<Brand>;
     /** Get hot products */
     getHotProducts: Array<Product>;
     /** Returns information about the current authenticated User */
@@ -2982,6 +2992,11 @@ export type QueryFacetArgs = {
 
 export type QueryFacetsArgs = {
     options?: InputMaybe<FacetListOptions>;
+};
+
+export type QueryGetBrandArgs = {
+    id?: InputMaybe<Scalars['ID']['input']>;
+    slug?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryOrderArgs = {
@@ -3133,6 +3148,8 @@ export type RoleList = PaginatedList & {
 };
 
 export type SearchInput = {
+    brandId?: InputMaybe<Scalars['ID']['input']>;
+    brandSlug?: InputMaybe<Scalars['String']['input']>;
     collectionId?: InputMaybe<Scalars['ID']['input']>;
     collectionSlug?: InputMaybe<Scalars['String']['input']>;
     facetValueFilters?: InputMaybe<Array<FacetValueFilterInput>>;
@@ -3162,6 +3179,7 @@ export type SearchResponse = {
 
 export type SearchResult = {
     __typename?: 'SearchResult';
+    brand?: Maybe<Scalars['ID']['output']>;
     /** An array of ids of the Collections in which this result appears */
     collectionIds: Array<Scalars['ID']['output']>;
     currencyCode: CurrencyCode;
