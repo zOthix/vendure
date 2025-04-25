@@ -88,4 +88,6 @@ type Brand implements Node {
     description: String!
     isActive: Boolean!
     featuredAsset: Asset!
+    products: [Product!]
+    productList(options: ProductListOptions): ProductList!
 }

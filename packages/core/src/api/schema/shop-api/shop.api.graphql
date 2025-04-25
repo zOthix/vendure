@@ -49,6 +49,8 @@ type Query {
     getHotProducts: [Product!]!
     "Get all brands"
     getBrands: [Brand!]!
+    "Get brand details"
+    getBrand(id: ID, slug: String): Brand
 }
 
 type Mutation {

@@ -569,14 +569,21 @@ export class ProductService {
         return products;
     }
 
-    async findBrand(ctx: RequestContext, id: ID) {
-        const brand = await this.connection.getRepository(ctx, Brand).findOneBy({
-            id: id as number,
-        });
+    async findBrand(ctx: RequestContext, id?: ID, slug?: string) {
+        let brand: Brand | null;
+        if (slug) {
+            brand = await this.connection.getRepository(ctx, Brand).findOneBy({
+                slug,
+            });
+        } else {
+            brand = await this.connection.getRepository(ctx, Brand).findOneBy({
+                id: id as number,
+            });
+        }
         if (!brand) {
             return;
         }
-        return this.entityHydrator.hydrate(ctx, brand, { relations: ['featuredAsset' as never] });
+        return this.entityHydrator.hydrate(ctx, brand, { relations: ['featuredAsset', 'products' as never] });
     }
 
     async getBrands(ctx: RequestContext): Promise<PaginatedList<Brand>> {
@@ -585,7 +592,7 @@ export class ProductService {
                 Brand,
                 {},
                 {
-                    relations: ['featuredAsset'],
+                    relations: ['featuredAsset', 'products'],
                     ctx,
                 },
             )
@@ -600,7 +607,7 @@ export class ProductService {
     }
 
     async getAllBrands(ctx: RequestContext): Promise<Brand[]> {
-        return this.connection.getRepository(ctx, Brand).find({ relations: ['featuredAsset'] });
+        return this.connection.getRepository(ctx, Brand).find({ relations: ['featuredAsset', 'products'] });
     }
 
     async createBrand(ctx: RequestContext, input: CreateBrandInput) {

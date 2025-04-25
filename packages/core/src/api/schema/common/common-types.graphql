@@ -179,6 +179,8 @@ input SearchInput {
     facetValueFilters: [FacetValueFilterInput!]
     collectionId: ID
     collectionSlug: String
+    brandSlug: String
+    brandId: ID
     groupByProduct: Boolean
     take: Int
     skip: Int

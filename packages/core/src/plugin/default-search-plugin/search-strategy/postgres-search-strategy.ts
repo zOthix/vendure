@@ -125,6 +125,7 @@ export class PostgresSearchStrategy implements SearchStrategy {
             qb.andWhere('"si"."enabled" = :enabled', { enabled: true });
         }
 
+        qb.addSelect(`STRING_AGG(brand::text, ',')`, 'brand');
         qb.addSelect('jsonb_agg(si.priceVariants)', 'priceVariants');
         qb.addSelect('jsonb_agg(si.priceVariantsWithTax)', 'priceVariantsWithTax');
 

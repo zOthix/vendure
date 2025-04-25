@@ -4,6 +4,7 @@ import {
     QueryCollectionsArgs,
     QueryFacetArgs,
     QueryFacetsArgs,
+    QueryGetBrandArgs,
     QueryProductArgs,
     QueryProductsArgs,
     SearchResponse,
@@ -164,5 +165,11 @@ export class ShopProductsResolver {
     @Query()
     async getBrands(@Ctx() ctx: RequestContext) {
         return this.productService.getAllBrands(ctx);
+    }
+
+    @Query()
+    async getBrand(@Ctx() ctx: RequestContext, @Args() args: QueryGetBrandArgs) {
+        const { id, slug } = args;
+        return this.productService.findBrand(ctx, id, slug);
     }
 }
