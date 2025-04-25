@@ -8,7 +8,7 @@ type Product implements Node {
     description: String!
     enabled: Boolean!
     isHottest: Boolean!
-    brand: Brand!
+    brand: Brand
     featuredAsset: Asset
     assets: [Asset!]!
     "Returns all ProductVariants"

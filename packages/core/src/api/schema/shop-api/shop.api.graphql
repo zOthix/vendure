@@ -47,6 +47,8 @@ type Query {
     search(input: SearchInput!): SearchResponse!
     "Get hot products"
     getHotProducts: [Product!]!
+    "Get all brands"
+    getBrands: [Brand!]!
 }
 
 type Mutation {

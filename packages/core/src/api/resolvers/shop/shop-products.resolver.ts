@@ -160,4 +160,9 @@ export class ShopProductsResolver {
     async getHotProducts(@Ctx() ctx: RequestContext) {
         return this.productService.getHotProducts(ctx);
     }
+
+    @Query()
+    async getBrands(@Ctx() ctx: RequestContext) {
+        return this.productService.getAllBrands(ctx);
+    }
 }

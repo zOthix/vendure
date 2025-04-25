@@ -134,6 +134,7 @@ export class ProductService {
             // when serving via the Shop API.
             effectiveRelations.push('facetValues.facet');
         }
+        effectiveRelations.push('brand');
         const product = await this.connection.findOneInChannel(ctx, Product, productId, ctx.channelId, {
             relations: unique(effectiveRelations),
             where: {
@@ -596,6 +597,10 @@ export class ProductService {
                     totalItems,
                 };
             });
+    }
+
+    async getAllBrands(ctx: RequestContext): Promise<Brand[]> {
+        return this.connection.getRepository(ctx, Brand).find({ relations: ['featuredAsset'] });
     }
 
     async createBrand(ctx: RequestContext, input: CreateBrandInput) {

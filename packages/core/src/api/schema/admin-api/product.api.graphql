@@ -134,6 +134,7 @@ input ProductTranslationInput {
 input CreateProductInput {
     featuredAssetId: ID
     enabled: Boolean
+    brand: ID
     assetIds: [ID!]
     facetValueIds: [ID!]
     translations: [ProductTranslationInput!]!
@@ -143,6 +144,7 @@ input UpdateProductInput {
     id: ID!
     enabled: Boolean
     featuredAssetId: ID
+    brand: ID
     assetIds: [ID!]
     facetValueIds: [ID!]
     translations: [ProductTranslationInput!]
@@ -154,6 +156,7 @@ input CreateOrUpdateProductInput {
     name: String
     slug: String
     description: String
+    brand: ID
     assetIds: [ID]
     facetValueIds: [ID]
     featuredAssetId: ID
