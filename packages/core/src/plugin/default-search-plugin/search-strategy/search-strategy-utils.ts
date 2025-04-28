@@ -98,7 +98,8 @@ export function mapToSearchResult(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         inStock: raw.si_inStock,
-        brands: raw.brand?.split(',').map((x: string) => x.trim()),
+        brandId: raw.brandId,
+        brandSlug: raw.brandSlug,
     };
 }
 

@@ -48,6 +48,7 @@ export const productRelations = [
     'facetValues.facet',
     'variants',
     'channels',
+    'brand',
 ];
 export const variantRelations = [
     'translations',
@@ -63,6 +64,7 @@ export const variantRelations = [
     'product.channels',
     'product.facetValues',
     'product.facetValues.facet',
+    'product.brand',
     'collections',
     'collections.translations',
     'productVariantPrices.productVariantPriceVariant',
@@ -479,6 +481,8 @@ export class IndexerController {
                             collectionTranslations.map(c => c?.slug).filter(notNullOrUndefined) ?? [],
                         priceVariants: prices,
                         priceVariantsWithTax: pricesWithTax,
+                        brandSlug: variant.product.brand ? variant.product.brand.slug : undefined,
+                        brandId: variant.product.brand ? String(variant.product.brand.id) : undefined,
                     });
                     if (this.options.indexStockStatus) {
                         item.inStock =

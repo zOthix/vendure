@@ -104,6 +104,9 @@ export class PostgresSearchStrategy implements SearchStrategy {
                 .addSelect('MAX(si.priceWithTax)', 'maxPriceWithTax');
         }
 
+        qb.addSelect('MIN(si.brandId)', 'brandId');
+        qb.addSelect('MIN(si.brandSlug)', 'brandSlug');
+
         this.applyTermAndFilters(ctx, qb, input);
 
         if (sort) {
@@ -125,7 +128,6 @@ export class PostgresSearchStrategy implements SearchStrategy {
             qb.andWhere('"si"."enabled" = :enabled', { enabled: true });
         }
 
-        qb.addSelect(`STRING_AGG(brand::text, ',')`, 'brand');
         qb.addSelect('jsonb_agg(si.priceVariants)', 'priceVariants');
         qb.addSelect('jsonb_agg(si.priceVariantsWithTax)', 'priceVariantsWithTax');
 
@@ -170,8 +172,16 @@ export class PostgresSearchStrategy implements SearchStrategy {
         input: SearchInput,
         forceGroup: boolean = false,
     ): SelectQueryBuilder<SearchIndexItem> {
-        const { term, facetValueFilters, facetValueIds, facetValueOperator, collectionId, collectionSlug } =
-            input;
+        const {
+            term,
+            facetValueFilters,
+            facetValueIds,
+            facetValueOperator,
+            collectionId,
+            collectionSlug,
+            brandId,
+            brandSlug,
+        } = input;
         // join multiple words with the logical AND operator
         const termLogicalAnd = term
             ? term
@@ -266,6 +276,16 @@ export class PostgresSearchStrategy implements SearchStrategy {
         if (collectionSlug) {
             qb.andWhere(":collectionSlug::varchar = ANY (string_to_array(si.collectionSlugs, ','))", {
                 collectionSlug,
+            });
+        }
+        if (brandId) {
+            qb.andWhere(':brandId::varchar = si.brandId', {
+                brandId,
+            });
+        }
+        if (brandSlug) {
+            qb.andWhere(':brandSlug::varchar = si.brandSlug', {
+                brandSlug,
             });
         }
 

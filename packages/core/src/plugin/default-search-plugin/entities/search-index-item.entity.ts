@@ -61,7 +61,10 @@ export class SearchIndexItem {
     priceVariantsWithTax?: Array<{ id: ID; name: string; price: number }>;
 
     @Column('simple-array', { nullable: true })
-    brand: string;
+    brandId: string;
+
+    @Column('simple-array', { nullable: true })
+    brandSlug: string;
 
     @Column('simple-array')
     facetIds: string[];

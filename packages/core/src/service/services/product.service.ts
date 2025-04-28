@@ -607,7 +607,9 @@ export class ProductService {
     }
 
     async getAllBrands(ctx: RequestContext): Promise<Brand[]> {
-        return this.connection.getRepository(ctx, Brand).find({ relations: ['featuredAsset', 'products'] });
+        return this.connection
+            .getRepository(ctx, Brand)
+            .find({ relations: ['featuredAsset', 'products'], where: { isActive: true } });
     }
 
     async createBrand(ctx: RequestContext, input: CreateBrandInput) {
