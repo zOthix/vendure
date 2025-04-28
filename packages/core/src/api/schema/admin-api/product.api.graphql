@@ -13,6 +13,8 @@ type Query {
     brands: BrandList!
     "Get a brand by id"
     brand(id: ID!): Brand
+    "Get all the brands"
+    brandValueList: [BrandValue!]
 }
 
 type Mutation {

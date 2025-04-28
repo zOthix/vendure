@@ -144,6 +144,11 @@ export const PRODUCT_DETAIL_FRAGMENT = gql`
         name
         slug
         description
+        brand {
+            id
+            name
+            slug
+        }
         featuredAsset {
             ...Asset
         }
@@ -993,4 +998,14 @@ export const UPDATE_BRAND = gql`
         }
     }
     ${BRAND_FRAGMENT}
+`;
+
+export const BRAND_VALUE_LIST = gql`
+    query BrandValueList {
+        brandValueList {
+            id
+            label
+            value
+        }
+    }
 `;

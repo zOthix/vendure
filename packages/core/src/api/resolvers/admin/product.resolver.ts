@@ -316,6 +316,12 @@ export class ProductResolver {
 
     @Query()
     @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async brandValueList(@Ctx() ctx: RequestContext) {
+        return this.productService.brandValueList(ctx);
+    }
+
+    @Query()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
     async brands(@Ctx() ctx: RequestContext) {
         return this.productService.getBrands(ctx);
     }

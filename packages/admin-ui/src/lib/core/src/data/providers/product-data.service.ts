@@ -8,6 +8,7 @@ import {
     ASSIGN_PRODUCTS_TO_CHANNEL,
     ASSIGN_PRODUCTS_TO_HOT_PRODUCTS,
     ASSIGN_VARIANTS_TO_CHANNEL,
+    BRAND_VALUE_LIST,
     CREATE_ASSETS,
     CREATE_BRAND,
     CREATE_OR_UPDATE_PRODUCTS,
@@ -189,6 +190,7 @@ export class ProductDataService {
                 'assetIds',
                 'featuredAssetId',
                 'facetValueIds',
+                'brand',
             ]),
         };
         return this.baseDataService.mutate<
@@ -207,6 +209,7 @@ export class ProductDataService {
                 'assetIds',
                 'featuredAssetId',
                 'facetValueIds',
+                'brand',
             ]),
         };
         return this.baseDataService.mutate<
@@ -557,6 +560,12 @@ export class ProductDataService {
             {
                 input,
             },
+        );
+    }
+
+    getBrandValueList() {
+        return this.baseDataService.query<Codegen.BrandValueListQuery, Codegen.BrandValueListQueryVariables>(
+            BRAND_VALUE_LIST,
         );
     }
 }

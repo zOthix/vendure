@@ -14,6 +14,7 @@ import {
     AssignProductsToHotProductsInput,
     CreateBrandInput,
     UpdateBrandInput,
+    BrandValue,
 } from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 import { unique } from '@vendure/common/lib/unique';
@@ -610,6 +611,17 @@ export class ProductService {
         return this.connection
             .getRepository(ctx, Brand)
             .find({ relations: ['featuredAsset', 'products'], where: { isActive: true } });
+    }
+
+    async brandValueList(ctx: RequestContext): Promise<BrandValue[]> {
+        const brands = await this.connection
+            .getRepository(ctx, Brand)
+            .find({ relations: ['featuredAsset', 'products'] });
+        return brands.map(item => ({
+            id: String(item.id),
+            value: String(item.id),
+            label: item.name,
+        }));
     }
 
     async createBrand(ctx: RequestContext, input: CreateBrandInput) {

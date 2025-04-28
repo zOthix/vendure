@@ -46,6 +46,12 @@ type BrandList implements PaginatedList {
     totalItems: Int!
 }
 
+type BrandValue implements Node {
+    id: ID!
+    label: String!
+    value: String!
+}
+
 type ProductVariant implements Node {
     id: ID!
     product: Product!
