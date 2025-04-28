@@ -162,6 +162,12 @@ export type BrandList = PaginatedList & {
     totalItems: Scalars['Int']['output'];
 };
 
+export type BrandValue = Node & {
+    id: Scalars['ID']['output'];
+    label: Scalars['String']['output'];
+    value: Scalars['String']['output'];
+};
+
 export type CarousalItem = Node & {
     featuredAsset?: Maybe<Asset>;
     id: Scalars['ID']['output'];
@@ -3070,7 +3076,8 @@ export type SearchResponse = {
 };
 
 export type SearchResult = {
-    brand?: Maybe<Scalars['ID']['output']>;
+    brandId?: Maybe<Scalars['ID']['output']>;
+    brandSlug?: Maybe<Scalars['String']['output']>;
     /** An array of ids of the Collections in which this result appears */
     collectionIds: Array<Scalars['ID']['output']>;
     currencyCode: CurrencyCode;

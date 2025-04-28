@@ -391,6 +391,12 @@ export type BrandSortParameter = {
     slug?: InputMaybe<SortOrder>;
 };
 
+export type BrandValue = Node & {
+    id: Scalars['ID']['output'];
+    label: Scalars['String']['output'];
+    value: Scalars['String']['output'];
+};
+
 /** Returned if an attempting to cancel lines from an Order which is still active */
 export type CancelActiveOrderError = ErrorResult & {
     errorCode: ErrorCode;
@@ -5064,6 +5070,8 @@ export type Query = {
     assets: AssetList;
     /** Get a brand by id */
     brand?: Maybe<Brand>;
+    /** Get all the brands */
+    brandValueList?: Maybe<Array<BrandValue>>;
     /** List Brands */
     brands: BrandList;
     channel?: Maybe<Channel>;
@@ -5686,7 +5694,8 @@ export type SearchResponse = {
 };
 
 export type SearchResult = {
-    brand?: Maybe<Scalars['ID']['output']>;
+    brandId?: Maybe<Scalars['ID']['output']>;
+    brandSlug?: Maybe<Scalars['String']['output']>;
     /** An array of ids of the Channels in which this result appears */
     channelIds: Array<Scalars['ID']['output']>;
     /** An array of ids of the Collections in which this result appears */

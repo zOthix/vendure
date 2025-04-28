@@ -128,6 +128,7 @@ const result: PossibleTypesResultData = {
             'Asset',
             'AuthenticationMethod',
             'Brand',
+            'BrandValue',
             'Cancellation',
             'CarousalItem',
             'Channel',
