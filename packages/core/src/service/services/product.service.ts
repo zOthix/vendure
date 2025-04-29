@@ -564,6 +564,10 @@ export class ProductService {
         const products = productRepository.find({
             where: {
                 isHottest: true,
+                deletedAt: IsNull(),
+            },
+            order: {
+                updatedAt: 'DESC',
             },
             take: 10,
         });
