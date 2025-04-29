@@ -22,21 +22,21 @@ export class WebsiteResolver {
 
     @Query()
     getWebsite(@Ctx() ctx: RequestContext): Promise<Website | undefined> {
-        return this.websiteService.getOne(ctx);
+        return this.websiteService.getWebsite(ctx);
     }
 
     @Mutation()
     @Allow(Permission.Authenticated)
     updateWebsite(@Ctx() ctx: RequestContext, @Args() args: MutationUpdateWebsiteArgs): Promise<Website> {
         const { input } = args;
-        return this.websiteService.update(ctx, input);
+        return this.websiteService.updateWebsite(ctx, input);
     }
 
     @Mutation()
     @Allow(Permission.Authenticated)
     createWebLink(@Ctx() ctx: RequestContext, @Args() args: MutationCreateWebLinkArgs): Promise<WebLink> {
         const { input } = args;
-        return this.websiteService.createWeblink(ctx, input);
+        return this.websiteService.createWebLink(ctx, input);
     }
 
     @Mutation()

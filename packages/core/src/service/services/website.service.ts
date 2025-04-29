@@ -20,6 +20,13 @@ import { EntityHydrator } from '../helpers/entity-hydrator/entity-hydrator.servi
 
 import { AssetService } from './asset.service';
 
+const WEBSITE_RELATIONS = [
+    'weblinks',
+    'weblinks.featuredAsset',
+    'carousalItems',
+    'carousalItems.featuredAsset',
+];
+
 /**
  * @description
  * Contains methods relating to {@link Website} entity.
@@ -34,9 +41,9 @@ export class WebsiteService {
         private entityHydrator: EntityHydrator,
     ) {}
 
-    async getOne(ctx: RequestContext): Promise<Website | undefined> {
+    async getWebsite(ctx: RequestContext): Promise<Website | undefined> {
         const website = await this.connection.getRepository(ctx, Website).find({
-            relations: ['weblinks', 'weblinks.featuredAsset', 'carousalItems', 'carousalItems.featuredAsset'],
+            relations: WEBSITE_RELATIONS,
             order: { id: 'ASC' },
             take: 1,
         });
@@ -46,35 +53,30 @@ export class WebsiteService {
         return website[0];
     }
 
-    async update(ctx: RequestContext, input: UpdateWebsiteInput): Promise<Website> {
+    async updateWebsite(ctx: RequestContext, input: UpdateWebsiteInput): Promise<Website> {
         const now = new Date();
         const websiteRepository = this.connection.getRepository(ctx, Website);
-        const website = await websiteRepository.find({
-            relations: ['weblinks', 'weblinks.featuredAsset', 'carousalItems', 'carousalItems.featuredAsset'],
-            order: { id: 'ASC' },
-            take: 1,
-        });
-        if (website.length === 0) {
+        const website = await this.getWebsite(ctx);
+        if (!website) {
             const newWebsite = new Website({
                 ...input,
                 contentUpdatedAt: now,
                 weblinks: [],
                 carousalItems: [],
             });
-            return await websiteRepository.save(newWebsite);
+            return websiteRepository.save(newWebsite);
         }
-        const tempWebsite = website[0];
         if (input.content) {
-            tempWebsite.content = input.content;
-            tempWebsite.contentUpdatedAt = now;
+            website.content = input.content;
+            website.contentUpdatedAt = now;
         }
         if (input.footerContent) {
-            tempWebsite.footerContent = input.footerContent;
+            website.footerContent = input.footerContent;
         }
         if (input.announcementBarText) {
-            tempWebsite.announcementBarText = input.announcementBarText;
+            website.announcementBarText = input.announcementBarText;
         }
-        return websiteRepository.save(tempWebsite);
+        return websiteRepository.save(website);
     }
 
     async findWebLink(ctx: RequestContext, id: ID): Promise<WebLink | undefined> {
@@ -97,49 +99,37 @@ export class WebsiteService {
         return item;
     }
 
-    async createWeblink(ctx: RequestContext, input: CreateWebLinkInput): Promise<WebLink> {
+    async createWebLink(ctx: RequestContext, input: CreateWebLinkInput): Promise<WebLink> {
         const weblinkRepository = this.connection.getRepository(ctx, WebLink);
-        const weblinkList = await weblinkRepository.count();
-        if (weblinkList >= 4) {
+        const webLinksCount = await weblinkRepository.count();
+        if (webLinksCount >= 4) {
             throw new Error('Cannot make more than 4 weblinks.');
         }
-        let featuredAsset: Asset | undefined;
-        if (input.featuredAsset) {
-            featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
-        }
-        const website = await this.getOne(ctx);
+        const website = await this.getWebsite(ctx);
         if (!website) {
             throw new Error('Website not generated.');
         }
-        const tempWebLink = new WebLink({
-            link: input.link,
-            linkText: input.linkText,
-            position: input.position,
-            featuredAsset: featuredAsset ? featuredAsset : null,
+        const featuredAsset = await this.getFeaturedAsset(ctx, input.featuredAsset);
+        const newWebLink = new WebLink({
+            ...input,
+            featuredAsset,
             website,
         });
-        return weblinkRepository.save(tempWebLink);
+        return weblinkRepository.save(newWebLink);
     }
 
     async updateWebLink(ctx: RequestContext, input: UpdateWebLinkInput): Promise<WebLink> {
-        const weblinkRepo = this.connection.getRepository(ctx, WebLink);
-        const website = await this.getOne(ctx);
-        if (!website) {
-            throw new Error('Website not generated.');
-        }
-        let featuredAsset: Asset | undefined;
-        if (input.featuredAsset) {
-            featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
-        }
+        const weblinkRepository = this.connection.getRepository(ctx, WebLink);
         const weblink = await this.findWebLink(ctx, input.id);
         if (!weblink) {
-            return this.createWeblink(ctx, {
+            return this.createWebLink(ctx, {
                 link: input.link ?? '',
                 linkText: input.linkText ?? '',
                 position: input.position ?? 0,
-                featuredAsset: featuredAsset ? featuredAsset.id : undefined,
+                featuredAsset: input.featuredAsset ?? undefined,
             });
         }
+        const featuredAsset = await this.getFeaturedAsset(ctx, input.featuredAsset);
         if (input.link) {
             weblink.link = input.link;
         }
@@ -154,7 +144,7 @@ export class WebsiteService {
         } else {
             weblink.featuredAsset = null;
         }
-        return weblinkRepo.save(weblink);
+        return weblinkRepository.save(weblink);
     }
 
     async updateWebLinks(ctx: RequestContext, input: UpdateWebLinksInput) {
@@ -170,8 +160,8 @@ export class WebsiteService {
 
     async createCarousalItem(ctx: RequestContext, input: CreateCarousalItemInput): Promise<CarousalItem> {
         const carousalItemRepository = this.connection.getRepository(ctx, CarousalItem);
-        const featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
-        const website = await this.getOne(ctx);
+        const featuredAsset = await this.getFeaturedAsset(ctx, input.featuredAsset);
+        const website = await this.getWebsite(ctx);
         if (!website) {
             throw new Error('Website not generated.');
         }
@@ -186,10 +176,7 @@ export class WebsiteService {
     async updateCarousalItem(ctx: RequestContext, input: UpdateCarousalItemInput): Promise<CarousalItem> {
         const carousalItemRepository = this.connection.getRepository(ctx, CarousalItem);
         const shouldIsActiveUpdate = input.isActive !== undefined;
-        let featuredAsset: Asset | undefined;
-        if (input.featuredAsset) {
-            featuredAsset = await this.assetService.findOne(ctx, input.featuredAsset);
-        }
+        const featuredAsset = await this.getFeaturedAsset(ctx, input.featuredAsset);
         if (!featuredAsset) {
             throw new Error('Asset is required for carousal items.');
         }
@@ -207,7 +194,7 @@ export class WebsiteService {
         if (shouldIsActiveUpdate) {
             item.isActive = input.isActive as boolean;
         }
-        if (input.featuredAsset !== undefined) {
+        if (input.featuredAsset) {
             item.featuredAsset = featuredAsset;
         }
         const savedItem = await carousalItemRepository.save(item);
@@ -218,5 +205,13 @@ export class WebsiteService {
         const links = input.items || [];
         const operations = links.map(i => this.updateCarousalItem(ctx, i));
         return await Promise.all(operations);
+    }
+
+    private async getFeaturedAsset(ctx: RequestContext, id: ID | undefined) {
+        let featuredAsset: Asset | undefined;
+        if (id) {
+            featuredAsset = await this.assetService.findOne(ctx, id);
+        }
+        return featuredAsset;
     }
 }
