@@ -237,8 +237,8 @@
     </vdr-dt2-column>
     <vdr-dt2-column [heading]="'common.is-hot' | translate" id="enabled">
         <ng-template let-product="item">
-            <cds-icon *ngIf="product.isHottest" shape="check-circle" solid="true" size="md"></cds-icon>
-            <cds-icon *ngIf="!product.isHottest" shape="close" size="md"></cds-icon>
+            <clr-icon *ngIf="product.isHottest" shape="check" size="md"/>
+            <clr-icon *ngIf="!product.isHottest" shape="close" size="md"/>
         </ng-template>
     </vdr-dt2-column>
     <vdr-dt2-column [heading]="'catalog.number-of-variants' | translate" id="number-of-variants">

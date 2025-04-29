@@ -40,7 +40,8 @@
     </vdr-dt2-column>
     <vdr-dt2-column [heading]="'catalog.active' | translate" id="name" [optional]="false">
         <ng-template let-price_variant="item">
-            {{ price_variant.isActive }}
+            <clr-icon *ngIf="price_variant.isActive == true" shape="check" />
+            <clr-icon *ngIf="price_variant.isActive == false" shape="close" />
         </ng-template>
     </vdr-dt2-column>
 </vdr-data-table-2>
