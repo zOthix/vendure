@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
 import * as Papa from 'papaparse';
 import {
@@ -11,6 +11,7 @@ import {
     ModalService,
     NotificationService,
     PriceVariantInput,
+    Product,
     ProductListQueryDocument,
     ProductVariantPriceVariant,
     TypedBaseListComponent,
@@ -18,20 +19,39 @@ import {
 import { ID } from '@vendure/common/lib/shared-types';
 import { EMPTY, firstValueFrom, lastValueFrom } from 'rxjs';
 import { delay, switchMap } from 'rxjs/operators';
+import { CSVUploaderComponent } from 'src/lib/core/src/shared/components/csv-uploader/csv-uploader.component';
 
+const requiredHeaders = [
+    'id',
+    'name',
+    'slug',
+    'enabled',
+    'assetIds',
+    'description',
+    'facetValueIds',
+    'featuredAssetId',
+    'productVariantSKU',
+    'productVariantName',
+    'productVariantPrice',
+];
 interface Row {
-    name?: string;
+    name: string;
     slug?: string;
     enabled?: string;
     id?: ID;
     description?: string;
     assetIds?: string;
     facetValueIds?: string;
-    featuredAssetId: ID;
+    featuredAssetId?: ID;
     productVariantName?: string;
     productVariantSKU?: string;
     productVariantPrice?: number;
     [key: string]: any;
+}
+
+interface PriceVariant {
+    name: string;
+    id: ID;
 }
 
 @Component({
@@ -43,8 +63,10 @@ export class ProductListComponent
     extends TypedBaseListComponent<typeof ProductListQueryDocument, 'products'>
     implements OnInit
 {
+    @ViewChild('csvUploader') csvUploader!: CSVUploaderComponent;
+    requiredHeaders = [...requiredHeaders];
     productsToUpdate: CreateOrUpdateProductInput[] = [];
-    priceVariants: ProductVariantPriceVariant[] = [];
+    priceVariants: PriceVariant[] = [];
     pendingSearchIndexUpdates = 0;
     readonly customFields = this.getCustomFieldConfig('Product');
     readonly filters = this.createFilterCollection()
@@ -197,51 +219,17 @@ export class ProductListComponent
             );
     }
 
-    async onFileSelected(event: Event) {
-        const input = event.target as HTMLInputElement;
-        if (!input.files || input.files.length <= 0) {
-            this.notificationService.error(_('common.notify-invalid-file-error'), {
-                fileType: '"csv"',
-            });
-            input.value = '';
-            return;
-        }
-        const file: File = input.files[0];
-        if (file.type !== 'text/csv') {
-            this.notificationService.error(_('common.notify-invalid-file-error'), {
-                fileType: '"csv"',
-            });
-            input.value = '';
-            return;
-        }
-        const parsed = await this.parseCSV(file);
-        if (!this.validateHeaders(parsed[0])) {
-            input.value = '';
-            return;
-        }
+    openFileUpload() {
+        this.csvUploader.triggerFileSelect();
+    }
+
+    async onCSVFileParsed(parsed: Row[]) {
         if (!this.validateRows(parsed)) {
-            input.value = '';
             return;
         }
         const uniqueRows = this.getUniqueRows(parsed);
         await this.setUpdateProducts(uniqueRows);
-        input.value = '';
         this.refresh();
-    }
-
-    parseCSV(file: File): Promise<Row[]> {
-        return new Promise((resolve, reject) => {
-            Papa.parse(file, {
-                complete: result => {
-                    resolve(result.data as Row[]);
-                },
-                error: error => {
-                    reject(error);
-                },
-                header: true,
-                skipEmptyLines: 'greedy',
-            });
-        });
     }
 
     createOrUpdate(row: CreateOrUpdateProductInput) {
@@ -326,11 +314,9 @@ export class ProductListComponent
             'productVariantSKU',
             'productVariantPrice',
         ];
-        const priceVariants = await firstValueFrom(
-            this.dataService.product.getPriceVariantList().mapSingle(result => result.productPriceVariants),
-        );
-        if (priceVariants.items) {
-            priceVariants.items.forEach(item => {
+        const priceVariants = await this.getPriceVariants();
+        if (priceVariants) {
+            priceVariants.forEach(item => {
                 headers.push(item.name);
             });
         }
@@ -348,49 +334,18 @@ export class ProductListComponent
         }
     }
 
-    private validateHeaders(firstRow: Row): boolean {
-        const requiredHeaders = [
-            'id',
-            'name',
-            'slug',
-            'enabled',
-            'assetIds',
-            'description',
-            'facetValueIds',
-            'featuredAssetId',
-            'productVariantSKU',
-            'productVariantName',
-            'productVariantPrice',
-        ];
-        const headersFromFile = Object.keys(firstRow);
-        for (const header of requiredHeaders) {
-            if (!headersFromFile.includes(header)) {
-                this.notificationService.error(_('common.notify-invalid-headers-error'), {
-                    column: `"${header}"`,
-                });
-                return false;
-            }
-        }
-        return true;
-    }
-
     private getUniqueRows(parsed: Row[]): Row[] {
-        const map = new Set();
-        const rows: Row[] = [];
+        const uniqueIds = new Set<string | number>();
+        const uniqueRows: Row[] = [];
         parsed.forEach(item => {
-            if (item.id) {
-                if (!map.has(item.id)) {
-                    map.add(item.id);
-                    rows.push(item);
-                }
+            if (item.id && !uniqueIds.has(item.id)) {
+                uniqueIds.add(item.id);
+                uniqueRows.push(item);
             } else {
-                if (!map.has(item.name)) {
-                    map.add(item.name);
-                    rows.push(item);
-                }
+                uniqueRows.push(item);
             }
         });
-        return rows;
+        return uniqueRows;
     }
 
     private validateRows(parsed: Row[]): boolean {
@@ -400,13 +355,6 @@ export class ProductListComponent
                     this.notificationService.error(_('common.notify-invalid-row-error'), {
                         row: index + 1,
                         column: '"name"',
-                    });
-                    return false;
-                }
-                if (!item.slug) {
-                    this.notificationService.error(_('common.notify-invalid-row-error'), {
-                        row: index + 1,
-                        column: '"slug"',
                     });
                     return false;
                 }
@@ -433,40 +381,26 @@ export class ProductListComponent
 
     private async setUpdateProducts(parsed: Row[]): Promise<void> {
         const productIds = parsed.map(item => String(item.id));
-        const productsToUpdate = await firstValueFrom(
-            this.dataService.product.getProductsByIds(productIds).mapSingle(result => result.productsByIds),
-        );
-        const priceVariants = await firstValueFrom(
-            this.dataService.product.getPriceVariantList().mapSingle(result => result.productPriceVariants),
-        );
-        this.priceVariants = priceVariants.items as ProductVariantPriceVariant[];
-        const productsToUpdateIds = productsToUpdate
-            .map(item => (item !== null ? item.id : null))
-            .filter(item => item !== null);
-        parsed.forEach(item => {
-            if (item.id && !productsToUpdateIds.includes(String(item.id))) {
-                item.id = '';
-            }
-        });
-        this.productsToUpdate = parsed.map(item => {
+        const priceVariants = await this.getPriceVariants();
+        this.priceVariants = priceVariants;
+
+        const productsToUpdate = await this.getProductsByIds(productIds);
+        const productsToUpdateIds = productsToUpdate.map(product => product.id);
+        const fixedRows = this.validateProductIds([...parsed], productsToUpdateIds);
+
+        const productsToUpdateInput = fixedRows.map(item => {
             const variants: PriceVariantInput[] = [];
-            priceVariants.items.forEach(i => {
-                if (!isNaN(item[i.name]) && Number(item[i.name]) !== 0) {
-                    variants.push({
+            priceVariants.forEach(i => {
+                variants.push(
+                    this.validatePriceVariantInput({
                         name: i.name,
-                        id: i.id,
+                        id: i.id as string,
                         price: Number(item[i.name]),
-                    });
-                }
+                    }),
+                );
             });
             if (item.id) {
-                const product = productsToUpdate.find(i => {
-                    if (item?.id === i?.id) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
+                const product = productsToUpdate.find(product => product.id === item.id);
                 if (product) {
                     const assetIds = item.assetIds ? item.assetIds.split(',') : product.assets.map(i => i.id);
                     const facetValueIds = item.facetValueIds
@@ -503,5 +437,47 @@ export class ProductListComponent
                 priceVariants: variants,
             };
         });
+        this.productsToUpdate = [...productsToUpdateInput];
+    }
+
+    private validatePriceVariantInput(variant: PriceVariantInput): PriceVariantInput {
+        const validPrice = isNaN(variant.price) ? 0 : variant.price;
+        return {
+            name: variant.name,
+            id: variant.id,
+            price: validPrice,
+        };
+    }
+
+    private async getPriceVariants(): Promise<PriceVariant[]> {
+        const data = await firstValueFrom(
+            this.dataService.product.getPriceVariantList().mapSingle(result => result.productPriceVariants),
+        );
+        const priceVariants = data.items.map(item => ({
+            name: item.name,
+            id: item.id,
+        }));
+        return priceVariants as PriceVariant[];
+    }
+
+    private async getProductsByIds(productIds: ID[]): Promise<Product[]> {
+        if (productIds.length <= 0) {
+            return [];
+        }
+        const productsToUpdate = await firstValueFrom(
+            this.dataService.product
+                .getProductsByIds(productIds as string[])
+                .mapSingle(result => result.productsByIds),
+        );
+        return productsToUpdate as Product[];
+    }
+
+    private validateProductIds(rows: Row[], productsToUpdateIds: ID[]) {
+        rows.forEach(item => {
+            if (item.id && !productsToUpdateIds.includes(String(item.id))) {
+                item.id = '';
+            }
+        });
+        return rows;
     }
 }

@@ -15,7 +15,7 @@
                     <clr-icon shape="ellipsis-vertical"></clr-icon>
                 </button>
                 <vdr-dropdown-menu vdrPosition="bottom-right">
-                    <button vdrDropdownItem (click)="fileInput.click()">
+                    <button vdrDropdownItem (click)="openFileUpload()">
                         {{ 'common.upload-csv' | translate }}
                     </button>
                     <button vdrDropdownItem (click)="downloadTemplate()">
@@ -23,14 +23,15 @@
                     </button>
                 </vdr-dropdown-menu>
             </vdr-dropdown>
-            <input
+            <!-- <input
                 id="fileid"
                 type="file"
                 accept=".csv"
                 (change)="onFileSelected($event)"
                 hidden
                 #fileInput
-            />
+            /> -->
+            <vdr-csv-uploader #csvUploader (fileParsed)="onCSVFileParsed($event)" [requiredHeaders]="requiredHeaders" />
             <a
                 class="button primary mr-1"
                 [routerLink]="['./create']"

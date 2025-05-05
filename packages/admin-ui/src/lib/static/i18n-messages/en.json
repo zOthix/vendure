@@ -78,6 +78,7 @@
     "assign-variants-to-channel": "Assign product variants to channel",
     "auto-update-option-variant-name": "Automatically update the names of ProductVariants using this option",
     "auto-update-product-variant-name": "Automatically update the names of ProductVariants",
+    "brand": "Brand",
     "brand-name": "Brand name",
     "brand-slug": "Brand slug",
     "brand-description": "Brand description",

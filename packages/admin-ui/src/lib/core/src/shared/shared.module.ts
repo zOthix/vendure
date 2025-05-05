@@ -178,6 +178,7 @@ import { ActionBarDropdownMenuComponent } from './components/action-bar-dropdown
 import { DuplicateEntityDialogComponent } from './components/duplicate-entity-dialog/duplicate-entity-dialog.component';
 import { MultiSelectComponent } from './components/multiselect/multiselect.component';
 import { SingleAssetComponent } from './components/single-asset/single-asset.component';
+import { CSVUploaderComponent } from './components/csv-uploader/csv-uploader.component';
 
 const IMPORTS = [
     ClarityModule,
@@ -328,6 +329,7 @@ const DECLARATIONS = [
     DuplicateEntityDialogComponent,
     MultiSelectComponent,
     SingleAssetComponent,
+    CSVUploaderComponent
 ];
 
 const DYNAMIC_FORM_INPUTS = [

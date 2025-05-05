@@ -300,7 +300,7 @@ export class ProductService {
             };
             return await this.update(ctx, updateInput);
         } else {
-            if (!input.name || !input.slug) {
+            if (!input.name) {
                 throw new UserInputError('error.invalid-input');
             }
             const createInput: CreateProductInput = {
