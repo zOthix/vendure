@@ -207,6 +207,11 @@ export class FacetValueService {
             input,
             entityType: FacetValue,
             translationType: FacetValueTranslation,
+            beforeSave: async fv => {
+                if (fv.code) {
+                    fv.code = await this.ensureUniqueCode(ctx, fv.code, fv.id);
+                }
+            },
         });
         await this.customFieldRelationService.updateRelations(ctx, FacetValue, input, facetValue);
         await this.eventBus.publish(new FacetValueEvent(ctx, facetValue, 'updated', input));
