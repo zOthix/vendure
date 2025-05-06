@@ -159,9 +159,9 @@ input CreateOrUpdateProductInput {
     slug: String
     description: String
     brand: ID
-    assetIds: [ID]
-    facetValueIds: [ID]
-    featuredAssetId: ID
+    assetIds: [String]
+    facetValueIds: [String]
+    featuredAssetId: String
     productVariantName: String
     productVariantSKU: String
     productVariantPrice: Money

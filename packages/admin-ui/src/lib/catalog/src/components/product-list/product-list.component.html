@@ -23,14 +23,6 @@
                     </button>
                 </vdr-dropdown-menu>
             </vdr-dropdown>
-            <!-- <input
-                id="fileid"
-                type="file"
-                accept=".csv"
-                (change)="onFileSelected($event)"
-                hidden
-                #fileInput
-            /> -->
             <vdr-csv-uploader #csvUploader (fileParsed)="onCSVFileParsed($event)" [requiredHeaders]="requiredHeaders" />
             <a
                 class="button primary mr-1"

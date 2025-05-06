@@ -29,6 +29,7 @@ import { ListQueryOptions } from '../../common/types/common-types';
 import { Translated } from '../../common/types/locale-types';
 import { assertFound, idsAreEqual } from '../../common/utils';
 import { TransactionalConnection } from '../../connection/transactional-connection';
+import { Asset } from '../../entity';
 import { Brand } from '../../entity/brand/brand.entity';
 import { Channel } from '../../entity/channel/channel.entity';
 import { FacetValue } from '../../entity/facet-value/facet-value.entity';
@@ -298,6 +299,28 @@ export class ProductService {
                     },
                 ],
             };
+            if (input.assetIds) {
+                const promises = input.assetIds.map(name =>
+                    this.connection.getRepository(ctx, Asset).findOneBy({
+                        name,
+                    }),
+                );
+                const assets = (await Promise.all(promises)).filter(item => item !== null);
+                const assetIds = assets.map(asset => asset.id as string);
+                updateInput.assetIds = assetIds;
+            }
+            if (input.featuredAssetId) {
+                const asset = await this.connection.getRepository(ctx, Asset).findOneBy({
+                    name: input.featuredAssetId,
+                });
+                updateInput.featuredAssetId = asset?.id;
+            }
+            if (input.facetValueIds) {
+                const promises = input.facetValueIds.map(id => this.facetValueService.findByCode(ctx, id));
+                const facetValues = (await Promise.all(promises)).filter(item => item !== undefined);
+                const facetValueIds = facetValues.map(fac => fac.id as string);
+                updateInput.facetValueIds = facetValueIds;
+            }
             return await this.update(ctx, updateInput);
         } else {
             if (!input.name) {
@@ -317,6 +340,28 @@ export class ProductService {
                     },
                 ],
             };
+            if (input.facetValueIds) {
+                const promises = input.facetValueIds.map(id => this.facetValueService.findByCode(ctx, id));
+                const facetValues = (await Promise.all(promises)).filter(item => item !== undefined);
+                const facetValueIds = facetValues.map(fac => fac.id as string);
+                createInput.facetValueIds = facetValueIds;
+            }
+            if (input.featuredAssetId) {
+                const asset = await this.connection.getRepository(ctx, Asset).findOneBy({
+                    name: input.featuredAssetId,
+                });
+                createInput.featuredAssetId = asset?.id;
+            }
+            if (input.assetIds) {
+                const promises = input.assetIds.map(name =>
+                    this.connection.getRepository(ctx, Asset).findOneBy({
+                        name,
+                    }),
+                );
+                const assets = (await Promise.all(promises)).filter(item => item !== null);
+                const assetIds = assets.map(asset => asset.id as string);
+                createInput.assetIds = assetIds;
+            }
             const product = await this.create(ctx, createInput);
             if (input.productVariantName) {
                 const productVariant: CreateProductVariantInput = {

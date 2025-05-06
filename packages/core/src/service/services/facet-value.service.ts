@@ -122,6 +122,19 @@ export class FacetValueService {
         );
     }
 
+    async findByCode(ctx: RequestContext, code: string): Promise<Translated<FacetValue> | undefined> {
+        const facetValue = await this.connection.getRepository(ctx, FacetValue).findOne({
+            where: {
+                code,
+            },
+            relations: ['facet'],
+        });
+        if (!facetValue) {
+            return;
+        }
+        return this.translator.translate(facetValue, ctx, ['facet']);
+    }
+
     /**
      * @description
      * Returns all FacetValues belonging to the Facet with the given id.
