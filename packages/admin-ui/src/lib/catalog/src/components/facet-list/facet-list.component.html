@@ -9,6 +9,9 @@
         </vdr-ab-left>
         <vdr-ab-right>
             <vdr-action-bar-items locationId="facet-list" />
+            <button (click)="downloadTemplate()" class="btn btn-secondary btn-sm mr-1">
+                {{ 'common.download-template' | translate }}
+            </button>
             <a
                 class="btn btn-primary"
                 [routerLink]="['./create']"

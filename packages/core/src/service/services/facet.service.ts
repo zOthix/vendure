@@ -80,6 +80,13 @@ export class FacetService {
             });
     }
 
+    all(ctx: RequestContext, relations: RelationPaths<Facet>): Promise<Facet[]> {
+        const defaultRelations = ['values', 'values.facet', 'channels'];
+        return this.connection
+            .getRepository(ctx, Facet)
+            .find({ relations: [...relations, ...defaultRelations] });
+    }
+
     findOne(
         ctx: RequestContext,
         facetId: ID,

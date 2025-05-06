@@ -23,6 +23,17 @@ export const FACET_LIST_QUERY = gql`
     ${FACET_WITH_VALUE_LIST_FRAGMENT}
 `;
 
+interface FacetValue {
+    code: string;
+    name: string;
+}
+
+interface Facet {
+    code: string;
+    name: string;
+    values: FacetValue[];
+}
+
 @Component({
     selector: 'vdr-facet-list',
     templateUrl: './facet-list.component.html',
@@ -32,6 +43,7 @@ export class FacetListComponent
     extends TypedBaseListComponent<typeof GetFacetListDocument, 'facets'>
     implements OnInit
 {
+    facets: Facet[] = [];
     readonly initialLimit = 3;
     displayLimit: { [id: string]: number } = {};
 
@@ -83,6 +95,40 @@ export class FacetListComponent
             }),
             refreshListOnChanges: [this.filters.valueChanges, this.sorts.valueChanges],
         });
+        this.getAllFacetValues();
+    }
+
+    getAllFacetValues() {
+        this.dataService.facet
+            .allFacets()
+            .mapSingle(result => result.allFacets)
+            .subscribe(facets => {
+                if (facets) {
+                    this.facets = facets;
+                }
+            });
+    }
+
+    downloadTemplate() {
+        const headers: string[] = ['facetName', 'facetCode', 'facetValueName', 'facetValueCode'];
+        const filename = 'facets.csv';
+        const csvRows = [headers.join(',')];
+        this.facets.forEach(f => {
+            f.values.forEach(fv => {
+                csvRows.push([f.name, f.code, fv.name, fv.code].join(','));
+            });
+        });
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     }
 
     toggleDisplayLimit(facet: ItemOf<GetFacetListQuery, 'facets'>) {

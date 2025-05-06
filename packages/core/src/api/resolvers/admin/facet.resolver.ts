@@ -51,6 +51,11 @@ export class FacetResolver {
     }
 
     @Query()
+    allFacets(@Ctx() ctx: RequestContext): Promise<Facet[]> {
+        return this.facetService.all(ctx, []);
+    }
+
+    @Query()
     @Allow(Permission.ReadCatalog, Permission.ReadProduct, Permission.ReadFacet)
     async facet(
         @Ctx() ctx: RequestContext,
