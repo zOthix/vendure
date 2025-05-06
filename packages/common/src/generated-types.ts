@@ -938,12 +938,12 @@ export type CreateGroupOptionInput = {
 };
 
 export type CreateOrUpdateProductInput = {
-  assetIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  assetIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   brand?: InputMaybe<Scalars['ID']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
-  facetValueIds?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
-  featuredAssetId?: InputMaybe<Scalars['ID']['input']>;
+  facetValueIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  featuredAssetId?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   priceVariants?: InputMaybe<Array<InputMaybe<PriceVariantInput>>>;
@@ -5343,6 +5343,7 @@ export type Query = {
   activeChannel: Channel;
   administrator?: Maybe<Administrator>;
   administrators: AdministratorList;
+  allFacets: Array<Facet>;
   /** Get a single Asset by id */
   asset?: Maybe<Asset>;
   /** Get a list of Assets */
