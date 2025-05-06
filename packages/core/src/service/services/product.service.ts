@@ -283,13 +283,38 @@ export class ProductService {
     }
 
     async createOrUpdateProducts(ctx: RequestContext, input: CreateOrUpdateProductInput) {
+        const newInput: Record<string, any> = {};
+
+        // Map values for use in inputs later
+        if (input.assetIds) {
+            const promises = input.assetIds.map(name =>
+                this.connection.getRepository(ctx, Asset).findOneBy({
+                    name,
+                }),
+            );
+            const assets = (await Promise.all(promises)).filter(item => item !== null);
+            const assetIds = assets.map(asset => asset.id as string);
+            newInput.assetIds = assetIds;
+        }
+        if (input.featuredAssetId) {
+            const asset = await this.connection.getRepository(ctx, Asset).findOneBy({
+                name: input.featuredAssetId,
+            });
+            newInput.featuredAssetId = asset?.id;
+        }
+        if (input.facetValueIds) {
+            const promises = input.facetValueIds.map(id => this.facetValueService.findByCode(ctx, id));
+            const facetValues = (await Promise.all(promises)).filter(item => item !== undefined);
+            const facetValueIds = facetValues.map(fac => fac.id as string);
+            newInput.facetValueIds = facetValueIds;
+        }
+        if (input.enabled !== undefined) {
+            newInput.enabled = input.enabled;
+        }
+
         if (input.id) {
             const updateInput: UpdateProductInput = {
                 id: input.id,
-                enabled: input.enabled,
-                assetIds: input.assetIds,
-                facetValueIds: input.facetValueIds,
-                featuredAssetId: input.featuredAssetId,
                 translations: [
                     {
                         languageCode: ctx.languageCode,
@@ -298,39 +323,16 @@ export class ProductService {
                         description: input.description,
                     },
                 ],
+                ...newInput,
             };
-            if (input.assetIds) {
-                const promises = input.assetIds.map(name =>
-                    this.connection.getRepository(ctx, Asset).findOneBy({
-                        name,
-                    }),
-                );
-                const assets = (await Promise.all(promises)).filter(item => item !== null);
-                const assetIds = assets.map(asset => asset.id as string);
-                updateInput.assetIds = assetIds;
-            }
-            if (input.featuredAssetId) {
-                const asset = await this.connection.getRepository(ctx, Asset).findOneBy({
-                    name: input.featuredAssetId,
-                });
-                updateInput.featuredAssetId = asset?.id;
-            }
-            if (input.facetValueIds) {
-                const promises = input.facetValueIds.map(id => this.facetValueService.findByCode(ctx, id));
-                const facetValues = (await Promise.all(promises)).filter(item => item !== undefined);
-                const facetValueIds = facetValues.map(fac => fac.id as string);
-                updateInput.facetValueIds = facetValueIds;
-            }
             return await this.update(ctx, updateInput);
         } else {
             if (!input.name) {
-                throw new UserInputError('error.invalid-input');
+                throw new UserInputError('error.invalid-input-missing', {
+                    name: 'name',
+                });
             }
             const createInput: CreateProductInput = {
-                assetIds: input.assetIds ?? [],
-                facetValueIds: input.facetValueIds ?? [],
-                featuredAssetId: input.featuredAssetId ?? '',
-                enabled: input.enabled ?? true,
                 translations: [
                     {
                         languageCode: ctx.languageCode,
@@ -339,35 +341,19 @@ export class ProductService {
                         description: input.description,
                     },
                 ],
+                ...newInput,
             };
-            if (input.facetValueIds) {
-                const promises = input.facetValueIds.map(id => this.facetValueService.findByCode(ctx, id));
-                const facetValues = (await Promise.all(promises)).filter(item => item !== undefined);
-                const facetValueIds = facetValues.map(fac => fac.id as string);
-                createInput.facetValueIds = facetValueIds;
-            }
-            if (input.featuredAssetId) {
-                const asset = await this.connection.getRepository(ctx, Asset).findOneBy({
-                    name: input.featuredAssetId,
-                });
-                createInput.featuredAssetId = asset?.id;
-            }
-            if (input.assetIds) {
-                const promises = input.assetIds.map(name =>
-                    this.connection.getRepository(ctx, Asset).findOneBy({
-                        name,
-                    }),
-                );
-                const assets = (await Promise.all(promises)).filter(item => item !== null);
-                const assetIds = assets.map(asset => asset.id as string);
-                createInput.assetIds = assetIds;
-            }
             const product = await this.create(ctx, createInput);
             if (input.productVariantName) {
+                if (!input.productVariantSKU || !input.productVariantPrice) {
+                    throw new UserInputError('error.invalid-input-missing', {
+                        name: 'productVariantSKU or productVariantPrice',
+                    });
+                }
                 const productVariant: CreateProductVariantInput = {
                     productId: product.id,
-                    price: input.productVariantPrice || 0,
-                    sku: input.productVariantSKU || '',
+                    price: input.productVariantPrice,
+                    sku: input.productVariantSKU,
                     translations: [
                         {
                             languageCode: ctx.languageCode,
