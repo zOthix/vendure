@@ -35,6 +35,7 @@ import { DataSourceOptions } from 'typeorm';
 
 import { MultivendorPlugin } from './example-plugins/multivendor-plugin/multivendor.plugin';
 import { HardenPlugin } from '@vendure/harden-plugin';
+import { json } from 'body-parser';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 
@@ -59,6 +60,13 @@ export const devConfig: VendureConfig = {
             },
         },
         shopApiDebug: true,
+        middleware: [
+            {
+                handler: json({ limit: '100mb' }),
+                route: '*',
+                beforeListen: true,
+            },
+        ],
     },
     authOptions: {
         disableAuth: false,
