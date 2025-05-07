@@ -81,6 +81,7 @@ import { PriceVariantListComponent } from './components/price-variant-list/price
 import { PriceVariantDetailComponent } from './components/price-variant-detail/price-variant-detail.component';
 import { BrandListComponent } from './components/brand-list/brand-list.component';
 import { BrandDetailComponent } from './components/brand-detail/brand-detail.component';
+import { CSVUploaderComponent } from './components/csv-uploader/csv-uploader.component';
 
 const CATALOG_COMPONENTS = [
     ProductListComponent,
@@ -120,6 +121,7 @@ const CATALOG_COMPONENTS = [
     PriceVariantDetailComponent,
     BrandListComponent,
     BrandDetailComponent,
+    CSVUploaderComponent,
 ];
 
 @NgModule({

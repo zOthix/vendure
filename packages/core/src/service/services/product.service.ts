@@ -29,7 +29,7 @@ import { ListQueryOptions } from '../../common/types/common-types';
 import { Translated } from '../../common/types/locale-types';
 import { assertFound, idsAreEqual } from '../../common/utils';
 import { TransactionalConnection } from '../../connection/transactional-connection';
-import { Asset } from '../../entity';
+import { Asset } from '../../entity/asset/asset.entity';
 import { Brand } from '../../entity/brand/brand.entity';
 import { Channel } from '../../entity/channel/channel.entity';
 import { FacetValue } from '../../entity/facet-value/facet-value.entity';
@@ -293,7 +293,7 @@ export class ProductService {
                 }),
             );
             const assets = (await Promise.all(promises)).filter(item => item !== null);
-            const assetIds = assets.map(asset => asset.id as string);
+            const assetIds = assets.map(asset => (asset ? asset.id : ''));
             newInput.assetIds = assetIds;
         }
         if (input.featuredAssetId) {
@@ -305,7 +305,7 @@ export class ProductService {
         if (input.facetValueIds) {
             const promises = input.facetValueIds.map(id => this.facetValueService.findByCode(ctx, id));
             const facetValues = (await Promise.all(promises)).filter(item => item !== undefined);
-            const facetValueIds = facetValues.map(fac => fac.id as string);
+            const facetValueIds = facetValues.map(fac => (fac ? fac.id : ''));
             newInput.facetValueIds = facetValueIds;
         }
         if (input.enabled !== undefined) {
