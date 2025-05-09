@@ -110,7 +110,7 @@ export class FacetListComponent
     }
 
     downloadTemplate() {
-        const headers: string[] = ['facetName', 'facetCode', 'facetValueName', 'facetValueCode'];
+        const headers: string[] = ['facetName', 'facetCode', 'facetValueName', 'facetId'];
         const filename = 'facets.csv';
         const csvRows = [headers.join(',')];
         this.facets.forEach(f => {
@@ -118,7 +118,7 @@ export class FacetListComponent
                 csvRows.push([f.name, f.code, fv.name, fv.code].join(','));
             });
         });
-        const csvContent = csvRows.join('\n');
+        const csvContent = '\uFEFF' + csvRows.join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
