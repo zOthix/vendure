@@ -500,7 +500,7 @@ export class ProductListComponent
                 cleanRow[key] = value.replace(/\s/g, '');
             }
             if (headersWhichShouldBeLowercase.includes(key)) {
-                cleanRow[key] = value.lowercase();
+                cleanRow[key] = value.toLowerCase();
             }
         }
         return cleanRow;
