@@ -32,6 +32,11 @@ const requiredHeaders = [
     'productVariantName',
     'productVariantPrice',
 ];
+
+const headersWhichAllowWhitespaces = ['description', 'name', 'productVariantName'];
+
+const headersWhichShouldBeLowercase = ['assetIds', 'featuredAssetId'];
+
 interface Row {
     name: string;
     slug?: string;
@@ -386,7 +391,8 @@ export class ProductListComponent
         const productsToUpdateIds = productsToUpdate.map(product => product.id);
         const fixedRows = this.validateProductIds([...parsed], productsToUpdateIds);
 
-        const productsToUpdateInput = fixedRows.map(item => {
+        const productsToUpdateInput = fixedRows.map(_item => {
+            const item = this.formatValues(_item);
             const variants: PriceVariantInput[] = [];
             priceVariants.forEach(i => {
                 variants.push(
@@ -407,6 +413,7 @@ export class ProductListComponent
                     const featuredAssetId = item.featuredAssetId
                         ? String(item.featuredAssetId)
                         : product.featuredAsset?.id;
+
                     const updatedProduct: CreateOrUpdateProductInput = {
                         id: product.id,
                         name: item.name || product.name,
@@ -417,6 +424,7 @@ export class ProductListComponent
                         assetIds: assetIds,
                         facetValueIds: facetValueIds,
                     };
+
                     return updatedProduct;
                 }
             }
@@ -477,5 +485,24 @@ export class ProductListComponent
             }
         });
         return rows;
+    }
+
+    /**
+     * Remove white spaces and
+     * lowercase for specific values
+     * @param row
+     * @returns row
+     */
+    private formatValues(row: Row) {
+        const cleanRow: Row = { ...row };
+        for (const [key, value] of Object.entries(cleanRow)) {
+            if (!headersWhichAllowWhitespaces.includes(key)) {
+                cleanRow[key] = value.replace(/\s/g, '');
+            }
+            if (headersWhichShouldBeLowercase.includes(key)) {
+                cleanRow[key] = value.lowercase();
+            }
+        }
+        return cleanRow;
     }
 }
