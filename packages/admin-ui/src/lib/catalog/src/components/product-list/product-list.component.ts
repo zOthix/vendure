@@ -496,12 +496,14 @@ export class ProductListComponent
     private formatValues(row: Row) {
         const cleanRow: Row = { ...row };
         for (const [key, value] of Object.entries(cleanRow)) {
+            let newValue = value;
             if (!headersWhichAllowWhitespaces.includes(key)) {
-                cleanRow[key] = value.replace(/\s/g, '');
+                newValue = newValue.replace(/\s/g, '');
             }
             if (headersWhichShouldBeLowercase.includes(key)) {
-                cleanRow[key] = value.toLowerCase();
+                newValue = newValue.toLowerCase();
             }
+            cleanRow[key] = newValue;
         }
         return cleanRow;
     }
