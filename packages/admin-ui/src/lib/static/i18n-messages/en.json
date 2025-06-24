@@ -342,6 +342,7 @@
     "notify-notification-sent-success":"Notifications have been pushed to customers",
     "notify-notification-sent-error":"Something went wrong when sending notifications",
     "notify-customer-reject-success":"Customer is no longer verified",
+    "notify-no-asset-error": "Featured asset is required",
     "okay": "Okay",
     "operator-contains": "contains",
     "operator-eq": "equals",

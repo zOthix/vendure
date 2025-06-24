@@ -105,9 +105,13 @@ export class BrandDetailComponent
     }
 
     create() {
+        if (!this.featuredAsset) {
+            return this.notificationService.error(_('common.notify-no-asset-error'));
+        }
+
         const brandForm = this.detailForm;
 
-        if (!brandForm.dirty || !this.featuredAsset) {
+        if (!brandForm.dirty) {
             return;
         }
 
@@ -137,6 +141,10 @@ export class BrandDetailComponent
     }
 
     save() {
+        if (!this.featuredAsset) {
+            return this.notificationService.error(_('common.notify-no-asset-error'));
+        }
+        
         this.entity$
             .pipe(
                 take(1),

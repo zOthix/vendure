@@ -342,6 +342,7 @@
     "notify-notification-sent-success": "ההתראות נשלחו ללקוחות בהצלחה",
     "notify-notification-sent-error": "משהו השתבש בעת שליחת ההתראות",
     "notify-customer-reject-success": "הלקוח כבר לא מאומת",
+    "notify-no-asset-error": "נדרש נכס נבחר",
     "okay": "אוקיי",
     "operator-contains": "מכיל",
     "operator-eq": "שווה ל",
