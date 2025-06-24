@@ -23,6 +23,7 @@ import {
     MutationUpdateProductVariantsArgs,
     Permission,
     QueryBrandArgs,
+    QueryBrandsArgs,
     QueryProductArgs,
     QueryProductsArgs,
     QueryProductsByIdsArgs,
@@ -45,6 +46,8 @@ import { Allow } from '../../decorators/allow.decorator';
 import { RelationPaths, Relations } from '../../decorators/relations.decorator';
 import { Ctx } from '../../decorators/request-context.decorator';
 import { Transaction } from '../../decorators/transaction.decorator';
+import { ListQueryOptions } from '../../../common';
+import { Brand } from '../../../entity/brand/brand.entity';
 
 @Resolver()
 export class ProductResolver {
@@ -322,8 +325,8 @@ export class ProductResolver {
 
     @Query()
     @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
-    async brands(@Ctx() ctx: RequestContext) {
-        return this.productService.getBrands(ctx);
+    async brands(@Ctx() ctx: RequestContext, @Args() args: QueryBrandsArgs) {
+        return this.productService.getBrands(ctx, args.options as ListQueryOptions<Brand>);
     }
 
     @Query()

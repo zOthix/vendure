@@ -21,8 +21,8 @@ const BRAND_LIST_QUERY_BRAND_FRAGMENT = gql`
 `;
 
 export const BRAND_LIST_QUERY = gql`
-    query BrandListQuery {
-        brands {
+    query BrandListQuery($options: BrandListOptions) {
+        brands(options: $options) {
             items {
                 ...BrandListQueryBrandFragment
             }

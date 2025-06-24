@@ -10,7 +10,7 @@ type Query {
     "Get products by ids"
     productsByIds(productIds: [ID]!): [Product]!
     "List Brands"
-    brands: BrandList!
+    brands(options: BrandListOptions): BrandList!
     "Get a brand by id"
     brand(id: ID!): Brand
     "Get all the brands"
@@ -295,3 +295,5 @@ input AssignProductsToHotProductsInput {
 input RemoveProductsFromHotProductsInput {
     productIds: [ID!]!
 }
+
+input BrandListOptions

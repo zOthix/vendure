@@ -622,16 +622,15 @@ export class ProductService {
         return this.entityHydrator.hydrate(ctx, brand, { relations: ['featuredAsset', 'products' as never] });
     }
 
-    async getBrands(ctx: RequestContext): Promise<PaginatedList<Brand>> {
+    async getBrands(
+        ctx: RequestContext,
+        options: ListQueryOptions<Brand> | undefined,
+    ): Promise<PaginatedList<Brand>> {
         return this.listQueryBuilder
-            .build(
-                Brand,
-                {},
-                {
-                    relations: ['featuredAsset', 'products'],
-                    ctx,
-                },
-            )
+            .build(Brand, options, {
+                relations: ['featuredAsset', 'products'],
+                ctx,
+            })
             .getManyAndCount()
             .then(async ([brands, totalItems]) => {
                 const items = brands.map(brand => brand);
