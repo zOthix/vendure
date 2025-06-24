@@ -659,6 +659,10 @@ export class ProductService {
     }
 
     async createBrand(ctx: RequestContext, input: CreateBrandInput) {
+        const _brand = await this.findBrand(ctx, undefined, input.slug);
+        if (_brand) {
+            throw new Error('Slug should be unique.');
+        }
         const brandRepository = this.connection.getRepository(ctx, Brand);
         const asset = await this.assetService.findOne(ctx, input.featuredAsset);
         const brand = new Brand({
