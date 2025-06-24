@@ -102,6 +102,7 @@ export class BrandDetailComponent
             description: brand.description,
         });
         this.featuredAsset = brand.featuredAsset;
+        this.changeDetector.markForCheck();
     }
 
     create() {
