@@ -179,6 +179,8 @@ input SearchInput {
     facetValueFilters: [FacetValueFilterInput!]
     collectionId: ID
     collectionSlug: String
+    brandSlug: String
+    brandId: ID
     groupByProduct: Boolean
     take: Int
     skip: Int
@@ -196,6 +198,15 @@ input CreateCustomerInput {
     lastName: String!
     phoneNumber: String
     emailAddress: String!
+    businessName: String!
+    VAT: String!
+    businessPhone: String!
+    contactPersonPhone: String!
+    fax: String
+    accountingPhone: String!
+    accountingEmail: String!
+    address: String!
+    managerAddress: String!
 }
 
 """

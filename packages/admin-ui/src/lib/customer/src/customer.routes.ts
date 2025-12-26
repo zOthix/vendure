@@ -13,6 +13,33 @@ export const createRoutes = (pageService: PageService): Route[] => [
         children: pageService.getPageTabRoutes('customer-list'),
     },
     {
+        path: 'unapproved',
+        component: PageComponent,
+        data: {
+            locationId: 'customer-unapproved-list',
+            breadcrumb: _('breadcrumb.customers-unapproved'),
+        },
+        children: pageService.getPageTabRoutes('customer-unapproved-list'),
+    },
+    {
+        path: 'unapproved/:id',
+        component: PageComponent,
+        data: {
+            locationId: 'customer-detail',
+            breadcrumb: { label: _('breadcrumb.customers-unapproved'), link: ['../', 'unapproved'] },
+        },
+        children: pageService.getPageTabRoutes('customer-detail'),
+    },
+    {
+        path: 'notification',
+        component: PageComponent,
+        data: {
+            locationId: 'customer-notification',
+            breadcrumb: _('breadcrumb.send-notification-to-customer'),
+        },
+        children: pageService.getPageTabRoutes('customer-notification'),
+    },
+    {
         path: 'customers/:id',
         component: PageComponent,
         data: {

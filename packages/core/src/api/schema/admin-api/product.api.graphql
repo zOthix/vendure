@@ -7,6 +7,14 @@ type Query {
     productVariants(options: ProductVariantListOptions, productId: ID): ProductVariantList!
     "Get a ProductVariant by id"
     productVariant(id: ID!): ProductVariant
+    "Get products by ids"
+    productsByIds(productIds: [ID]!): [Product]!
+    "List Brands"
+    brands(options: BrandListOptions): BrandList!
+    "Get a brand by id"
+    brand(id: ID!): Brand
+    "Get all the brands"
+    brandValueList: [BrandValue!]
 }
 
 type Mutation {
@@ -18,6 +26,9 @@ type Mutation {
 
     "Update multiple existing Products"
     updateProducts(input: [UpdateProductInput!]!): [Product!]!
+
+    "Create or update multiple existing Products"
+    createOrUpdateProducts(input: [CreateOrUpdateProductInput!]!): [Product!]!
 
     "Delete a Product"
     deleteProduct(id: ID!): DeletionResponse!
@@ -59,6 +70,38 @@ type Mutation {
 
     "Removes ProductVariants from the specified Channel"
     removeProductVariantsFromChannel(input: RemoveProductVariantsFromChannelInput!): [ProductVariant!]!
+
+    "Assigns hot products"
+    assignProductsToHotProducts(input: AssignProductsToHotProductsInput!): [Product!]!
+
+    "Remove hot products"
+    removeProductsFromHotProducts(input: RemoveProductsFromHotProductsInput!): [Product!]!
+
+    "Create a brand"
+    createBrand(input: CreateBrandInput!): Brand!
+
+    "Update a brand"
+    updateBrand(input: UpdateBrandInput!): Brand!
+
+    "Delete a brand"
+    deleteBrand(id: ID!): DeletionResponse!
+}
+
+input CreateBrandInput {
+    name: String!
+    slug: String!
+    description: String
+    isActive: Boolean!
+    featuredAsset: ID!
+}
+
+input UpdateBrandInput {
+    id: ID!
+    name: String
+    slug: String
+    description: String
+    isActive: Boolean
+    featuredAsset: ID
 }
 
 input StockMovementListOptions {
@@ -93,6 +136,7 @@ input ProductTranslationInput {
 input CreateProductInput {
     featuredAssetId: ID
     enabled: Boolean
+    brand: ID
     assetIds: [ID!]
     facetValueIds: [ID!]
     translations: [ProductTranslationInput!]!
@@ -102,9 +146,32 @@ input UpdateProductInput {
     id: ID!
     enabled: Boolean
     featuredAssetId: ID
+    brand: ID
     assetIds: [ID!]
     facetValueIds: [ID!]
     translations: [ProductTranslationInput!]
+}
+
+input CreateOrUpdateProductInput {
+    id: ID
+    enabled: Boolean
+    name: String
+    slug: String
+    description: String
+    brand: ID
+    assetIds: [String]
+    facetValueIds: [String]
+    featuredAssetId: String
+    productVariantName: String
+    productVariantSKU: String
+    productVariantPrice: Money
+    priceVariants: [PriceVariantInput]
+}
+
+input PriceVariantInput {
+    id: ID!
+    name: String!
+    price: Money!
 }
 
 input ProductVariantTranslationInput {
@@ -140,6 +207,11 @@ input ProductVariantPriceInput {
     delete: Boolean
 }
 
+input UpdateProductPriceVariantInput {
+    name: String!
+    price: Money!
+}
+
 input CreateProductVariantInput {
     productId: ID!
     translations: [ProductVariantTranslationInput!]!
@@ -155,6 +227,7 @@ input CreateProductVariantInput {
     outOfStockThreshold: Int
     useGlobalOutOfStockThreshold: Boolean
     trackInventory: GlobalFlag
+    priceVariants: [PriceVariantInput]
 }
 
 input UpdateProductVariantInput {
@@ -180,6 +253,7 @@ input UpdateProductVariantInput {
     outOfStockThreshold: Int
     useGlobalOutOfStockThreshold: Boolean
     trackInventory: GlobalFlag
+    priceVariants: [UpdateProductPriceVariantInput!]
 }
 
 input AssignProductsToChannelInput {
@@ -212,3 +286,14 @@ type ProductOptionInUseError implements ErrorResult {
 }
 
 union RemoveOptionGroupFromProductResult = Product | ProductOptionInUseError
+
+
+input AssignProductsToHotProductsInput {
+    productIds: [ID!]!
+}
+
+input RemoveProductsFromHotProductsInput {
+    productIds: [ID!]!
+}
+
+input BrandListOptions

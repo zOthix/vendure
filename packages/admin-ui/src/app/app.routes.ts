@@ -41,6 +41,10 @@ export const routes: Route[] = [
                 path: 'system',
                 loadChildren: () => import('@vendure/admin-ui/system').then(m => m.SystemModule),
             },
+            {
+                path: 'website',
+                loadChildren: () => import('@vendure/admin-ui/website').then(m => m.WebsiteModule),
+            },
         ],
     },
 ];

@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:14
+    container_name: db-vendure
+    environment:
+      - PGDATA=/var/lib/postgresql/data
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432"
+    command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c pg_stat_statements.max=100000 -c max_connections=200
+    restart: always
+
+  dev-server:
+    build:
+      context: .
+    ports:
+      - ${API_PORT}:4090
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    volumes:
+      - assets:/home/vendure/packages/dev-server/assets
+    restart: always
+
+  admin:
+    build:
+      context: ./packages/admin-ui
+    ports:
+      - ${ADMIN_UI_PORT}:80
+    depends_on:
+      - dev-server
+    restart: always
+
+volumes:
+  postgres_data:
+    driver: local
+  assets:
+    driver: local

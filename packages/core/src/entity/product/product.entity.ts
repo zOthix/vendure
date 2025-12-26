@@ -6,6 +6,7 @@ import { LocaleString, Translatable, Translation } from '../../common/types/loca
 import { HasCustomFields } from '../../config/custom-field/custom-field-types';
 import { Asset } from '../asset/asset.entity';
 import { VendureEntity } from '../base/base.entity';
+import { Brand } from '../brand/brand.entity';
 import { Channel } from '../channel/channel.entity';
 import { CustomProductFields } from '../custom-entity-fields';
 import { FacetValue } from '../facet-value/facet-value.entity';
@@ -43,6 +44,9 @@ export class Product
     @Column({ default: true })
     enabled: boolean;
 
+    @Column({ default: false })
+    isHottest: boolean;
+
     @Index()
     @ManyToOne(type => Asset, asset => asset.featuredInProducts, { onDelete: 'SET NULL' })
     featuredAsset: Asset;
@@ -66,6 +70,9 @@ export class Product
     @ManyToMany(type => Channel, channel => channel.products)
     @JoinTable()
     channels: Channel[];
+
+    @ManyToOne(type => Brand, brand => brand.products, { onDelete: 'SET NULL' })
+    brand: Brand;
 
     @Column(type => CustomProductFields)
     customFields: CustomProductFields;

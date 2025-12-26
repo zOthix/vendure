@@ -28,6 +28,9 @@ import { CustomerStatusLabelComponent } from './components/customer-status-label
 import { SelectCustomerGroupDialogComponent } from './components/select-customer-group-dialog/select-customer-group-dialog.component';
 import { createRoutes } from './customer.routes';
 import { CustomerGroupDetailComponent } from './components/customer-group-detail/customer-group-detail.component';
+import { CustomerUnapprovedListComponent } from './components/customer-unapproved-list/customer-unapproved-list.component';
+import { SendCustomerNotificationListComponent } from './components/send-customer-notification/send-customer-notification-list.component';
+import { CustomerRejectReasonDialogComponent } from './components/customer-reject-reason-dialog/customer-reject-reason-dialog.component';
 
 @NgModule({
     imports: [SharedModule, RouterModule.forChild([])],
@@ -49,10 +52,13 @@ import { CustomerGroupDetailComponent } from './components/customer-group-detail
         AddCustomerToGroupDialogComponent,
         CustomerGroupMemberListComponent,
         SelectCustomerGroupDialogComponent,
+        CustomerRejectReasonDialogComponent,
         CustomerHistoryComponent,
         AddressDetailDialogComponent,
         CustomerHistoryEntryHostComponent,
         CustomerGroupDetailComponent,
+        CustomerUnapprovedListComponent,
+        SendCustomerNotificationListComponent,
     ],
     exports: [AddressCardComponent],
 })
@@ -74,6 +80,21 @@ export class CustomerModule {
             route: '',
             component: CustomerListComponent,
         });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'customer-unapproved-list',
+            tab: _('customer.customers'),
+            route: '',
+            component: CustomerUnapprovedListComponent,
+        });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'customer-notification',
+            tab: _('customer.customers'),
+            route: '',
+            component: SendCustomerNotificationListComponent,
+        });
+
         pageService.registerPageTab({
             priority: 0,
             location: 'customer-detail',

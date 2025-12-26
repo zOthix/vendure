@@ -2,6 +2,8 @@ type Query {
     facets(options: FacetListOptions): FacetList!
     facet(id: ID!): Facet
     facetValues(options: FacetValueListOptions): FacetValueList!
+    facetValuesCategory: [FacetValue]!
+    allFacets: [Facet!]!
 }
 
 type Mutation {

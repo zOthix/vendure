@@ -226,6 +226,10 @@ export class OrderService {
             'shippingLines',
             'surcharges',
         ];
+        if (effectiveRelations.includes('lines.productVariant')) {
+            effectiveRelations.push('lines.productVariant.productVariantPrices');
+            effectiveRelations.push('lines.productVariant.productVariantPrices.productVariantPriceVariant');
+        }
         if (
             relations &&
             effectiveRelations.includes('lines.productVariant') &&
@@ -261,7 +265,7 @@ export class OrderService {
                     );
                 }
             }
-            return order;
+            return this.applyOrderPriceVariantAdjustments(ctx, order);
         }
     }
 
@@ -540,6 +544,7 @@ export class OrderService {
         quantity: number,
         customFields?: { [key: string]: any },
     ): Promise<ErrorResultUnion<UpdateOrderItemsResult, Order>> {
+        await this.checkIfCustomerIsValid(ctx);
         const order = await this.getOrderOrThrow(ctx, orderId);
         const existingOrderLine = await this.orderModifier.getExistingOrderLine(
             ctx,
@@ -615,6 +620,7 @@ export class OrderService {
         quantity: number,
         customFields?: { [key: string]: any },
     ): Promise<ErrorResultUnion<UpdateOrderItemsResult, Order>> {
+        await this.checkIfCustomerIsValid(ctx);
         const order = await this.getOrderOrThrow(ctx, orderId);
         const orderLine = this.getOrderLineOrThrow(order, orderLineId);
         const validationError =
@@ -677,6 +683,7 @@ export class OrderService {
         orderId: ID,
         orderLineId: ID,
     ): Promise<ErrorResultUnion<RemoveOrderItemsResult, Order>> {
+        await this.checkIfCustomerIsValid(ctx);
         const order = await this.getOrderOrThrow(ctx, orderId);
         const validationError = this.assertAddingItemsState(order);
         if (validationError) {
@@ -955,6 +962,7 @@ export class OrderService {
         orderId: ID,
         state: OrderState,
     ): Promise<Order | OrderStateTransitionError> {
+        await this.checkIfCustomerIsValid(ctx);
         const order = await this.getOrderOrThrow(ctx, orderId);
         order.payments = await this.getOrderPayments(ctx, orderId);
         const fromState = order.state;
@@ -1091,6 +1099,7 @@ export class OrderService {
         orderId: ID,
         input: PaymentInput,
     ): Promise<ErrorResultUnion<AddPaymentToOrderResult, Order>> {
+        await this.checkIfCustomerIsValid(ctx);
         const order = await this.getOrderOrThrow(ctx, orderId);
         if (!this.canAddPaymentToOrder(order)) {
             return new OrderPaymentStateError();
@@ -1791,7 +1800,46 @@ export class OrderService {
         await this.connection.getRepository(ctx, OrderLine).save(updatedOrder.lines, { reload: false });
         await this.connection.getRepository(ctx, ShippingLine).save(order.shippingLines, { reload: false });
         await this.promotionService.runPromotionSideEffects(ctx, order, activePromotionsPre);
-
         return assertFound(this.findOne(ctx, order.id));
+    }
+
+    /**
+     * We want to make sure that a customer is logged in
+     * and is assigned a price variant before they can
+     * perform operations for their order such as adding
+     * and item or removing an item.
+     */
+    private async checkIfCustomerIsValid(ctx: RequestContext) {
+        if (ctx.activeUserId) {
+            const customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
+            if (customer) {
+                const priceVariant = customer.priceVariant;
+                if (!priceVariant) {
+                    throw new Error('Price variant not assigned.');
+                }
+            } else {
+                throw new Error('Customer not found.');
+            }
+        } else {
+            throw new Error('User not found.');
+        }
+    }
+
+    /**
+     * This function should be applied when working with
+     * price variants for customers. To get the correct
+     * prices for different customers for each product
+     * variant. Also calculates the total price of the order.
+     */
+    private async applyOrderPriceVariantAdjustments(ctx: RequestContext, order: Order) {
+        try {
+            await this.checkIfCustomerIsValid(ctx);
+            order.lines.forEach(line => {
+                line.listPrice = line.productVariant.price;
+            });
+            return order;
+        } catch (e: any) {
+            return order;
+        }
     }
 }

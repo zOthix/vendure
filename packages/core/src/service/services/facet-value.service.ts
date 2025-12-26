@@ -13,7 +13,7 @@ import { RequestContext } from '../../api/common/request-context';
 import { RelationPaths } from '../../api/decorators/relations.decorator';
 import { ListQueryOptions } from '../../common/types/common-types';
 import { Translated } from '../../common/types/locale-types';
-import { assertFound } from '../../common/utils';
+import { assertFound, idsAreEqual } from '../../common/utils';
 import { ConfigService } from '../../config/config.service';
 import { TransactionalConnection } from '../../connection/transactional-connection';
 import { Product, ProductVariant } from '../../entity';
@@ -122,6 +122,19 @@ export class FacetValueService {
         );
     }
 
+    async findByCode(ctx: RequestContext, code: string): Promise<Translated<FacetValue> | undefined> {
+        const facetValue = await this.connection.getRepository(ctx, FacetValue).findOne({
+            where: {
+                code,
+            },
+            relations: ['facet'],
+        });
+        if (!facetValue) {
+            return;
+        }
+        return this.translator.translate(facetValue, ctx, ['facet']);
+    }
+
     /**
      * @description
      * Returns all FacetValues belonging to the Facet with the given id.
@@ -164,6 +177,17 @@ export class FacetValueService {
             });
     }
 
+    async findAllCategoryList(ctx: RequestContext): Promise<FacetValue[]> {
+        const categories = await this.connection
+            .getRepository(ctx, FacetValue)
+            .createQueryBuilder('fv')
+            .leftJoinAndSelect('fv.facet', 'facet')
+            .where('facet.code ILIKE :code', { code: 'Category' })
+            .getMany();
+
+        return categories;
+    }
+
     async create(
         ctx: RequestContext,
         facet: Facet,
@@ -176,6 +200,7 @@ export class FacetValueService {
             translationType: FacetValueTranslation,
             beforeSave: async fv => {
                 fv.facet = facet;
+                fv.code = await this.ensureUniqueCode(ctx, fv.code, fv.id);
                 await this.channelService.assignToCurrentChannel(fv, ctx);
             },
         });
@@ -195,6 +220,11 @@ export class FacetValueService {
             input,
             entityType: FacetValue,
             translationType: FacetValueTranslation,
+            beforeSave: async fv => {
+                if (fv.code) {
+                    fv.code = await this.ensureUniqueCode(ctx, fv.code, fv.id);
+                }
+            },
         });
         await this.customFieldRelationService.updateRelations(ctx, FacetValue, input, facetValue);
         await this.eventBus.publish(new FacetValueEvent(ctx, facetValue, 'updated', input));
@@ -282,5 +312,29 @@ export class FacetValueService {
             productCount: await consumingProductsQb.getCount(),
             variantCount: await consumingVariantsQb.getCount(),
         };
+    }
+
+    private async ensureUniqueCode(ctx: RequestContext, code: string, id?: ID) {
+        let candidate = code;
+        let suffix = 1;
+        let conflict = false;
+        const alreadySuffixed = /-\d+$/;
+        do {
+            const match = await this.connection
+                .getRepository(ctx, FacetValue)
+                .findOne({ where: { code: candidate } });
+
+            conflict = !!match && ((id != null && !idsAreEqual(match.id, id)) || id == null);
+            if (conflict) {
+                suffix++;
+                if (alreadySuffixed.test(candidate)) {
+                    candidate = candidate.replace(alreadySuffixed, `-${suffix}`);
+                } else {
+                    candidate = `${candidate}-${suffix}`;
+                }
+            }
+        } while (conflict);
+
+        return candidate;
     }
 }

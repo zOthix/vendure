@@ -9,6 +9,12 @@ import {
     RemoveOptionGroupFromProductResult,
     RemoveProductsFromChannelInput,
     UpdateProductInput,
+    CreateOrUpdateProductInput,
+    CreateProductVariantInput,
+    AssignProductsToHotProductsInput,
+    CreateBrandInput,
+    UpdateBrandInput,
+    BrandValue,
 } from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 import { unique } from '@vendure/common/lib/unique';
@@ -23,6 +29,8 @@ import { ListQueryOptions } from '../../common/types/common-types';
 import { Translated } from '../../common/types/locale-types';
 import { assertFound, idsAreEqual } from '../../common/utils';
 import { TransactionalConnection } from '../../connection/transactional-connection';
+import { Asset } from '../../entity/asset/asset.entity';
+import { Brand } from '../../entity/brand/brand.entity';
 import { Channel } from '../../entity/channel/channel.entity';
 import { FacetValue } from '../../entity/facet-value/facet-value.entity';
 import { ProductTranslation } from '../../entity/product/product-translation.entity';
@@ -34,6 +42,7 @@ import { ProductChannelEvent } from '../../event-bus/events/product-channel-even
 import { ProductEvent } from '../../event-bus/events/product-event';
 import { ProductOptionGroupChangeEvent } from '../../event-bus/events/product-option-group-change-event';
 import { CustomFieldRelationService } from '../helpers/custom-field-relation/custom-field-relation.service';
+import { EntityHydrator } from '../helpers/entity-hydrator/entity-hydrator.service';
 import { ListQueryBuilder } from '../helpers/list-query-builder/list-query-builder';
 import { SlugValidator } from '../helpers/slug-validator/slug-validator';
 import { TranslatableSaver } from '../helpers/translatable-saver/translatable-saver';
@@ -43,6 +52,7 @@ import { AssetService } from './asset.service';
 import { ChannelService } from './channel.service';
 import { FacetValueService } from './facet-value.service';
 import { ProductOptionGroupService } from './product-option-group.service';
+import { ProductPriceVariantService } from './product-price-variant.service';
 import { ProductVariantService } from './product-variant.service';
 
 /**
@@ -68,6 +78,8 @@ export class ProductService {
         private customFieldRelationService: CustomFieldRelationService,
         private translator: TranslatorService,
         private productOptionGroupService: ProductOptionGroupService,
+        private productPriceVariantService: ProductPriceVariantService,
+        private entityHydrator: EntityHydrator,
     ) {}
 
     async findAll(
@@ -124,6 +136,7 @@ export class ProductService {
             // when serving via the Shop API.
             effectiveRelations.push('facetValues.facet');
         }
+        effectiveRelations.push('brand');
         const product = await this.connection.findOneInChannel(ctx, Product, productId, ctx.channelId, {
             relations: unique(effectiveRelations),
             where: {
@@ -267,6 +280,96 @@ export class ProductService {
         await this.customFieldRelationService.updateRelations(ctx, Product, input, updatedProduct);
         await this.eventBus.publish(new ProductEvent(ctx, updatedProduct, 'updated', input));
         return assertFound(this.findOne(ctx, updatedProduct.id));
+    }
+
+    async createOrUpdateProducts(ctx: RequestContext, input: CreateOrUpdateProductInput) {
+        const newInput: Record<string, any> = {};
+
+        // Map values for use in inputs later
+        if (input.assetIds) {
+            const promises = input.assetIds.map(name =>
+                this.connection.getRepository(ctx, Asset).findOneBy({
+                    name,
+                }),
+            );
+            const assets = (await Promise.all(promises)).filter(item => item !== null);
+            const assetIds = assets.map(asset => (asset ? asset.id : ''));
+            newInput.assetIds = assetIds;
+        }
+        if (input.featuredAssetId) {
+            const asset = await this.connection.getRepository(ctx, Asset).findOneBy({
+                name: input.featuredAssetId,
+            });
+            newInput.featuredAssetId = asset?.id;
+        }
+        if (input.facetValueIds) {
+            const promises = input.facetValueIds.map(id => this.facetValueService.findByCode(ctx, id));
+            const facetValues = (await Promise.all(promises)).filter(item => item !== undefined);
+            const facetValueIds = facetValues.map(fac => (fac ? fac.id : ''));
+            newInput.facetValueIds = facetValueIds;
+        }
+        if (input.enabled !== undefined) {
+            newInput.enabled = input.enabled;
+        }
+
+        if (input.id) {
+            const updateInput: UpdateProductInput = {
+                id: input.id,
+                translations: [
+                    {
+                        languageCode: ctx.languageCode,
+                        name: input.name,
+                        slug: input.slug,
+                        description: input.description,
+                    },
+                ],
+                ...newInput,
+            };
+            return await this.update(ctx, updateInput);
+        } else {
+            if (!input.name) {
+                throw new UserInputError('error.invalid-input-missing', {
+                    name: 'name',
+                });
+            }
+            const createInput: CreateProductInput = {
+                translations: [
+                    {
+                        languageCode: ctx.languageCode,
+                        name: input.name,
+                        slug: input.slug,
+                        description: input.description,
+                    },
+                ],
+                ...newInput,
+            };
+            const product = await this.create(ctx, createInput);
+            if (input.productVariantName) {
+                if (!input.productVariantSKU || !input.productVariantPrice) {
+                    throw new UserInputError('error.invalid-input-missing', {
+                        name: 'productVariantSKU or productVariantPrice',
+                    });
+                }
+                const productVariant: CreateProductVariantInput = {
+                    productId: product.id,
+                    price: input.productVariantPrice,
+                    sku: input.productVariantSKU,
+                    translations: [
+                        {
+                            languageCode: ctx.languageCode,
+                            name: input.productVariantName,
+                        },
+                    ],
+                };
+                const createdVariants = await this.productVariantService.create(ctx, [productVariant]);
+                await this.productPriceVariantService.updatePriceVariantsForProductVariant(
+                    ctx,
+                    createdVariants[0],
+                    input.priceVariants ?? [],
+                );
+            }
+            return assertFound(this.findOne(ctx, product.id));
+        }
     }
 
     async softDelete(ctx: RequestContext, productId: ID): Promise<DeletionResponse> {
@@ -453,6 +556,159 @@ export class ProductService {
             new ProductOptionGroupChangeEvent(ctx, product, optionGroupId, 'removed'),
         );
         return assertFound(this.findOne(ctx, productId));
+    }
+
+    async assignProductToHotProducts(ctx: RequestContext, id: ID) {
+        const productRepository = this.connection.getRepository(ctx, Product);
+        const product = await this.findOne(ctx, id);
+        if (product) {
+            product.isHottest = true;
+            await productRepository.save(product);
+            return assertFound(this.findOne(ctx, id));
+        }
+    }
+
+    async assignProductsToHotProducts(ctx: RequestContext, input: AssignProductsToHotProductsInput) {
+        const { productIds } = input;
+        const operations = productIds.map(id => this.assignProductToHotProducts(ctx, id));
+        return await Promise.all(operations);
+    }
+
+    async removeProductFromHotProducts(ctx: RequestContext, id: ID) {
+        const productRepository = this.connection.getRepository(ctx, Product);
+        const product = await this.findOne(ctx, id);
+        if (product) {
+            product.isHottest = false;
+            await productRepository.save(product);
+            return assertFound(this.findOne(ctx, id));
+        }
+    }
+
+    async removeProductsFromHotProducts(ctx: RequestContext, input: AssignProductsToHotProductsInput) {
+        const { productIds } = input;
+        const operations = productIds.map(id => this.removeProductFromHotProducts(ctx, id));
+        return await Promise.all(operations);
+    }
+
+    async getHotProducts(ctx: RequestContext) {
+        const productRepository = this.connection.getRepository(ctx, Product);
+        const products = productRepository.find({
+            where: {
+                isHottest: true,
+                deletedAt: IsNull(),
+            },
+            order: {
+                updatedAt: 'DESC',
+            },
+            take: 10,
+        });
+        return products;
+    }
+
+    async findBrand(ctx: RequestContext, id?: ID, slug?: string) {
+        let brand: Brand | null;
+        if (slug) {
+            brand = await this.connection.getRepository(ctx, Brand).findOneBy({
+                slug,
+            });
+        } else {
+            brand = await this.connection.getRepository(ctx, Brand).findOneBy({
+                id: id as number,
+            });
+        }
+        if (!brand) {
+            return;
+        }
+        return this.entityHydrator.hydrate(ctx, brand, { relations: ['featuredAsset', 'products' as never] });
+    }
+
+    async getBrands(
+        ctx: RequestContext,
+        options: ListQueryOptions<Brand> | undefined,
+    ): Promise<PaginatedList<Brand>> {
+        return this.listQueryBuilder
+            .build(Brand, options, {
+                relations: ['featuredAsset', 'products'],
+                ctx,
+            })
+            .getManyAndCount()
+            .then(async ([brands, totalItems]) => {
+                const items = brands.map(brand => brand);
+                return {
+                    items,
+                    totalItems,
+                };
+            });
+    }
+
+    async getAllBrands(ctx: RequestContext): Promise<Brand[]> {
+        return this.connection
+            .getRepository(ctx, Brand)
+            .find({ relations: ['featuredAsset', 'products'], where: { isActive: true } });
+    }
+
+    async brandValueList(ctx: RequestContext): Promise<BrandValue[]> {
+        const brands = await this.connection
+            .getRepository(ctx, Brand)
+            .find({ relations: ['featuredAsset', 'products'] });
+        return brands.map(item => ({
+            id: String(item.id),
+            value: String(item.id),
+            label: item.name,
+        }));
+    }
+
+    async createBrand(ctx: RequestContext, input: CreateBrandInput) {
+        const _brand = await this.findBrand(ctx, undefined, input.slug);
+        if (_brand) {
+            throw new Error('Slug should be unique.');
+        }
+        const brandRepository = this.connection.getRepository(ctx, Brand);
+        const asset = await this.assetService.findOne(ctx, input.featuredAsset);
+        const brand = new Brand({
+            name: input.name,
+            slug: input.slug,
+            description: input.description,
+            featuredAsset: asset,
+            isActive: input.isActive ?? true,
+        });
+        return brandRepository.save(brand);
+    }
+
+    async updateBrand(ctx: RequestContext, input: UpdateBrandInput) {
+        const brandRepository = this.connection.getRepository(ctx, Brand);
+        const brandToUpdate = await this.findBrand(ctx, input.id);
+        if (!brandToUpdate) {
+            throw new Error(`Could not find brand with id ${input.id}.`);
+        }
+        const asset = input.featuredAsset
+            ? await this.assetService.findOne(ctx, input.featuredAsset)
+            : undefined;
+        if (input.name) {
+            brandToUpdate.name = input.name;
+        }
+        if (input.slug) {
+            brandToUpdate.slug = input.slug;
+        }
+        if (input.description) {
+            brandToUpdate.description = input.description;
+        }
+        if (asset) {
+            brandToUpdate.featuredAsset = asset;
+        }
+        if (input.isActive !== undefined) {
+            brandToUpdate.isActive = input.isActive;
+        }
+        const savedItem = await brandRepository.save(brandToUpdate);
+        return this.entityHydrator.hydrate(ctx, savedItem, { relations: ['featuredAsset' as never] });
+    }
+
+    async deleteBrand(ctx: RequestContext, id: ID): Promise<DeletionResponse> {
+        await this.connection.getRepository(ctx, Brand).delete(id);
+        return {
+            result: DeletionResult.DELETED,
+            message: 'Brand deleted',
+        };
     }
 
     private async getProductWithOptionGroups(ctx: RequestContext, productId: ID): Promise<Product> {

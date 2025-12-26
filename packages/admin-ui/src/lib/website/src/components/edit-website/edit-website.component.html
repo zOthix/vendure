@@ -1,0 +1,83 @@
+<vdr-page-block>
+    <vdr-action-bar>
+        <vdr-ab-left> </vdr-ab-left>
+        <vdr-ab-right>
+            <vdr-action-bar-items locationId="edit-website"></vdr-action-bar-items>
+            <button (click)="save()" [disabled]="detailForm.invalid || detailForm.pristine" class="btn btn-primary">
+                {{ 'common.update' | translate }}
+            </button>
+            <vdr-action-bar-dropdown-menu locationId="edit-website" />
+        </vdr-ab-right>
+    </vdr-action-bar>
+</vdr-page-block>
+<vdr-page-detail-layout>
+    <vdr-page-block>
+        <vdr-card [title]="'website.edit-website' | translate">
+            <form class="form" [formGroup]="detailForm">
+                <div class="form-grid">
+                    <vdr-form-field [label]="'website.announcement-bar-text' | translate" for="announcementBarText">
+                        <input id="announcementBarText" type="text" formControlName="announcementBarText" />
+                    </vdr-form-field>
+                    <vdr-form-field class="form-grid-span" [label]="'common.content' | translate" for="content"
+                        [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
+                        <vdr-rich-text-editor formControlName="content"></vdr-rich-text-editor>
+                    </vdr-form-field>
+                    <vdr-form-field class="form-grid-span" [label]="'common.footer-content' | translate"
+                        for="footerContent" [errors]="{ pattern: 'catalog.slug-pattern-error' | translate }">
+                        <vdr-rich-text-editor formControlName="footerContent"></vdr-rich-text-editor>
+                    </vdr-form-field>
+                </div>
+            </form>
+        </vdr-card>
+        <vdr-card [title]="'website.carousal-items' | translate">
+            <vdr-tabs [tabs]="carousalItemTabs" [addNewTab]="true" (newTabClicked)="addNewCarousalItem()"
+                (selectedTab)="updateCarousalItemTab($event)">
+                <ng-container *ngFor="let item of carousalItems; let i = index">
+                    <vdr-tab title="Link {{ i+1 }}" [active]="i == activeCarousalItemTab">
+                        <div class="form-grid mt-4">
+                            <vdr-form-field [label]="'website.position' | translate" for="position-{{ i }}">
+                                <input id="position-{{ i }}" type="number" [value]="item.position"
+                                    (input)="onCarousalItemChange(i, 'position', $event.target.value)"
+                                    name="position-{{ i }}" />
+                            </vdr-form-field>
+                            <vdr-form-field [label]="'website.is-active' | translate" for="isActive-{{ i }}">
+                                <input id="isActive-{{ i }}" type="checkbox" [checked]="item.isActive"
+                                    (input)="onCarousalItemChange(i, 'isActive', $event.target.checked)"
+                                    name="isActive-{{ i }}" />
+                            </vdr-form-field>
+                            <vdr-single-asset [featuredAsset]="item.featuredAsset"
+                                (assetChange)="onCarousalItemAssetChange($event, item)"></vdr-single-asset>
+                        </div>
+                    </vdr-tab>
+                </ng-container>
+            </vdr-tabs>
+        </vdr-card>
+        <vdr-card [title]="'website.edit-links' | translate">
+            <vdr-tabs [tabs]="webLinkTabs" (selectedTab)="updateWeblinkTab($event)">
+                <ng-container *ngFor="let weblink of webLinks; let i = index">
+                    <vdr-tab title="Link {{ i+1 }}" [active]="i === activeWeblinkItemTab">
+                        <div class="form-grid mt-4">
+                            <vdr-form-field [label]="'website.link' | translate" for="link-{{ i }}">
+                                <input id="link-{{ i }}" type="text" [value]="weblink.link"
+                                    (input)="onWeblinkChange(i, 'link', $event.target.value)" name="link-{{ i }}" />
+                            </vdr-form-field>
+                            <vdr-form-field [label]="'website.link-text' | translate" for="link-text-{{ i }}">
+                                <input id="link-text-{{ i }}" type="text" [value]="weblink.linkText"
+                                    (input)="onWeblinkChange(i, 'linkText', $event.target.value)"
+                                    name="linkText-{{ i }}" />
+                            </vdr-form-field>
+                            <vdr-form-field [label]="'website.position' | translate" for="position-{{ i }}">
+                                <input id="position-{{ i }}" type="number" [value]="weblink.position"
+                                    (input)="onWeblinkChange(i, 'position', $event.target.value)"
+                                    name="position-{{ i }}" />
+                            </vdr-form-field>
+                            <div></div>
+                            <vdr-single-asset [featuredAsset]="weblink.featuredAsset"
+                                (assetChange)="onWeblinkAssetChange($event, weblink)"></vdr-single-asset>
+                        </div>
+                    </vdr-tab>
+                </ng-container>
+            </vdr-tabs>
+        </vdr-card>
+    </vdr-page-block>
+</vdr-page-detail-layout>

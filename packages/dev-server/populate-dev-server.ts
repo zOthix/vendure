@@ -27,6 +27,10 @@ if (require.main === module) {
                 importAssetsDir: path.join(__dirname, '../core/mock-data/assets'),
             },
             customFields: {},
+            apiOptions: {
+                ...devConfig.apiOptions,
+                port: 12000,
+            },
         }),
     );
     clearAllTables(populateConfig, true)
@@ -38,12 +42,14 @@ if (require.main === module) {
                         return app;
                     }),
                 initialData,
-                path.join(__dirname, '../create/assets/products.csv'),
+                process.env.POPULATE_PRODUCTS === 'true' ? path.join(__dirname, '../create/assets/products.csv') : undefined,
             ),
         )
         .then(async app => {
-            console.log('populating customers...');
-            await populateCustomers(app, 10, message => Logger.error(message));
+            if (process.env.POPULATE_CUSTOMERS === 'true') {
+                console.log('populating customers...');
+                await populateCustomers(app, 10, message => Logger.error(message));
+            }
             return app.close();
         })
         .then(

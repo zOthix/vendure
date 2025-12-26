@@ -25,9 +25,11 @@ import { FacetResolver } from './resolvers/admin/facet.resolver';
 import { GlobalSettingsResolver } from './resolvers/admin/global-settings.resolver';
 import { ImportResolver } from './resolvers/admin/import.resolver';
 import { JobResolver } from './resolvers/admin/job.resolver';
+import { NotificationResolver } from './resolvers/admin/notification.resolver';
 import { OrderResolver } from './resolvers/admin/order.resolver';
 import { PaymentMethodResolver } from './resolvers/admin/payment-method.resolver';
 import { ProductOptionResolver } from './resolvers/admin/product-option.resolver';
+import { ProductPriceVariantResolver } from './resolvers/admin/product-price-variant.resolver';
 import { ProductResolver } from './resolvers/admin/product.resolver';
 import { PromotionResolver } from './resolvers/admin/promotion.resolver';
 import { RoleResolver } from './resolvers/admin/role.resolver';
@@ -38,6 +40,7 @@ import { StockLocationResolver } from './resolvers/admin/stock-location.resolver
 import { TagResolver } from './resolvers/admin/tag.resolver';
 import { TaxCategoryResolver } from './resolvers/admin/tax-category.resolver';
 import { TaxRateResolver } from './resolvers/admin/tax-rate.resolver';
+import { WebsiteResolver } from './resolvers/admin/website.resolver';
 import { ZoneResolver } from './resolvers/admin/zone.resolver';
 import { AdministratorEntityResolver } from './resolvers/entity/administrator-entity.resolver';
 import { AssetEntityResolver } from './resolvers/entity/asset-entity.resolver';
@@ -85,6 +88,7 @@ import { ZoneEntityResolver } from './resolvers/entity/zone-entity.resolver';
 import { ShopAuthResolver } from './resolvers/shop/shop-auth.resolver';
 import { ShopCustomerResolver } from './resolvers/shop/shop-customer.resolver';
 import { ShopEnvironmentResolver } from './resolvers/shop/shop-environment.resolver';
+import { ShopNotificationTokenResolver } from './resolvers/shop/shop-notification-token.resolver';
 import { ShopOrderResolver } from './resolvers/shop/shop-order.resolver';
 import { ShopProductsResolver } from './resolvers/shop/shop-products.resolver';
 
@@ -103,10 +107,12 @@ const adminResolvers = [
     GlobalSettingsResolver,
     ImportResolver,
     JobResolver,
+    NotificationResolver,
     OrderResolver,
     PaymentMethodResolver,
     ProductOptionResolver,
     ProductResolver,
+    ProductPriceVariantResolver,
     PromotionResolver,
     RoleResolver,
     SearchResolver,
@@ -117,6 +123,7 @@ const adminResolvers = [
     TaxRateResolver,
     SellerResolver,
     ZoneResolver,
+    WebsiteResolver,
 ];
 
 const shopResolvers = [
@@ -125,6 +132,7 @@ const shopResolvers = [
     ShopOrderResolver,
     ShopProductsResolver,
     ShopEnvironmentResolver,
+    ShopNotificationTokenResolver,
 ];
 
 export const entityResolvers = [

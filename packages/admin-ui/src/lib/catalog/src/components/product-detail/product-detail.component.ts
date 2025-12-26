@@ -3,6 +3,7 @@ import { FormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
 import {
     Asset,
+    BrandValueListQuery,
     CreateProductInput,
     createUpdatedTranslatable,
     DataService,
@@ -70,11 +71,13 @@ export class ProductDetailComponent
         slug: ['', unicodePatternValidator(/^[\p{Letter}0-9._-]+$/)],
         description: '',
         facetValueIds: [[] as string[]],
+        brand: [''],
         customFields: this.formBuilder.group(getCustomFieldsDefaults(this.customFields)),
     });
     assetChanges: SelectedAssets = {};
     productChannels$: Observable<ProductDetailFragment['channels']>;
     facetValues$: Observable<ProductDetailFragment['facetValues']>;
+    brandValues$: Observable<BrandValueListQuery['brandValueList']>;
     createVariantsConfig: CreateProductVariantsConfig = { groups: [], variants: [], stockLocationId: '' };
     public readonly updatePermissions = [Permission.UpdateCatalog, Permission.UpdateProduct];
 
@@ -91,6 +94,11 @@ export class ProductDetailComponent
 
     ngOnInit() {
         this.init();
+
+        this.brandValues$ = this.dataService.product
+            .getBrandValueList()
+            .mapSingle(result => result.brandValueList)
+            .pipe(shareReplay(1));
 
         const productFacetValues$ = this.isNew$.pipe(
             switchMap(isNew => {
@@ -295,6 +303,7 @@ export class ProductDetailComponent
                 optionGroups: [],
                 facetValues: [],
                 channels: [],
+                brand: null,
             },
             productGroup as UntypedFormGroup,
             this.languageCode,
@@ -313,6 +322,9 @@ export class ProductDetailComponent
                 err => {
                     // eslint-disable-next-line no-console
                     console.error(err);
+                    this.notificationService.error(_('common.notify-price-variant-required-error'), {
+                        entity: 'Product',
+                    });
                     this.notificationService.error(_('common.notify-create-error'), {
                         entity: 'Product',
                     });
@@ -328,6 +340,7 @@ export class ProductDetailComponent
                     const productGroup = this.detailForm;
                     let productInput: UpdateProductInput | undefined;
                     let variantsInput: UpdateProductVariantInput[] | undefined;
+                    console.log('here');
 
                     if (productGroup.dirty || this.assetsChanged()) {
                         productInput = this.getUpdatedProduct(
@@ -336,7 +349,6 @@ export class ProductDetailComponent
                             languageCode,
                         ) as UpdateProductInput;
                     }
-
                     return this.productDetailService.updateProduct({
                         product,
                         languageCode,
@@ -382,6 +394,7 @@ export class ProductDetailComponent
             slug: currentTranslation ? currentTranslation.slug : '',
             description: currentTranslation ? currentTranslation.description : '',
             facetValueIds: product.facetValues.map(fv => fv.id),
+            brand: product.brand?.id,
         });
 
         if (this.customFields.length) {
@@ -420,6 +433,7 @@ export class ProductDetailComponent
             assetIds: this.assetChanges.assets?.map(a => a.id),
             featuredAssetId: this.assetChanges.featuredAsset?.id,
             facetValueIds: productFormGroup.value.facetValueIds,
+            brand: productFormGroup.value.brand,
         } as UpdateProductInput | CreateProductInput;
     }
 

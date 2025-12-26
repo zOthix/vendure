@@ -21,6 +21,7 @@
         "@vendure/core": "^3.0.0",
         "@vendure/elasticsearch-plugin": "^3.0.0",
         "@vendure/email-plugin": "^3.0.0",
+        "expo-server-sdk": "^3.13.0",
         "typescript": "5.3.3"
     },
     "devDependencies": {

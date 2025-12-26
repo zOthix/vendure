@@ -3,12 +3,14 @@ import {
     CreateCustomerResult,
     DeletionResponse,
     MutationAddNoteToCustomerArgs,
+    MutationApproveCustomerArgs,
     MutationCreateCustomerAddressArgs,
     MutationCreateCustomerArgs,
     MutationDeleteCustomerAddressArgs,
     MutationDeleteCustomerArgs,
     MutationDeleteCustomerNoteArgs,
     MutationDeleteCustomersArgs,
+    MutationRejectCustomerArgs,
     MutationUpdateCustomerAddressArgs,
     MutationUpdateCustomerArgs,
     MutationUpdateCustomerNoteArgs,
@@ -20,6 +22,7 @@ import {
 } from '@vendure/common/lib/generated-types';
 import { PaginatedList } from '@vendure/common/lib/shared-types';
 
+import { ListQueryOptions } from '../../../common';
 import { ErrorResultUnion } from '../../../common/error/error-result';
 import { Address } from '../../../entity/address/address.entity';
 import { Customer } from '../../../entity/customer/customer.entity';
@@ -42,12 +45,31 @@ export class CustomerResolver {
 
     @Query()
     @Allow(Permission.ReadCustomer)
+    async unapprovedCustomers(
+        @Ctx() ctx: RequestContext,
+        @Args() args: QueryCustomersArgs,
+        @Relations({ entity: Customer, omit: ['orders'] }) relations: RelationPaths<Customer>,
+    ): Promise<PaginatedList<Customer>> {
+        return this.customerService.findAll(
+            ctx,
+            (args.options as ListQueryOptions<Customer>) || undefined,
+            relations,
+            true,
+        );
+    }
+
+    @Query()
+    @Allow(Permission.ReadCustomer)
     async customers(
         @Ctx() ctx: RequestContext,
         @Args() args: QueryCustomersArgs,
         @Relations({ entity: Customer, omit: ['orders'] }) relations: RelationPaths<Customer>,
     ): Promise<PaginatedList<Customer>> {
-        return this.customerService.findAll(ctx, args.options || undefined, relations);
+        return this.customerService.findAll(
+            ctx,
+            (args.options as ListQueryOptions<Customer>) || undefined,
+            relations,
+        );
     }
 
     @Query()
@@ -80,6 +102,20 @@ export class CustomerResolver {
     ): Promise<ErrorResultUnion<UpdateCustomerResult, Customer>> {
         const { input } = args;
         return this.customerService.update(ctx, input);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCustomer)
+    async approveCustomer(@Ctx() ctx: RequestContext, @Args() args: MutationApproveCustomerArgs) {
+        return this.customerService.approveCustomer(ctx, args.id);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCustomer)
+    async rejectCustomer(@Ctx() ctx: RequestContext, @Args() args: MutationRejectCustomerArgs) {
+        return this.customerService.rejectCustomer(ctx, args.id, args.reason);
     }
 
     @Transaction()

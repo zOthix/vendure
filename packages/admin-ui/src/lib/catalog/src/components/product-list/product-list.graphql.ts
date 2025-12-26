@@ -9,6 +9,7 @@ const PRODUCT_LIST_QUERY_PRODUCT_FRAGMENT = gql`
         languageCode
         name
         slug
+        isHottest
         featuredAsset {
             id
             createdAt

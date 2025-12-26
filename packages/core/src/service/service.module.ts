@@ -44,12 +44,15 @@ import { FacetService } from './services/facet.service';
 import { FulfillmentService } from './services/fulfillment.service';
 import { GlobalSettingsService } from './services/global-settings.service';
 import { HistoryService } from './services/history.service';
+import { NotificationTokenService } from './services/notification-token.service';
+import { NotificationService } from './services/notification.service';
 import { OrderTestingService } from './services/order-testing.service';
 import { OrderService } from './services/order.service';
 import { PaymentMethodService } from './services/payment-method.service';
 import { PaymentService } from './services/payment.service';
 import { ProductOptionGroupService } from './services/product-option-group.service';
 import { ProductOptionService } from './services/product-option.service';
+import { ProductPriceVariantService } from './services/product-price-variant.service';
 import { ProductVariantService } from './services/product-variant.service';
 import { ProductService } from './services/product.service';
 import { PromotionService } from './services/promotion.service';
@@ -65,6 +68,7 @@ import { TagService } from './services/tag.service';
 import { TaxCategoryService } from './services/tax-category.service';
 import { TaxRateService } from './services/tax-rate.service';
 import { UserService } from './services/user.service';
+import { WebsiteService } from './services/website.service';
 import { ZoneService } from './services/zone.service';
 
 const services = [
@@ -103,6 +107,10 @@ const services = [
     TaxRateService,
     UserService,
     ZoneService,
+    ProductPriceVariantService,
+    NotificationTokenService,
+    NotificationService,
+    WebsiteService,
 ];
 
 const helpers = [

@@ -10,6 +10,20 @@ type Customer implements Node {
     addresses: [Address!]
     orders(options: OrderListOptions): OrderList!
     user: User
+    businessName: String!
+    VAT: String!
+    businessPhone: String!
+    contactPersonPhone: String!
+    fax: String!
+    accountingPhone: String!
+    accountingEmail: String!
+    address: String!
+    managerAddress: String!
+    payWithoutCreditCard: Boolean
+    priceVariant: ProductVariantPriceVariant
+    category: [Collection]
+    pushToken: String
+    isRejected: Boolean
 }
 
 type CustomerList implements PaginatedList {

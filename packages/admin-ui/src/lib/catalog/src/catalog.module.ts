@@ -6,9 +6,11 @@ import {
     BulkActionRegistryService,
     CollectionDetailQueryDocument,
     detailComponentWithResolver,
+    GetBrandDetailDocument,
     GetFacetDetailDocument,
     GetProductDetailDocument,
     GetProductVariantDetailDocument,
+    GetProductVariantPriceVariantDetailDocument,
     PageService,
     SharedModule,
 } from '@vendure/admin-ui/core';
@@ -56,6 +58,8 @@ import {
     deleteProductsBulkAction,
     duplicateProductsBulkAction,
     removeProductsFromChannelBulkAction,
+    assignHotProducts,
+    removeHotProducts,
 } from './components/product-list/product-list-bulk-actions';
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductOptionsEditorComponent } from './components/product-options-editor/product-options-editor.component';
@@ -73,6 +77,11 @@ import { ProductVariantsTableComponent } from './components/product-variants-tab
 import { UpdateProductOptionDialogComponent } from './components/update-product-option-dialog/update-product-option-dialog.component';
 import { VariantPriceDetailComponent } from './components/variant-price-detail/variant-price-detail.component';
 import { VariantPriceStrategyDetailComponent } from './components/variant-price-strategy-detail/variant-price-strategy-detail.component';
+import { PriceVariantListComponent } from './components/price-variant-list/price-variant-list.component';
+import { PriceVariantDetailComponent } from './components/price-variant-detail/price-variant-detail.component';
+import { BrandListComponent } from './components/brand-list/brand-list.component';
+import { BrandDetailComponent } from './components/brand-detail/brand-detail.component';
+import { CSVUploaderComponent } from './components/csv-uploader/csv-uploader.component';
 
 const CATALOG_COMPONENTS = [
     ProductListComponent,
@@ -108,6 +117,11 @@ const CATALOG_COMPONENTS = [
     CreateProductOptionGroupDialogComponent,
     ProductVariantQuickJumpComponent,
     CreateFacetValueDialogComponent,
+    PriceVariantListComponent,
+    PriceVariantDetailComponent,
+    BrandListComponent,
+    BrandDetailComponent,
+    CSVUploaderComponent,
 ];
 
 @NgModule({
@@ -133,6 +147,8 @@ export class CatalogModule {
         bulkActionRegistryService.registerBulkAction(assignFacetValuesToProductsBulkAction);
         bulkActionRegistryService.registerBulkAction(assignProductsToChannelBulkAction);
         bulkActionRegistryService.registerBulkAction(duplicateProductsBulkAction);
+        bulkActionRegistryService.registerBulkAction(assignHotProducts);
+        bulkActionRegistryService.registerBulkAction(removeHotProducts);
         bulkActionRegistryService.registerBulkAction(removeProductsFromChannelBulkAction);
         bulkActionRegistryService.registerBulkAction(deleteProductsBulkAction);
 
@@ -200,6 +216,34 @@ export class CatalogModule {
                     {
                         label: `${entity?.name} (${entity?.sku})`,
                         link: ['variants', entity?.id],
+                    },
+                ],
+            }),
+        });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'product-list',
+            tab: _('catalog.price-variants'),
+            route: 'price-variants',
+            component: PriceVariantListComponent,
+        });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'price-variant-detail',
+            tab: _('catalog.price-variants'),
+            route: '',
+            component: detailComponentWithResolver({
+                component: PriceVariantDetailComponent,
+                query: GetProductVariantPriceVariantDetailDocument,
+                entityKey: 'productPriceVariant',
+                getBreadcrumbs: entity => [
+                    {
+                        label: _('catalog.price-variants'),
+                        link: ['/catalog', 'products', 'price-variants'],
+                    },
+                    {
+                        label: entity ? entity.name : _('catalog.create-new-price-variant'),
+                        link: [entity?.id],
                     },
                 ],
             }),
@@ -280,6 +324,31 @@ export class CatalogModule {
                 getBreadcrumbs: entity => [
                     {
                         label: `${entity?.name}`,
+                        link: [entity?.id],
+                    },
+                ],
+            }),
+        });
+
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'brand-list',
+            tab: _('catalog.brands'),
+            route: '',
+            component: BrandListComponent,
+        });
+        pageService.registerPageTab({
+            priority: 0,
+            location: 'brand-detail',
+            tab: _('catalog.brand'),
+            route: '',
+            component: detailComponentWithResolver({
+                component: BrandDetailComponent,
+                query: GetBrandDetailDocument,
+                entityKey: 'brand',
+                getBreadcrumbs: entity => [
+                    {
+                        label: entity ? entity.name : _('catalog.create-new-brand'),
                         link: [entity?.id],
                     },
                 ],

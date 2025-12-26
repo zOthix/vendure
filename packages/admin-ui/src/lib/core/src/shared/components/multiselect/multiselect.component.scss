@@ -1,0 +1,23 @@
+.flex {
+    display: flex;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.col-gap-1 {
+    column-gap: 0.5em;
+}
+
+.row-gap-1 {
+    row-gap: 0.3em;
+}
+
+.selected-options {
+    margin-top: 5px;
+}
+
+.multi-select-container {
+    width: 100%;
+}

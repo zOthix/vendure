@@ -3,9 +3,13 @@ import {
     DeletionResponse,
     MutationAddOptionGroupToProductArgs,
     MutationAssignProductsToChannelArgs,
+    MutationAssignProductsToHotProductsArgs,
     MutationAssignProductVariantsToChannelArgs,
+    MutationCreateBrandArgs,
+    MutationCreateOrUpdateProductsArgs,
     MutationCreateProductArgs,
     MutationCreateProductVariantsArgs,
+    MutationDeleteBrandArgs,
     MutationDeleteProductArgs,
     MutationDeleteProductsArgs,
     MutationDeleteProductVariantArgs,
@@ -13,12 +17,16 @@ import {
     MutationRemoveOptionGroupFromProductArgs,
     MutationRemoveProductsFromChannelArgs,
     MutationRemoveProductVariantsFromChannelArgs,
+    MutationUpdateBrandArgs,
     MutationUpdateProductArgs,
     MutationUpdateProductsArgs,
     MutationUpdateProductVariantsArgs,
     Permission,
+    QueryBrandArgs,
+    QueryBrandsArgs,
     QueryProductArgs,
     QueryProductsArgs,
+    QueryProductsByIdsArgs,
     QueryProductVariantArgs,
     QueryProductVariantsArgs,
     RemoveOptionGroupFromProductResult,
@@ -38,6 +46,8 @@ import { Allow } from '../../decorators/allow.decorator';
 import { RelationPaths, Relations } from '../../decorators/relations.decorator';
 import { Ctx } from '../../decorators/request-context.decorator';
 import { Transaction } from '../../decorators/transaction.decorator';
+import { ListQueryOptions } from '../../../common';
+import { Brand } from '../../../entity/brand/brand.entity';
 
 @Resolver()
 export class ProductResolver {
@@ -75,6 +85,18 @@ export class ProductResolver {
         } else {
             throw new UserInputError('error.product-id-or-slug-must-be-provided');
         }
+    }
+
+    @Query()
+    @Allow(Permission.ReadCatalog, Permission.ReadProduct)
+    async productsByIds(
+        @Ctx() ctx: RequestContext,
+        @Args() args: QueryProductsByIdsArgs,
+        @Relations({ entity: Product, omit: ['variants', 'assets'] }) relations: RelationPaths<Product>,
+    ): Promise<Array<Translated<Product>>> {
+        const { productIds } = args;
+        const products = await this.productService.findByIds(ctx, productIds, relations);
+        return products;
     }
 
     @Query()
@@ -136,6 +158,17 @@ export class ProductResolver {
     ): Promise<Array<Translated<Product>>> {
         const { input } = args;
         return await Promise.all(args.input.map(i => this.productService.update(ctx, i)));
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async createOrUpdateProducts(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationCreateOrUpdateProductsArgs,
+    ): Promise<Array<Translated<Product>>> {
+        const { input } = args;
+        return await Promise.all(input.map(i => this.productService.createOrUpdateProducts(ctx, i)));
     }
 
     @Transaction()
@@ -260,5 +293,72 @@ export class ProductResolver {
         @Args() args: MutationRemoveProductVariantsFromChannelArgs,
     ): Promise<Array<Translated<ProductVariant>>> {
         return this.productVariantService.removeProductVariantsFromChannel(ctx, args.input);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async assignProductsToHotProducts(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationAssignProductsToHotProductsArgs,
+    ) {
+        const { input } = args;
+        return this.productService.assignProductsToHotProducts(ctx, input);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async removeProductsFromHotProducts(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationAssignProductsToHotProductsArgs,
+    ) {
+        const { input } = args;
+        return this.productService.removeProductsFromHotProducts(ctx, input);
+    }
+
+    @Query()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async brandValueList(@Ctx() ctx: RequestContext) {
+        return this.productService.brandValueList(ctx);
+    }
+
+    @Query()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async brands(@Ctx() ctx: RequestContext, @Args() args: QueryBrandsArgs) {
+        return this.productService.getBrands(ctx, args.options as ListQueryOptions<Brand>);
+    }
+
+    @Query()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async brand(@Ctx() ctx: RequestContext, @Args() args: QueryBrandArgs) {
+        return this.productService.findBrand(ctx, args.id);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async createBrand(@Ctx() ctx: RequestContext, @Args() args: MutationCreateBrandArgs) {
+        const { input } = args;
+        return this.productService.createBrand(ctx, input);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async updateBrand(@Ctx() ctx: RequestContext, @Args() args: MutationUpdateBrandArgs) {
+        const { input } = args;
+        return this.productService.updateBrand(ctx, input);
+    }
+
+    @Transaction()
+    @Mutation()
+    @Allow(Permission.UpdateCatalog, Permission.UpdateProduct)
+    async deleteBrand(
+        @Ctx() ctx: RequestContext,
+        @Args() args: MutationDeleteBrandArgs,
+    ): Promise<DeletionResponse> {
+        const { id } = args;
+        return this.productService.deleteBrand(ctx, id);
     }
 }

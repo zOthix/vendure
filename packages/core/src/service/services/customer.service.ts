@@ -22,7 +22,7 @@ import {
     UpdateCustomerResult,
 } from '@vendure/common/lib/generated-types';
 import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
-import { IsNull } from 'typeorm';
+import { FindOptionsWhere, IsNull } from 'typeorm';
 
 import { RequestContext } from '../../api/common/request-context';
 import { RelationPaths } from '../../api/decorators/relations.decorator';
@@ -43,12 +43,14 @@ import { assertFound, idsAreEqual, normalizeEmailAddress } from '../../common/ut
 import { NATIVE_AUTH_STRATEGY_NAME } from '../../config/auth/native-authentication-strategy';
 import { ConfigService } from '../../config/config.service';
 import { TransactionalConnection } from '../../connection/transactional-connection';
+import { Collection, ProductVariantPriceVariant } from '../../entity';
 import { Address } from '../../entity/address/address.entity';
 import { NativeAuthenticationMethod } from '../../entity/authentication-method/native-authentication-method.entity';
 import { Channel } from '../../entity/channel/channel.entity';
 import { Customer } from '../../entity/customer/customer.entity';
 import { CustomerGroup } from '../../entity/customer-group/customer-group.entity';
 import { HistoryEntry } from '../../entity/history-entry/history-entry.entity';
+import { NotificationToken } from '../../entity/notification-token/notification-token.entity';
 import { Order } from '../../entity/order/order.entity';
 import { User } from '../../entity/user/user.entity';
 import { EventBus } from '../../event-bus/event-bus';
@@ -56,6 +58,7 @@ import { AccountRegistrationEvent } from '../../event-bus/events/account-registr
 import { AccountVerifiedEvent } from '../../event-bus/events/account-verified-event';
 import { CustomerAddressEvent } from '../../event-bus/events/customer-address-event';
 import { CustomerEvent } from '../../event-bus/events/customer-event';
+import { CustomerRejectedEvent } from '../../event-bus/events/customer-rejected-event';
 import { IdentifierChangeEvent } from '../../event-bus/events/identifier-change-event';
 import { IdentifierChangeRequestEvent } from '../../event-bus/events/identifier-change-request-event';
 import { PasswordResetEvent } from '../../event-bus/events/password-reset-event';
@@ -96,21 +99,26 @@ export class CustomerService {
         ctx: RequestContext,
         options: ListQueryOptions<Customer> | undefined,
         relations: RelationPaths<Customer> = [],
+        getUnverifiedUsers?: boolean,
     ): Promise<PaginatedList<Customer>> {
         const customPropertyMap: { [name: string]: string } = {};
         const hasPostalCodeFilter = this.listQueryBuilder.filterObjectHasProperty<CustomerFilterParameter>(
-            options?.filter,
+            options?.filter as CustomerFilterParameter,
             'postalCode',
         );
         if (hasPostalCodeFilter) {
             relations.push('addresses');
             customPropertyMap.postalCode = 'addresses.postalCode';
         }
+        const whereClause: FindOptionsWhere<Customer> = { deletedAt: IsNull() };
+        if (getUnverifiedUsers) {
+            whereClause.user = { verified: false };
+        }
         return this.listQueryBuilder
             .build(Customer, options, {
                 relations,
                 channelId: ctx.channelId,
-                where: { deletedAt: IsNull() },
+                where: whereClause,
                 ctx,
                 customPropertyMap,
             })
@@ -143,6 +151,8 @@ export class CustomerService {
             .createQueryBuilder('customer')
             .leftJoin('customer.channels', 'channel')
             .leftJoinAndSelect('customer.user', 'user')
+            .leftJoinAndSelect('customer.priceVariant', 'priceVariant')
+            .leftJoinAndSelect('customer.category', 'category')
             .where('user.id = :userId', { userId })
             .andWhere('customer.deletedAt is null');
         if (filterOnChannel) {
@@ -306,6 +316,10 @@ export class CustomerService {
     ): Promise<ErrorResultUnion<UpdateCustomerResult, Customer>> {
         const hasEmailAddress = (i: any): i is UpdateCustomerInput & { emailAddress: string } =>
             Object.hasOwnProperty.call(i, 'emailAddress');
+        const hasPriceVariant = (i: any): i is UpdateCustomerInput & { priceVariantId: ID } =>
+            Object.hasOwnProperty.call(i, 'priceVariantId');
+        const hasCategory = (i: any): i is UpdateCustomerInput & { categoryId: [ID] } =>
+            Object.hasOwnProperty.call(i, 'categoryId');
 
         const customer = await this.connection.getEntityOrThrow(ctx, Customer, input.id, {
             channelId: ctx.channelId,
@@ -352,6 +366,30 @@ export class CustomerService {
                 }
             }
         }
+        if (hasPriceVariant(input)) {
+            if (input.priceVariantId === null) {
+                customer.priceVariant = null;
+            } else {
+                const priceVariantEntity = await this.connection.getEntityOrThrow(
+                    ctx,
+                    ProductVariantPriceVariant,
+                    input.priceVariantId,
+                );
+                customer.priceVariant = priceVariantEntity;
+            }
+        }
+        if (hasCategory(input)) {
+            if (input.categoryId === null) {
+                customer.category = null;
+            } else {
+                const categories = [];
+                for (const id of input.categoryId) {
+                    const category = await this.connection.getEntityOrThrow(ctx, Collection, id);
+                    categories.push(category);
+                }
+                customer.category = categories;
+            }
+        }
 
         const updatedCustomer = patchEntity(customer, input);
         await this.connection.getRepository(ctx, Customer).save(updatedCustomer, { reload: false });
@@ -366,6 +404,60 @@ export class CustomerService {
         });
         await this.eventBus.publish(new CustomerEvent(ctx, customer, 'updated', input));
         return assertFound(this.findOne(ctx, customer.id));
+    }
+
+    async approveCustomer(ctx: RequestContext, id: ID) {
+        const customer = await this.findOne(ctx, id);
+        if (customer && customer.user) {
+            if (customer.user.verified === true) {
+                throw new InternalServerError('error.customer-already-verified');
+            }
+            customer.user.verified = true;
+            customer.isRejected = false;
+            await this.connection.getRepository(ctx, User).save(customer.user);
+            await this.connection.getRepository(ctx, Customer).save(customer);
+            if (ctx.channelId) {
+                await this.channelService.assignToChannels(ctx, Customer, customer.id, [ctx.channelId]);
+            }
+            await this.historyService.createHistoryEntryForCustomer({
+                customerId: customer.id,
+                ctx,
+                type: HistoryEntryType.CUSTOMER_VERIFIED,
+                data: {
+                    strategy: NATIVE_AUTH_STRATEGY_NAME,
+                },
+            });
+            const user = assertFound(this.findOneByUserId(ctx, customer.user.id));
+            await this.eventBus.publish(new AccountVerifiedEvent(ctx, customer));
+            return user;
+        } else {
+            throw new InternalServerError('error.cannot-locate-customer-for-user');
+        }
+    }
+
+    async rejectCustomer(ctx: RequestContext, id: ID, reason?: string) {
+        const customer = await this.findOne(ctx, id);
+        if (customer && customer.user) {
+            if (customer.isRejected === true) {
+                throw new InternalServerError('error.customer-already-rejected');
+            }
+            customer.user.verified = false;
+            customer.isRejected = true;
+            await this.connection.getRepository(ctx, User).save(customer.user);
+            await this.connection.getRepository(ctx, Customer).save(customer);
+            await this.historyService.createHistoryEntryForCustomer({
+                customerId: customer.id,
+                ctx,
+                type: HistoryEntryType.CUSTOMER_REJECTED,
+                data: {
+                    reason: reason ?? 'The provided data is invalid',
+                },
+            });
+            await this.eventBus.publish(new CustomerRejectedEvent(ctx, customer, reason));
+            return assertFound(this.findOne(ctx, id));
+        } else {
+            throw new InternalServerError('error.customer-does-not-exist');
+        }
     }
 
     /**
@@ -403,6 +495,15 @@ export class CustomerService {
             firstName: input.firstName || '',
             lastName: input.lastName || '',
             phoneNumber: input.phoneNumber || '',
+            accountingEmail: input.accountingEmail,
+            accountingPhone: input.accountingPhone,
+            businessName: input.businessName,
+            businessPhone: input.businessPhone,
+            contactPersonPhone: input.contactPersonPhone,
+            fax: input.fax,
+            VAT: input.vat,
+            address: input.address,
+            managerAddress: input.managerAddress,
             ...(customFields ? { customFields } : {}),
         });
         if (isGraphQlErrorResult(customer)) {
@@ -901,6 +1002,27 @@ export class CustomerService {
         }
     }
 
+    async setCustomerNotificationToken(ctx: RequestContext, token: string, customer: Customer) {
+        try {
+            if (token === '') {
+                customer.pushToken = null;
+                await this.connection.getRepository(ctx, Customer).save(customer);
+                return true;
+            }
+            const pushToken = await this.connection.getRepository(ctx, NotificationToken).findOneBy({
+                token,
+            });
+            if (!pushToken) {
+                throw new Error('Token not registered.');
+            }
+            customer.pushToken = pushToken;
+            await this.connection.getRepository(ctx, Customer).save(customer);
+            return true;
+        } catch (e: any) {
+            return false;
+        }
+    }
+
     private async enforceSingleDefaultAddress(
         ctx: RequestContext,
         addressId: ID,
@@ -954,6 +1076,32 @@ export class CustomerService {
                     otherAddresses[0].defaultBillingAddress = true;
                 }
                 await this.connection.getRepository(ctx, Address).save(otherAddresses[0], { reload: false });
+            }
+        }
+    }
+
+    async getCustomerPriceVariant(ctx: RequestContext, userId: ID) {
+        const customer = await this.findOneByUserId(ctx, userId);
+        return customer?.priceVariant;
+    }
+
+    async getCustomerPriceVariantAndCategory(ctx: RequestContext, userId: ID) {
+        if (userId) {
+            const customer = await this.connection
+                .getRepository(ctx, Customer)
+                .createQueryBuilder('customer')
+                .leftJoin('customer.channels', 'channel')
+                .leftJoinAndSelect('customer.user', 'user')
+                .leftJoinAndSelect('customer.priceVariant', 'priceVariant')
+                .leftJoinAndSelect('customer.category', 'category')
+                .where('user.id = :userId', { userId })
+                .andWhere('customer.deletedAt is null')
+                .getOne();
+            if (customer) {
+                return {
+                    category: customer.category,
+                    priceVariant: customer.priceVariant,
+                };
             }
         }
     }

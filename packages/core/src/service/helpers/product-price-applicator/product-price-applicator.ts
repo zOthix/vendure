@@ -7,6 +7,8 @@ import { InternalServerError } from '../../../common/error/errors';
 import { ConfigService } from '../../../config/config.service';
 import { Order } from '../../../entity/order/order.entity';
 import { ProductVariant } from '../../../entity/product-variant/product-variant.entity';
+import { CustomerService } from '../../services/customer.service';
+import { ProductPriceVariantService } from '../../services/product-price-variant.service';
 import { TaxRateService } from '../../services/tax-rate.service';
 import { ZoneService } from '../../services/zone.service';
 
@@ -88,17 +90,15 @@ export class ProductPriceApplicator {
             `applicableTaxRate-${activeTaxZone.id}-${variant.taxCategory.id}`,
             () => this.taxRateService.getApplicableTaxRate(ctx, activeTaxZone, variant.taxCategory),
         );
-
-        const { price, priceIncludesTax } = await productVariantPriceCalculationStrategy.calculate({
+        const calculated = await productVariantPriceCalculationStrategy.calculate({
             inputPrice: channelPrice?.price ?? 0,
             taxCategory: variant.taxCategory,
             productVariant: variant,
             activeTaxZone,
             ctx,
         });
-
-        variant.listPrice = price;
-        variant.listPriceIncludesTax = priceIncludesTax;
+        variant.listPrice = calculated.price;
+        variant.listPriceIncludesTax = calculated.priceIncludesTax;
         variant.taxRateApplied = applicableTaxRate;
         variant.currencyCode = channelPrice?.currencyCode ?? ctx.currencyCode;
         return variant;

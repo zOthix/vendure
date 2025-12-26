@@ -1,0 +1,26 @@
+scalar DateTime
+
+type Website implements Node {
+    id: ID!
+    content: String!
+    contentUpdatedAt: DateTime!
+    footerContent: String!
+    announcementBarText: String!
+    weblinks: [WebLink!]!
+    carousalItems: [CarousalItem!]!
+}
+
+type WebLink implements Node {
+    id: ID!
+    link: String!
+    linkText: String!
+    position: Int!
+    featuredAsset: Asset
+}
+
+type CarousalItem implements Node {
+    id: ID!
+    position: Int!
+    featuredAsset: Asset
+    isActive: Boolean!
+}

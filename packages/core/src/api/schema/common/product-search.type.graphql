@@ -44,6 +44,8 @@ type SearchResult {
     productVariantAsset: SearchResultAsset
     price: SearchResultPrice!
     priceWithTax: SearchResultPrice!
+    brandId: ID
+    brandSlug: String
     currencyCode: CurrencyCode!
     description: String!
     facetIds: [ID!]!

@@ -1,0 +1,59 @@
+type Query {
+    "Get website details"
+    getWebsite: Website
+}
+
+type Mutation {
+    "Update website details"
+    updateWebsite(input: UpdateWebsiteInput!): Website!
+    "Create weblink"
+    createWebLink(input: CreateWebLinkInput!): WebLink!
+    "Update weblinks"
+    updateWebLinks(input: UpdateWebLinksInput!): [WebLink!]!
+    "Create carousalItem"
+    createCarousalItem(input: CreateCarousalItemInput!): CarousalItem!
+    "Update carousal items"
+    updateCarousalItems(input: UpdateCarousalItemsInput!): [CarousalItem!]!
+}
+
+input UpdateWebsiteInput {
+    content: String
+    footerContent: String
+    announcementBarText: String
+}
+
+input CreateWebLinkInput {
+    link: String!
+    linkText: String!
+    position: Int!
+    featuredAsset: ID
+}
+
+input UpdateWebLinksInput {
+    links: [UpdateWebLinkInput!]!
+}
+
+input UpdateWebLinkInput {
+    id: ID!
+    link: String
+    linkText: String
+    position: Int
+    featuredAsset: ID
+}
+
+input CreateCarousalItemInput {
+    position: Int!
+    featuredAsset: ID!
+    isActive: Boolean!
+}
+
+input UpdateCarousalItemsInput {
+    items: [UpdateCarousalItemInput!]!
+}
+
+input UpdateCarousalItemInput {
+    id: ID!
+    position: Int
+    featuredAsset: ID
+    isActive: Boolean
+}

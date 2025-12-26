@@ -121,6 +121,13 @@ export class BaseNavComponent implements OnInit, OnDestroy {
                         icon: 'image-gallery',
                         routerLink: ['/catalog', 'assets'],
                     },
+                    {
+                        requiresPermission: allow(Permission.ReadCatalog, Permission.ReadAsset),
+                        id: 'brands',
+                        label: _('nav.brands'),
+                        icon: 'grid-chart',
+                        routerLink: ['/catalog', 'brands'],
+                    },
                 ],
             },
             {
@@ -155,6 +162,39 @@ export class BaseNavComponent implements OnInit, OnDestroy {
                         label: _('nav.customer-groups'),
                         routerLink: ['/customer', 'groups'],
                         icon: 'users',
+                    },
+                    {
+                        requiresPermission: allow(Permission.ReadCustomer),
+                        id: 'customers-unapproved',
+                        label: _('nav.customers-unapproved'),
+                        routerLink: ['/customer', 'unapproved'],
+                        icon: 'lock',
+                    },
+                ],
+            },
+            {
+                id: 'website',
+                label: _('nav.website'),
+                items: [
+                    {
+                        id: 'edit-website',
+                        label: _('nav.edit-website'),
+                        routerLink: ['/website', 'website'],
+                        icon: 'pencil',
+                    },
+                ],
+            },
+            {
+                id: 'notifications',
+                label: _('nav.notifications'),
+                requiresPermission: allow(Permission.ReadCustomer, Permission.ReadCustomerGroup),
+                items: [
+                    {
+                        requiresPermission: allow(Permission.ReadCustomer),
+                        id: 'send-notification',
+                        label: _('nav.send-notification'),
+                        routerLink: ['/customer', 'notification'],
+                        icon: 'notification',
                     },
                 ],
             },
@@ -299,7 +339,7 @@ export class BaseNavComponent implements OnInit, OnDestroy {
                                     ({
                                         type: jobs.length === 0 ? 'none' : 'info',
                                         propagateToSection: jobs.length > 0,
-                                    } as NavMenuBadge),
+                                    }) as NavMenuBadge,
                             ),
                         ),
                     },

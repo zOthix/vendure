@@ -92,6 +92,13 @@
                     </a>
                 </div>
             </vdr-card>
+            <vdr-card [title]="'catalog.brand' | translate">
+                <select id="brand" formControlName="brand" >
+                    <option *ngFor="let option of brandValues$ | async" [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                </select>
+            </vdr-card>
             <vdr-card [title]="'catalog.facets' | translate">
                 <div class="facets">
                     <vdr-facet-value-chip

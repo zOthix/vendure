@@ -13,6 +13,7 @@ import {
     EditNoteDialogComponent,
     GetAvailableCountriesQuery,
     GetCustomerHistoryQuery,
+    GetPriceVariantListQuery,
     getCustomFieldsDefaults,
     ModalService,
     NotificationService,
@@ -22,6 +23,7 @@ import {
     UpdateCustomerAddressMutation,
     UpdateCustomerInput,
     UpdateCustomerMutation,
+    GetCollectionListQuery,
 } from '@vendure/admin-ui/core';
 import { notNullOrUndefined } from '@vendure/common/lib/shared-utils';
 import { gql } from 'apollo-angular';
@@ -39,6 +41,7 @@ import {
 } from 'rxjs/operators';
 
 import { SelectCustomerGroupDialogComponent } from '../select-customer-group-dialog/select-customer-group-dialog.component';
+import { CustomerRejectReasonDialogComponent } from '../customer-reject-reason-dialog/customer-reject-reason-dialog.component';
 
 type CustomerWithOrders = NonNullable<CustomerDetailQueryQuery['customer']>;
 
@@ -91,13 +94,30 @@ export class CustomerDetailComponent
             emailAddress: ['', [Validators.required, Validators.email]],
             password: '',
             customFields: this.formBuilder.group(getCustomFieldsDefaults(this.customFields)),
+            priceVariant: '',
+            category: [''],
+            payWithoutCreditCard: false,
+            accountingEmail: ['', [Validators.required, Validators.email]],
+            accountingPhone: ['', Validators.required],
+            businessName: ['', Validators.required],
+            businessPhone: ['', Validators.required],
+            contactPersonPhone: ['', Validators.required],
+            fax: '',
+            VAT: ['', Validators.required],
+            address: ['', Validators.required],
+            managerAddress: ['', Validators.required],
         }),
         addresses: new UntypedFormArray([]),
     });
+    customerId: string;
+    categories: string[] = [];
     availableCountries$: Observable<GetAvailableCountriesQuery['countries']['items']>;
     orders$: Observable<CustomerWithOrders['orders']['items']>;
     ordersCount$: Observable<number>;
     history$: Observable<NonNullable<GetCustomerHistoryQuery['customer']>['history']['items'] | undefined>;
+    priceVariantOptions$: Observable<GetPriceVariantListQuery['productPriceVariants']['items']>;
+    categories$: Observable<GetCollectionListQuery['collections']['items']>;
+    payWithoutCreditCard: boolean;
     fetchHistory = new Subject<void>();
     defaultShippingAddressId: string;
     defaultBillingAddressId: string;
@@ -124,6 +144,16 @@ export class CustomerDetailComponent
             .mapSingle(result => result.countries.items)
             .pipe(shareReplay(1));
 
+        this.priceVariantOptions$ = this.dataService.product
+            .getPriceVariantList()
+            .mapSingle(result => result.productPriceVariants.items)
+            .pipe(shareReplay(1));
+
+        this.categories$ = this.dataService.collection
+            .getCollections()
+            .mapSingle(result => result.collections.items)
+            .pipe(shareReplay(1));
+
         const customerWithUpdates$ = this.entity$.pipe(merge(this.orderListUpdates$));
         this.orders$ = customerWithUpdates$.pipe(map(customer => customer.orders.items));
         this.ordersCount$ = this.entity$.pipe(map(customer => customer.orders.totalItems));
@@ -139,6 +169,13 @@ export class CustomerDetailComponent
                     .mapStream(data => data.customer?.history.items),
             ),
         );
+
+        customerWithUpdates$.subscribe(customer => {
+            if (customer) {
+                this.payWithoutCreditCard = customer.payWithoutCreditCard ?? false;
+                this.customerId = customer.id;
+            }
+        });
     }
 
     ngOnDestroy() {
@@ -200,14 +237,95 @@ export class CustomerDetailComponent
         this.fetchOrdersList();
     }
 
+    togglePayWithoutCreditCard(event: Event) {
+        const input = event.target as HTMLInputElement;
+        this.payWithoutCreditCard = input.checked;
+        this.detailForm.get('customer')?.markAsDirty();
+    }
+
+    rejectCustomer() {
+        const customer = this.detailForm.get('customer')?.value;
+        const customerFirstName = customer?.firstName;
+        const customerLastName = customer?.lastName;
+        this.modalService
+            .fromComponent(CustomerRejectReasonDialogComponent, {
+                closable: true,
+                locals: {
+                    reason: '',
+                },
+            })
+            .pipe(
+                switchMap(result => {
+                    if (result) {
+                        return this.dataService.customer.rejectCustomer(this.customerId, result.reason);
+                    } else {
+                        return EMPTY;
+                    }
+                }),
+            )
+            .subscribe(result => {
+                this.notificationService.success(_('common.notify-customer-reject-success'));
+                this.refreshCustomer().subscribe();
+                this.fetchHistory.next();
+            });
+    }
+
+    approveCustomer() {
+        const customer = this.detailForm.get('customer')?.value;
+        const customerFirstName = customer?.firstName;
+        const customerLastName = customer?.lastName;
+        this.dataService.customer.approveCustomer(this.customerId).subscribe(
+            data => {
+                this.notificationService.success(_('common.notify-approve-customer-success'), {
+                    user: `${customerFirstName} ${customerLastName}`,
+                });
+                this.refreshCustomer().subscribe();
+            },
+            err => {
+                this.notificationService.error(_('common.notify-approve-customer-error'), {
+                    user: `${customerFirstName} ${customerLastName}`,
+                });
+            },
+        );
+    }
+
     create() {
         const customerForm = this.detailForm.get('customer');
         if (!customerForm) {
             return;
         }
-        const { title, emailAddress, firstName, lastName, phoneNumber, password } = customerForm.value;
+        const {
+            title,
+            emailAddress,
+            firstName,
+            lastName,
+            phoneNumber,
+            password,
+            accountingEmail,
+            accountingPhone,
+            businessName,
+            businessPhone,
+            contactPersonPhone,
+            fax,
+            VAT,
+            address,
+            managerAddress,
+        } = customerForm.value;
         const customFields = customerForm.get('customFields')?.value;
-        if (!emailAddress || !firstName || !lastName) {
+        if (
+            !emailAddress ||
+            !firstName ||
+            !lastName ||
+            !accountingEmail ||
+            !accountingPhone ||
+            !businessName ||
+            !businessPhone ||
+            !contactPersonPhone ||
+            !fax ||
+            !VAT ||
+            !address ||
+            !managerAddress
+        ) {
             return;
         }
         const customer: CreateCustomerInput = {
@@ -217,6 +335,15 @@ export class CustomerDetailComponent
             lastName,
             phoneNumber,
             customFields,
+            accountingEmail,
+            accountingPhone,
+            businessName,
+            businessPhone,
+            contactPersonPhone,
+            fax,
+            VAT,
+            address,
+            managerAddress,
         };
         this.dataService.customer.createCustomer(customer, password).subscribe(({ createCustomer }) => {
             switch (createCustomer.__typename) {
@@ -268,6 +395,18 @@ export class CustomerDetailComponent
                             lastName: formValue.lastName,
                             phoneNumber: formValue.phoneNumber,
                             customFields,
+                            priceVariantId: formValue.priceVariant !== 'null' ? formValue.priceVariant : null,
+                            categoryId: this.categories,
+                            payWithoutCreditCard: this.payWithoutCreditCard,
+                            accountingEmail: formValue.accountingEmail,
+                            accountingPhone: formValue.accountingPhone,
+                            businessName: formValue.businessName,
+                            businessPhone: formValue.businessPhone,
+                            contactPersonPhone: formValue.contactPersonPhone,
+                            fax: formValue.fax,
+                            VAT: formValue.VAT,
+                            address: formValue.address,
+                            managerAddress: formValue.managerAddress,
                         };
                         saveOperations.push(
                             this.dataService.customer
@@ -464,9 +603,26 @@ export class CustomerDetailComponent
             });
     }
 
+    getSelectedOptions() {
+        const list = this.detailForm.get('customer.category');
+        return list ? list.value : [];
+    }
+
+    onSelectedOptionsChange(updatedSelectedOptions: string[]): void {
+        this.categories = updatedSelectedOptions;
+        this.detailForm.get('customer')?.markAsDirty();
+    }
+
     protected setFormValues(entity: CustomerWithOrders): void {
         const customerGroup = this.detailForm.get('customer');
         if (customerGroup) {
+            const categoriesList: string[] = [];
+            entity.category?.forEach(i => {
+                if (i) {
+                    categoriesList.push(i.id);
+                }
+            });
+            this.categories = categoriesList;
             customerGroup.patchValue({
                 title: entity.title ?? null,
                 firstName: entity.firstName,
@@ -475,6 +631,18 @@ export class CustomerDetailComponent
                 emailAddress: entity.emailAddress,
                 password: '',
                 customFields: {},
+                priceVariant: entity.priceVariant?.id ?? null,
+                category: null,
+                payWithoutCreditCard: this.payWithoutCreditCard,
+                accountingEmail: entity.accountingEmail,
+                accountingPhone: entity.accountingPhone,
+                businessName: entity.businessName,
+                businessPhone: entity.businessPhone,
+                contactPersonPhone: entity.contactPersonPhone,
+                fax: entity.fax,
+                VAT: entity.VAT,
+                address: entity.address,
+                managerAddress: entity.managerAddress,
             });
         }
 

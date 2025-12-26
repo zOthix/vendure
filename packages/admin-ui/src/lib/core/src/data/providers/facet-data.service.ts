@@ -3,6 +3,7 @@ import { pick } from '@vendure/common/lib/pick';
 
 import * as Codegen from '../../common/generated-types';
 import {
+    ALL_FACETS_QUERY,
     ASSIGN_FACETS_TO_CHANNEL,
     CREATE_FACET,
     CREATE_FACET_VALUES,
@@ -113,5 +114,11 @@ export class FacetDataService {
         >(REMOVE_FACETS_FROM_CHANNEL, {
             input,
         });
+    }
+
+    allFacets() {
+        return this.baseDataService.query<Codegen.AllFacetsQuery, Codegen.AllFacetsQueryVariables>(
+            ALL_FACETS_QUERY,
+        );
     }
 }

@@ -45,6 +45,12 @@ type Query {
     products(options: ProductListOptions): ProductList!
     "Search Products based on the criteria set by the `SearchInput`"
     search(input: SearchInput!): SearchResponse!
+    "Get hot products"
+    getHotProducts: [Product!]!
+    "Get all brands"
+    getBrands: [Brand!]!
+    "Get brand details"
+    getBrand(id: ID, slug: String): Brand
 }
 
 type Mutation {
@@ -145,6 +151,9 @@ type Mutation {
     requestPasswordReset(emailAddress: String!): RequestPasswordResetResult
     "Resets a Customer's password based on the provided token"
     resetPassword(token: String!, password: String!): ResetPasswordResult!
+    "Set customer notification token"
+    setCustomerNotificationToken(token: String!): Success!
+    setNotificationToken(token: String!): Success!
 }
 
 # Populated at run-time
@@ -157,6 +166,16 @@ input RegisterCustomerInput {
     lastName: String
     phoneNumber: String
     password: String
+    businessName: String!
+    vat: String!
+    address: String!
+    businessPhone: String!
+    contactPersonPhone: String!
+    fax: String!
+    accountingPhone: String!
+    accountingEmail: String!
+    managerAddress: String!
+    
 }
 
 input UpdateCustomerInput {

@@ -22,6 +22,20 @@ export const ASSET_FRAGMENT = gql`
     }
 `;
 
+export const BRAND_FRAGMENT = gql`
+    fragment Brand on Brand {
+        id
+        name
+        slug
+        isActive
+        description
+        featuredAsset {
+            ...Asset
+        }
+    }
+    ${ASSET_FRAGMENT}
+`;
+
 export const TAG_FRAGMENT = gql`
     fragment Tag on Tag {
         id
@@ -130,6 +144,11 @@ export const PRODUCT_DETAIL_FRAGMENT = gql`
         name
         slug
         description
+        brand {
+            id
+            name
+            slug
+        }
         featuredAsset {
             ...Asset
         }
@@ -373,6 +392,7 @@ export const PRODUCT_FOR_LIST_FRAGMENT = gql`
         languageCode
         name
         slug
+        description
         featuredAsset {
             id
             createdAt
@@ -385,6 +405,12 @@ export const PRODUCT_FOR_LIST_FRAGMENT = gql`
         }
         variantList {
             totalItems
+        }
+        assets {
+            id
+        }
+        facetValues {
+            id
         }
     }
 `;
@@ -878,6 +904,108 @@ export const DELETE_TAG = gql`
         deleteTag(id: $id) {
             message
             result
+        }
+    }
+`;
+
+export const GET_PRICE_VARIANT_LIST = gql`
+    query GetPriceVariantList {
+        productPriceVariants {
+            items {
+                name
+                id
+            }
+        }
+    }
+`;
+
+export const CREATE_PRICE_VARIANT = gql`
+    mutation CreatePriceVariant($input: String!) {
+        createPriceVariant(name: $input) {
+            name
+            id
+        }
+    }
+`;
+
+export const UPDATE_PRICE_VARIANT = gql`
+    mutation UpdatePriceVariant($input: UpdatePriceVariantInput!) {
+        updatePriceVariant(input: $input) {
+            name
+            id
+        }
+    }
+`;
+
+export const GET_CATEGORY_LIST = gql`
+    query GetCategoryList {
+        facetValuesCategory {
+            name
+            id
+        }
+    }
+`;
+
+export const GET_PRODUCTS_BY_IDS = gql`
+    query GetProductsByIds($productIds: [ID]!) {
+        productsByIds(productIds: $productIds) {
+            ...ProductForList
+        }
+    }
+    ${PRODUCT_FOR_LIST_FRAGMENT}
+`;
+
+export const CREATE_OR_UPDATE_PRODUCTS = gql`
+    mutation CreateOrUpdateProducts($input: [CreateOrUpdateProductInput!]!) {
+        createOrUpdateProducts(input: $input) {
+            ...ProductForList
+        }
+    }
+    ${PRODUCT_FOR_LIST_FRAGMENT}
+`;
+
+export const ASSIGN_PRODUCTS_TO_HOT_PRODUCTS = gql`
+    mutation AssignProductsToHotProducts($input: AssignProductsToHotProductsInput!) {
+        assignProductsToHotProducts(input: $input) {
+            ...ProductDetail
+        }
+    }
+    ${PRODUCT_DETAIL_FRAGMENT}
+`;
+
+export const REMOVE_PRODUCTS_FROM_HOT_PRODUCTS = gql`
+    mutation RemoveProductsFromHotProducts($input: RemoveProductsFromHotProductsInput!) {
+        removeProductsFromHotProducts(input: $input) {
+            ...ProductDetail
+        }
+    }
+    ${PRODUCT_DETAIL_FRAGMENT}
+`;
+
+export const CREATE_BRAND = gql`
+    mutation CreateBrand($input: CreateBrandInput!) {
+        createBrand(input: $input) {
+            ...Brand
+        }
+    }
+    ${BRAND_FRAGMENT}
+`;
+
+export const UPDATE_BRAND = gql`
+    mutation UpdateBrand($input: UpdateBrandInput!) {
+        updateBrand(input: $input) {
+            ...Brand
+        }
+    }
+    ${BRAND_FRAGMENT}
+`;
+
+export const BRAND_VALUE_LIST = gql`
+    query BrandValueList {
+        brandValueList {
+            id
+            label
+            value
         }
     }
 `;

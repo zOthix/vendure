@@ -1,12 +1,12 @@
 {
-    "apiHost": "http://localhost",
-    "apiPort": "3000",
+    "apiHost": "https://backend.newtec-il.com",
+    "apiPort": "443",
     "adminApiPath": "admin-api",
     "tokenMethod": "bearer",
     "authTokenHeaderKey": "vendure-auth-token",
     "channelTokenKey": "vendure-token",
-    "defaultLanguage": "en",
-    "defaultLocale": "US",
+    "defaultLanguage": "he",
+    "defaultLocale": "IL",
     "availableLanguages": [
         "he",
         "ar",

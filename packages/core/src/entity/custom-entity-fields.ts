@@ -37,3 +37,4 @@ export class CustomTaxCategoryFields {}
 export class CustomTaxRateFields {}
 export class CustomUserFields {}
 export class CustomZoneFields {}
+export class CustomProductVariantPriceVariantFields {}

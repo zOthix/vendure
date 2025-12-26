@@ -5,12 +5,15 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { ChannelAware, Taggable } from '../../common/types/common-types';
 import { HasCustomFields } from '../../config/custom-field/custom-field-types';
 import { VendureEntity } from '../base/base.entity';
+import { Brand } from '../brand/brand.entity';
 import { Channel } from '../channel/channel.entity';
 import { Collection } from '../collection/collection.entity';
 import { CustomAssetFields } from '../custom-entity-fields';
 import { Product } from '../product/product.entity';
 import { ProductVariant } from '../product-variant/product-variant.entity';
 import { Tag } from '../tag/tag.entity';
+import { CarousalItem } from '../website/carousal-item.entity';
+import { WebLink } from '../website/web-link.entity';
 
 /**
  * @description
@@ -60,6 +63,15 @@ export class Asset extends VendureEntity implements Taggable, ChannelAware, HasC
 
     @OneToMany(type => Product, product => product.featuredAsset)
     featuredInProducts?: Product[];
+
+    @OneToMany(type => WebLink, weblink => weblink.featuredAsset)
+    featuredInWeblink?: WebLink[];
+
+    @OneToMany(type => CarousalItem, carousalItem => carousalItem.featuredAsset)
+    featuredCarousalItem?: CarousalItem[];
+
+    @OneToMany(type => Brand, brand => brand.featuredAsset)
+    featuredBrandItem?: Brand[];
 
     @Column(type => CustomAssetFields)
     customFields: CustomAssetFields;

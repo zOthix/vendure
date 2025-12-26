@@ -3,6 +3,7 @@ import { LogicalOperator } from '../../common/generated-types';
 import {
     ADD_CUSTOMERS_TO_GROUP,
     ADD_NOTE_TO_CUSTOMER,
+    APPROVE_CUSTOMER,
     CREATE_CUSTOMER,
     CREATE_CUSTOMER_ADDRESS,
     CREATE_CUSTOMER_GROUP,
@@ -16,7 +17,9 @@ import {
     GET_CUSTOMER_GROUPS,
     GET_CUSTOMER_HISTORY,
     GET_CUSTOMER_LIST,
+    REJECT_CUSTOMER,
     REMOVE_CUSTOMERS_FROM_GROUP,
+    SEND_NOTIFICATION_TO_CUSTOMER,
     UPDATE_CUSTOMER,
     UPDATE_CUSTOMER_ADDRESS,
     UPDATE_CUSTOMER_GROUP,
@@ -222,6 +225,48 @@ export class CustomerDataService {
             Codegen.DeleteCustomerNoteMutationVariables
         >(DELETE_CUSTOMER_NOTE, {
             id,
+        });
+    }
+
+    approveCustomer(id: string) {
+        return this.baseDataService.mutate<
+            Codegen.ApproveCustomerMutation,
+            Codegen.ApproveCustomerMutationVariables
+        >(APPROVE_CUSTOMER, {
+            id,
+        });
+    }
+
+    sendNotificationToCustomer(
+        notificationBody: { title: string; subtitle: string; body: string },
+        customerIds?: string[],
+        categories?: string[],
+        priceVariant?: string,
+        days?: number,
+        noOrderCustomers?: boolean,
+    ) {
+        return this.baseDataService.mutate<
+            Codegen.SendNotificationToCustomerMutation,
+            Codegen.SendNotificationToCustomerMutationVariables
+        >(SEND_NOTIFICATION_TO_CUSTOMER, {
+            input: {
+                notificationBody,
+                customerIds,
+                categories,
+                priceVariant,
+                days,
+                noOrderCustomers,
+            },
+        });
+    }
+
+    rejectCustomer(id: string, reason?: string) {
+        return this.baseDataService.mutate<
+            Codegen.RejectCustomerMutation,
+            Codegen.RejectCustomerMutationVariables
+        >(REJECT_CUSTOMER, {
+            id: id,
+            reason: reason,
         });
     }
 }

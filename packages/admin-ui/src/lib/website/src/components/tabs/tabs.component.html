@@ -1,0 +1,11 @@
+<div class="tabs-container">
+    <ul class="tab-headers">
+        <li *ngFor="let tab of tabs; let i = index" [class.active]="tab.active" (click)="selectTab(tab)">
+            {{ tab.title }}
+        </li>
+        <ng-container *ngIf="addNewTab">
+            <li (click)="newTabClicked.emit()">+</li>
+        </ng-container>
+    </ul>
+    <ng-content></ng-content>
+</div>

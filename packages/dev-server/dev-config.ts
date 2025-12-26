@@ -1,7 +1,13 @@
 /* eslint-disable no-console */
 import { AdminUiPlugin } from '@vendure/admin-ui-plugin';
 import { AssetServerPlugin } from '@vendure/asset-server-plugin';
-import { ADMIN_API_PATH, API_PORT, SHOP_API_PATH } from '@vendure/common/lib/shared-constants';
+import {
+    ADMIN_API_PATH,
+    API_PORT,
+    SHOP_API_PATH,
+    SUPER_ADMIN_USER_IDENTIFIER,
+    SUPER_ADMIN_USER_PASSWORD,
+} from '@vendure/common/lib/shared-constants';
 import {
     Asset,
     DefaultJobQueuePlugin,
@@ -13,7 +19,14 @@ import {
     VendureConfig,
 } from '@vendure/core';
 import { ElasticsearchPlugin } from '@vendure/elasticsearch-plugin';
-import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
+import { TranzilaPlugin } from '@vendure/payments-plugin/src/tranzila';
+import {
+    defaultEmailHandlers,
+    EmailPlugin,
+    FileBasedTemplateLoader,
+    TurboSMTPEmailSender,
+    eventHandlers,
+} from '@vendure/email-plugin';
 import { BullMQJobQueuePlugin } from '@vendure/job-queue-plugin/package/bullmq';
 import 'dotenv/config';
 import { compileUiExtensions } from '@vendure/ui-devkit/compiler';
@@ -21,12 +34,17 @@ import path from 'path';
 import { DataSourceOptions } from 'typeorm';
 
 import { MultivendorPlugin } from './example-plugins/multivendor-plugin/multivendor.plugin';
+import { HardenPlugin } from '@vendure/harden-plugin';
+import { json } from 'body-parser';
+
+const IS_DEV = process.env.APP_ENV === 'dev';
 
 /**
  * Config settings used during development
  */
 export const devConfig: VendureConfig = {
     apiOptions: {
+        cors: { origin: process.env.CORS ?? '*', credentials: true },
         port: API_PORT,
         adminApiPath: ADMIN_API_PATH,
         adminApiPlayground: {
@@ -42,6 +60,13 @@ export const devConfig: VendureConfig = {
             },
         },
         shopApiDebug: true,
+        middleware: [
+            {
+                handler: json({ limit: '100mb' }),
+                route: '*',
+                beforeListen: true,
+            },
+        ],
     },
     authOptions: {
         disableAuth: false,
@@ -50,6 +75,10 @@ export const devConfig: VendureConfig = {
         customPermissions: [],
         cookieOptions: {
             secret: 'abc',
+        },
+        superadminCredentials: {
+            identifier: process.env.SUPERADMIN_USERNAME ?? SUPER_ADMIN_USER_IDENTIFIER,
+            password: process.env.SUPERADMIN_PASSWORD ?? SUPER_ADMIN_USER_PASSWORD,
         },
     },
     dbConnectionOptions: {
@@ -68,6 +97,13 @@ export const devConfig: VendureConfig = {
         importAssetsDir: path.join(__dirname, 'import-assets'),
     },
     plugins: [
+        TranzilaPlugin.init({
+            vendureHost: 'http://localhost:3000',
+        }),
+        HardenPlugin.init({
+            maxQueryComplexity: 10000,
+            apiMode: IS_DEV ? 'dev' : 'prod',
+        }),
         // MultivendorPlugin.init({
         //     platformFeePercent: 10,
         //     platformFeeSKU: 'FEE',
@@ -87,9 +123,7 @@ export const devConfig: VendureConfig = {
         //     bufferUpdates: true,
         // }),
         EmailPlugin.init({
-            devMode: true,
-            route: 'mailbox',
-            handlers: defaultEmailHandlers,
+            handlers: eventHandlers,
             templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../email-plugin/templates')),
             outputPath: path.join(__dirname, 'test-emails'),
             globalTemplateVars: {
@@ -97,6 +131,8 @@ export const devConfig: VendureConfig = {
                 passwordResetUrl: 'http://localhost:4201/reset-password',
                 changeEmailAddressUrl: 'http://localhost:4201/change-email-address',
             },
+            transport: { type: 'none' },
+            emailSender: new TurboSMTPEmailSender(),
         }),
         AdminUiPlugin.init({
             route: 'admin',
@@ -130,7 +166,7 @@ function getDbConfig(): DataSourceOptions {
         case 'postgres':
             console.log('Using postgres connection');
             return {
-                synchronize: false,
+                synchronize: process.env.SYNCHRONIZE === 'true',
                 type: 'postgres',
                 host: process.env.DB_HOST || 'localhost',
                 port: Number(process.env.DB_PORT) || 5432,

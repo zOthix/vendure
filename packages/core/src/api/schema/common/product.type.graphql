@@ -7,6 +7,8 @@ type Product implements Node {
     slug: String!
     description: String!
     enabled: Boolean!
+    isHottest: Boolean!
+    brand: Brand
     featuredAsset: Asset
     assets: [Asset!]!
     "Returns all ProductVariants"
@@ -39,6 +41,17 @@ type ProductVariantList implements PaginatedList {
     totalItems: Int!
 }
 
+type BrandList implements PaginatedList {
+    items: [Brand!]!
+    totalItems: Int!
+}
+
+type BrandValue implements Node {
+    id: ID!
+    label: String!
+    value: String!
+}
+
 type ProductVariant implements Node {
     id: ID!
     product: Product!
@@ -67,4 +80,20 @@ type ProductVariantTranslation {
     updatedAt: DateTime!
     languageCode: LanguageCode!
     name: String!
+}
+
+type ProductVariantPriceVariant implements Node {
+    id: ID!
+    name: String!
+}
+
+type Brand implements Node {
+    id: ID!
+    name: String!
+    slug: String!
+    description: String!
+    isActive: Boolean!
+    featuredAsset: Asset!
+    products: [Product!]
+    productList(options: ProductListOptions): ProductList!
 }

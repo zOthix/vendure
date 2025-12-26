@@ -165,3 +165,16 @@ export const REMOVE_FACETS_FROM_CHANNEL = gql`
         }
     }
 `;
+
+export const ALL_FACETS_QUERY = gql`
+    query AllFacets {
+        allFacets {
+            code
+            name
+            values {
+                code
+                name
+            }
+        }
+    }
+`;

@@ -7,6 +7,7 @@ import {
     DeletionResult,
     GlobalFlag,
     Permission,
+    PriceVariantInput,
     ProductVariantFilterParameter,
     RemoveProductVariantsFromChannelInput,
     UpdateProductVariantInput,
@@ -32,11 +33,13 @@ import {
     OrderLine,
     ProductOptionGroup,
     ProductVariantPrice,
+    ProductVariantPriceVariant,
     TaxCategory,
 } from '../../entity';
 import { FacetValue } from '../../entity/facet-value/facet-value.entity';
 import { Product } from '../../entity/product/product.entity';
 import { ProductOption } from '../../entity/product-option/product-option.entity';
+import { ProductVariantPriceToPriceVariant } from '../../entity/product-variant/product-variant-price-price-variant.entity';
 import { ProductVariantTranslation } from '../../entity/product-variant/product-variant-translation.entity';
 import { ProductVariant } from '../../entity/product-variant/product-variant.entity';
 import { EventBus } from '../../event-bus/event-bus';
@@ -52,8 +55,10 @@ import { samplesEach } from '../helpers/utils/samples-each';
 
 import { AssetService } from './asset.service';
 import { ChannelService } from './channel.service';
+import { CustomerService } from './customer.service';
 import { FacetValueService } from './facet-value.service';
 import { GlobalSettingsService } from './global-settings.service';
+import { ProductPriceVariantService } from './product-price-variant.service';
 import { RoleService } from './role.service';
 import { StockLevelService } from './stock-level.service';
 import { StockMovementService } from './stock-movement.service';
@@ -85,6 +90,8 @@ export class ProductVariantService {
         private requestCache: RequestContextCacheService,
         private productPriceApplicator: ProductPriceApplicator,
         private translator: TranslatorService,
+        private productPriceVariantService: ProductPriceVariantService,
+        private customerService: CustomerService,
     ) {}
 
     async findAll(
@@ -130,6 +137,9 @@ export class ProductVariantService {
                 relations: [
                     ...(relations || ['product', 'featuredAsset', 'product.featuredAsset']),
                     'taxCategory',
+                    'productVariantPrices',
+                    'productVariantPrices.productVariantPriceVariant',
+                    'productVariantPrices.productVariantPriceVariant.productVariantPriceVariant',
                 ],
                 where: { deletedAt: IsNull() },
             })
@@ -152,6 +162,9 @@ export class ProductVariantService {
                     'taxCategory',
                     'assets',
                     'featuredAsset',
+                    'productVariantPrices',
+                    'productVariantPrices.productVariantPriceVariant',
+                    'productVariantPrices.productVariantPriceVariant.productVariantPriceVariant',
                 ],
             })
             .then(variants => this.applyPricesAndTranslateVariants(ctx, variants));
@@ -406,6 +419,7 @@ export class ProductVariantService {
     }
 
     private async createSingle(ctx: RequestContext, input: CreateProductVariantInput): Promise<ID> {
+        await this.validateAllPriceVariants(ctx, input.priceVariants ?? []);
         await this.validateVariantOptionIds(ctx, input.productId, input.optionIds);
         if (!input.optionIds) {
             input.optionIds = [];
@@ -456,18 +470,43 @@ export class ProductVariantService {
         }
 
         const defaultChannel = await this.channelService.getDefaultChannel(ctx);
-        await this.createOrUpdateProductVariantPrice(ctx, createdVariant.id, input.price, ctx.channelId);
+        const price = await this.createOrUpdateProductVariantPrice(
+            ctx,
+            createdVariant.id,
+            input.price,
+            ctx.channelId,
+        );
         if (!idsAreEqual(ctx.channelId, defaultChannel.id)) {
             // When creating a ProductVariant _not_ in the default Channel, we still need to
             // create a ProductVariantPrice for it in the default Channel, otherwise errors will
             // result when trying to query it there.
-            await this.createOrUpdateProductVariantPrice(
+            const defaultChannelPrice = await this.createOrUpdateProductVariantPrice(
                 ctx,
                 createdVariant.id,
                 input.price,
                 defaultChannel.id,
                 defaultChannel.defaultCurrencyCode,
             );
+            if (input.priceVariants) {
+                for (const priceVariant of input.priceVariants) {
+                    const variant = new ProductVariantPriceToPriceVariant({
+                        price: priceVariant.price,
+                        productVariantPrice: defaultChannelPrice,
+                        productVariantPriceVariantId: priceVariant.id,
+                    });
+                    await this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(variant);
+                }
+            }
+        }
+        if (input.priceVariants) {
+            for (const priceVariant of input.priceVariants) {
+                const variant = new ProductVariantPriceToPriceVariant({
+                    price: priceVariant.price,
+                    productVariantPrice: price,
+                    productVariantPriceVariantId: priceVariant.id,
+                });
+                await this.connection.getRepository(ctx, ProductVariantPriceToPriceVariant).save(variant);
+            }
         }
         return createdVariant.id;
     }
@@ -556,7 +595,43 @@ export class ProductVariantService {
                 }
             }
         }
+        if (input.priceVariants) {
+            for (const priceVariant of input.priceVariants) {
+                await this.createOrUpdatePriceVariant(ctx, input.id, priceVariant.price, priceVariant.name);
+            }
+        }
         return updatedVariant.id;
+    }
+
+    async createOrUpdatePriceVariant(
+        ctx: RequestContext,
+        productVariantId: ID,
+        price: number,
+        priceVariant: string,
+    ): Promise<ProductVariantPrice | null> {
+        const productVariantPriceToPriceVariantRepo = this.connection.getRepository(
+            ctx,
+            ProductVariantPriceToPriceVariant,
+        );
+        const variantPrice = await this.connection
+            .getRepository(ctx, ProductVariantPrice)
+            .createQueryBuilder('pvp')
+            .leftJoinAndSelect('pvp.productVariantPriceVariant', 'pvpv')
+            .leftJoinAndSelect('pvpv.productVariantPriceVariant', 'priceVariant')
+            .where('priceVariant.name = :variant', { variant: priceVariant })
+            .andWhere('pvp.variant = :id', { id: productVariantId })
+            .getOne();
+
+        if (variantPrice) {
+            const priceToVariant = variantPrice.productVariantPriceVariant.find(
+                variant => variant.productVariantPriceVariant.name === priceVariant,
+            );
+            if (priceToVariant) {
+                priceToVariant.price = price;
+                await productVariantPriceToPriceVariantRepo.save(priceToVariant);
+            }
+        }
+        return variantPrice;
     }
 
     /**
@@ -770,6 +845,23 @@ export class ProductVariantService {
         order?: Order,
         throwIfNoPriceFound = false,
     ): Promise<ProductVariant> {
+        // Apply the price variant if user is logged in
+        if (ctx.activeUserId) {
+            const customer = await this.customerService.findOneByUserId(ctx, ctx.activeUserId);
+            if (customer && customer.priceVariant) {
+                const productVariant = await this.productPriceApplicator.applyChannelPriceAndTax(
+                    variant,
+                    ctx,
+                    order,
+                    throwIfNoPriceFound,
+                );
+                return this.productPriceVariantService.applyPriceVariantPrice(
+                    ctx,
+                    productVariant,
+                    customer.priceVariant,
+                );
+            }
+        }
         return this.productPriceApplicator.applyChannelPriceAndTax(variant, ctx, order, throwIfNoPriceFound);
     }
 
@@ -927,6 +1019,19 @@ export class ProductVariantService {
                     });
                 }
             });
+    }
+
+    private async validateAllPriceVariants(ctx: RequestContext, priceVariants: PriceVariantInput[]) {
+        const variants = await this.connection.getRepository(ctx, ProductVariantPriceVariant).find();
+        priceVariants.forEach(priceVariant => {
+            const variant = variants.find(i => i.name === priceVariant.name);
+            if (!variant) {
+                throw new UserInputError('error.price-variant-required-error');
+            }
+            if (!priceVariant.price || priceVariant.price === 0) {
+                throw new UserInputError('error.price-variant-required-error');
+            }
+        });
     }
 
     private throwIncompatibleOptionsError(optionGroups: ProductOptionGroup[]) {

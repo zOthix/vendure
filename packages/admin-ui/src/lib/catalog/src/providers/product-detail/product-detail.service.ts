@@ -20,7 +20,10 @@ import { notNullOrUndefined } from '@vendure/common/lib/shared-utils';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { map, mergeMap, shareReplay, switchMap } from 'rxjs/operators';
 
-import { CreateProductVariantsConfig } from '../../components/generate-product-variants/generate-product-variants.component';
+import {
+    CreateProductVariantsConfig,
+    PriceVariantInput,
+} from '../../components/generate-product-variants/generate-product-variants.component';
 
 import { replaceLast } from './replace-last';
 
@@ -46,6 +49,19 @@ export class ProductDetailService {
         createVariantsConfig: CreateProductVariantsConfig,
         languageCode: LanguageCode,
     ) {
+        let allVariantsAvailable = true;
+        createVariantsConfig.variants.forEach(variant => {
+            variant.priceVariants.forEach(item => {
+                if (!item.price || item.price === 0) {
+                    allVariantsAvailable = false;
+                }
+            });
+        });
+
+        if (!allVariantsAvailable) {
+            return throwError(() => new Error('All price variants required.'));
+        }
+
         const createProduct$ = this.dataService.product.createProduct(input);
         const nonEmptyOptionGroups = createVariantsConfig.groups.filter(g => 0 < g.values.length);
         const createOptionGroups$ = this.createProductOptionGroups(nonEmptyOptionGroups, languageCode);
@@ -115,7 +131,13 @@ export class ProductDetailService {
 
     createProductVariants(
         product: { name: string; id: string },
-        variantData: Array<{ price: number; sku: string; stock: number; optionIds: string[] }>,
+        variantData: Array<{
+            price: number;
+            sku: string;
+            stock: number;
+            optionIds: string[];
+            priceVariants: PriceVariantInput[];
+        }>,
         options: Array<{ id: string; name: string }>,
         languageCode: LanguageCode,
         stockLocationId: string,
@@ -145,6 +167,7 @@ export class ProductDetailService {
                     },
                 ],
                 optionIds: v.optionIds,
+                priceVariants: v.priceVariants,
             };
         });
         return this.dataService.product.createProductVariants(variants).pipe(

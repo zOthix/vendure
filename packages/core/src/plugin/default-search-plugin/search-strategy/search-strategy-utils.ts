@@ -16,15 +16,17 @@ import { SearchIndexItem } from '../entities/search-index-item.entity';
 /**
  * Maps a raw database result to a SearchResult.
  */
-export function mapToSearchResult(raw: any, currencyCode: CurrencyCode): SearchResult {
-    const price =
-        raw.minPrice !== undefined
-            ? ({ min: raw.minPrice, max: raw.maxPrice } as PriceRange)
-            : ({ value: raw.si_price } as SinglePrice);
-    const priceWithTax =
+export function mapToSearchResult(
+    raw: any,
+    currencyCode: CurrencyCode,
+    priceVariantId?: ID | undefined,
+): SearchResult {
+    let price =
+        raw.minPrice !== undefined ? ({ min: 0, max: 0 } as PriceRange) : ({ value: 0 } as SinglePrice);
+    let priceWithTax =
         raw.minPriceWithTax !== undefined
-            ? ({ min: raw.minPriceWithTax, max: raw.maxPriceWithTax } as PriceRange)
-            : ({ value: raw.si_priceWithTax } as SinglePrice);
+            ? ({ min: 0, max: 0 } as PriceRange)
+            : ({ value: 0 } as SinglePrice);
 
     const productAsset: SearchResultAsset | undefined = !raw.si_productAssetId
         ? undefined
@@ -40,6 +42,38 @@ export function mapToSearchResult(raw: any, currencyCode: CurrencyCode): SearchR
               preview: raw.si_productVariantPreview,
               focalPoint: parseFocalPoint(raw.si_productVariantPreviewFocalPoint),
           };
+
+    if (priceVariantId) {
+        const prices = raw.priceVariants.flatMap(
+            (arr: Array<{ name: string; id: number; price: number }>) => {
+                const variant = arr?.find(v => v.id === priceVariantId);
+                return variant ? variant.price : 0;
+            },
+        );
+
+        const pricesWithTax = raw.priceVariantsWithTax.flatMap(
+            (arr: Array<{ name: string; id: number; price: number }>) => {
+                const variant = arr?.find(v => v.id === priceVariantId);
+                return variant ? variant.price : 0;
+            },
+        );
+
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+
+        const minPriceWithTax = Math.min(...pricesWithTax);
+        const maxPriceWithTax = Math.max(...pricesWithTax);
+
+        price =
+            minPrice !== maxPrice
+                ? ({ min: minPrice, max: maxPrice } as PriceRange)
+                : ({ value: maxPrice } as SinglePrice);
+
+        priceWithTax =
+            minPriceWithTax !== maxPriceWithTax
+                ? ({ min: minPriceWithTax, max: maxPriceWithTax } as PriceRange)
+                : ({ value: maxPriceWithTax } as SinglePrice);
+    }
 
     const enabled = raw.productEnabled != null ? !!Number(raw.productEnabled) : raw.si_enabled;
     return {
@@ -64,6 +98,8 @@ export function mapToSearchResult(raw: any, currencyCode: CurrencyCode): SearchR
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         inStock: raw.si_inStock,
+        brandId: raw.brandId,
+        brandSlug: raw.brandSlug,
     };
 }
 

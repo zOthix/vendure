@@ -6,8 +6,13 @@ import {
     ADD_OPTION_GROUP_TO_PRODUCT,
     ADD_OPTION_TO_GROUP,
     ASSIGN_PRODUCTS_TO_CHANNEL,
+    ASSIGN_PRODUCTS_TO_HOT_PRODUCTS,
     ASSIGN_VARIANTS_TO_CHANNEL,
+    BRAND_VALUE_LIST,
     CREATE_ASSETS,
+    CREATE_BRAND,
+    CREATE_OR_UPDATE_PRODUCTS,
+    CREATE_PRICE_VARIANT,
     CREATE_PRODUCT,
     CREATE_PRODUCT_OPTION_GROUP,
     CREATE_PRODUCT_VARIANTS,
@@ -21,6 +26,8 @@ import {
     DELETE_TAG,
     GET_ASSET,
     GET_ASSET_LIST,
+    GET_CATEGORY_LIST,
+    GET_PRICE_VARIANT_LIST,
     GET_PRODUCT_LIST,
     GET_PRODUCT_OPTION_GROUP,
     GET_PRODUCT_OPTION_GROUPS,
@@ -31,14 +38,18 @@ import {
     GET_PRODUCT_VARIANT_LIST_SIMPLE,
     GET_PRODUCT_VARIANT_OPTIONS,
     GET_PRODUCT_WITH_VARIANTS,
+    GET_PRODUCTS_BY_IDS,
     GET_TAG,
     GET_TAG_LIST,
     PRODUCT_SELECTOR_SEARCH,
     REMOVE_OPTION_GROUP_FROM_PRODUCT,
     REMOVE_PRODUCTS_FROM_CHANNEL,
+    REMOVE_PRODUCTS_FROM_HOT_PRODUCTS,
     REMOVE_VARIANTS_FROM_CHANNEL,
     SEARCH_PRODUCTS,
     UPDATE_ASSET,
+    UPDATE_BRAND,
+    UPDATE_PRICE_VARIANT,
     UPDATE_PRODUCT,
     UPDATE_PRODUCT_OPTION,
     UPDATE_PRODUCT_OPTION_GROUP,
@@ -179,6 +190,7 @@ export class ProductDataService {
                 'assetIds',
                 'featuredAssetId',
                 'facetValueIds',
+                'brand',
             ]),
         };
         return this.baseDataService.mutate<
@@ -197,6 +209,7 @@ export class ProductDataService {
                 'assetIds',
                 'featuredAssetId',
                 'facetValueIds',
+                'brand',
             ]),
         };
         return this.baseDataService.mutate<
@@ -467,6 +480,92 @@ export class ProductDataService {
             {
                 id,
             },
+        );
+    }
+
+    getPriceVariantList() {
+        return this.baseDataService.query<Codegen.GetPriceVariantListQuery>(GET_PRICE_VARIANT_LIST);
+    }
+
+    createPriceVariant(name: string) {
+        return this.baseDataService.mutate<
+            Codegen.CreatePriceVariantMutation,
+            Codegen.CreatePriceVariantMutationVariables
+        >(CREATE_PRICE_VARIANT, {
+            input: name,
+        });
+    }
+
+    updatePriceVariant(input: Codegen.UpdatePriceVariantInput) {
+        return this.baseDataService.mutate<
+            Codegen.UpdatePriceVariantMutation,
+            Codegen.UpdatePriceVariantMutationVariables
+        >(UPDATE_PRICE_VARIANT, {
+            input,
+        });
+    }
+
+    getCategoryList() {
+        return this.baseDataService.query<Codegen.GetCategoryListQuery>(GET_CATEGORY_LIST);
+    }
+
+    getProductsByIds(input: string[]) {
+        return this.baseDataService.query<
+            Codegen.GetProductsByIdsQuery,
+            Codegen.GetProductsByIdsQueryVariables
+        >(GET_PRODUCTS_BY_IDS, {
+            productIds: input,
+        });
+    }
+
+    createOrUpdateProducts(input: Codegen.CreateOrUpdateProductInput[]) {
+        return this.baseDataService.mutate<
+            Codegen.CreateOrUpdateProductsMutation,
+            Codegen.CreateOrUpdateProductsMutationVariables
+        >(CREATE_OR_UPDATE_PRODUCTS, {
+            input: input,
+        });
+    }
+
+    assignProductsToHotProducts(input: Codegen.AssignProductsToHotProductsInput) {
+        return this.baseDataService.mutate<
+            Codegen.AssignProductsToHotProductsMutation,
+            Codegen.AssignProductsToHotProductsMutationVariables
+        >(ASSIGN_PRODUCTS_TO_HOT_PRODUCTS, {
+            input,
+        });
+    }
+
+    removeProductsFromHotProducts(input: Codegen.RemoveProductsFromHotProductsInput) {
+        return this.baseDataService.mutate<
+            Codegen.RemoveProductsFromHotProductsMutation,
+            Codegen.RemoveProductsFromHotProductsMutationVariables
+        >(REMOVE_PRODUCTS_FROM_HOT_PRODUCTS, {
+            input,
+        });
+    }
+
+    createBrand(input: Codegen.CreateBrandInput) {
+        return this.baseDataService.mutate<Codegen.CreateBrandMutation, Codegen.CreateBrandMutationVariables>(
+            CREATE_BRAND,
+            {
+                input,
+            },
+        );
+    }
+
+    updateBrand(input: Codegen.UpdateBrandInput) {
+        return this.baseDataService.mutate<Codegen.UpdateBrandMutation, Codegen.UpdateBrandMutationVariables>(
+            UPDATE_BRAND,
+            {
+                input,
+            },
+        );
+    }
+
+    getBrandValueList() {
+        return this.baseDataService.query<Codegen.BrandValueListQuery, Codegen.BrandValueListQueryVariables>(
+            BRAND_VALUE_LIST,
         );
     }
 }

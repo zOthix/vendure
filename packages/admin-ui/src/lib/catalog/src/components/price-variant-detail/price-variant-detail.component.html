@@ -1,0 +1,56 @@
+<vdr-page-block>
+    <vdr-action-bar>
+        <vdr-ab-left>
+            <div class="flex clr-flex-row"></div>
+            <vdr-language-selector
+                [disabled]="isNew$ | async"
+                [availableLanguageCodes]="availableLanguages$ | async"
+                [currentLanguageCode]="languageCode$ | async"
+                (languageCodeChange)="setLanguage($event)"
+            ></vdr-language-selector>
+        </vdr-ab-left>
+
+        <vdr-ab-right>
+            <vdr-action-bar-items locationId="price-variant-detail"></vdr-action-bar-items>
+            <button
+                class="btn btn-primary"
+                *ngIf="isNew$ | async; else updateButton"
+                (click)="create()"
+                [disabled]="detailForm.invalid || detailForm.pristine"
+            >
+                {{ 'common.create' | translate }}
+            </button>
+            <ng-template #updateButton>
+                <button
+                    class="btn btn-primary"
+                    (click)="save()"
+                    [disabled]="detailForm.invalid || detailForm.pristine"
+                >
+                    {{ 'common.update' | translate }}
+                </button>
+            </ng-template>
+            <vdr-action-bar-dropdown-menu locationId="price-variant-detail"></vdr-action-bar-dropdown-menu>
+        </vdr-ab-right>
+    </vdr-action-bar>
+</vdr-page-block>
+
+<form class="form" [formGroup]="detailForm">
+    <vdr-page-detail-layout>
+        <vdr-page-block>
+            <button type="submit" hidden x-data="prevents enter key from triggering other buttons"></button>
+            <vdr-card>
+                <div class="form-grid">
+                    <div>
+                        <vdr-form-field [label]="'catalog.variant-name' | translate" for="name">
+                            <input
+                                id="name"
+                                type="text"
+                                formControlName="name"
+                            />
+                        </vdr-form-field>
+                    </div>
+                </div>
+            </vdr-card>
+        </vdr-page-block>
+    </vdr-page-detail-layout>
+</form>

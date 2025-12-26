@@ -35,6 +35,17 @@ export const CUSTOMER_FRAGMENT = gql`
         lastName
         phoneNumber
         emailAddress
+        payWithoutCreditCard
+        accountingEmail
+        accountingPhone
+        businessName
+        businessPhone
+        contactPersonPhone
+        fax
+        VAT
+        address
+        managerAddress
+        isRejected
         user {
             id
             identifier
@@ -43,6 +54,14 @@ export const CUSTOMER_FRAGMENT = gql`
         }
         addresses {
             ...Address
+        }
+        priceVariant {
+            name
+            id
+        }
+        category {
+            name
+            id
         }
     }
     ${ADDRESS_FRAGMENT}
@@ -279,6 +298,31 @@ export const DELETE_CUSTOMER_NOTE = gql`
         deleteCustomerNote(id: $id) {
             result
             message
+        }
+    }
+`;
+
+export const APPROVE_CUSTOMER = gql`
+    mutation ApproveCustomer($id: ID!) {
+        approveCustomer(id: $id) {
+            ...Customer
+        }
+    }
+    ${CUSTOMER_FRAGMENT}
+`;
+
+export const SEND_NOTIFICATION_TO_CUSTOMER = gql`
+    mutation SendNotificationToCustomer($input: SendNotificationInput!) {
+        sendNotification(input: $input) {
+            success
+        }
+    }
+`;
+
+export const REJECT_CUSTOMER = gql`
+    mutation RejectCustomer($id: ID!, $reason: String) {
+        rejectCustomer(id: $id, reason: $reason) {
+            id
         }
     }
 `;

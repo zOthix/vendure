@@ -6,6 +6,8 @@ import { RequestContext } from '../../../api/common/request-context';
 import { Injector } from '../../../common';
 import { UserInputError } from '../../../common/error/errors';
 import { TransactionalConnection } from '../../../connection/transactional-connection';
+import { Customer } from '../../../entity';
+import { CustomerService } from '../../../service';
 import { PLUGIN_INIT_OPTIONS } from '../constants';
 import { SearchIndexItem } from '../entities/search-index-item.entity';
 import { DefaultSearchPluginInitOptions, SearchInput } from '../types';
@@ -29,10 +31,12 @@ export class PostgresSearchStrategy implements SearchStrategy {
     private readonly minTermLength = 2;
     private connection: TransactionalConnection;
     private options: DefaultSearchPluginInitOptions;
+    private customerService: CustomerService;
 
     async init(injector: Injector) {
         this.connection = injector.get(TransactionalConnection);
         this.options = injector.get(PLUGIN_INIT_OPTIONS);
+        this.customerService = injector.get(CustomerService);
     }
 
     async getFacetValueIds(
@@ -83,10 +87,12 @@ export class PostgresSearchStrategy implements SearchStrategy {
         ctx: RequestContext,
         input: SearchInput,
         enabledOnly: boolean,
+        customer?: Customer,
     ): Promise<SearchResult[]> {
         const take = input.take || 25;
         const skip = input.skip || 0;
         const sort = input.sort;
+        const priceVariantId = customer?.priceVariant?.id;
         const qb = this.connection
             .getRepository(ctx, SearchIndexItem)
             .createQueryBuilder('si')
@@ -97,6 +103,9 @@ export class PostgresSearchStrategy implements SearchStrategy {
                 .addSelect('MIN(si.priceWithTax)', 'minPriceWithTax')
                 .addSelect('MAX(si.priceWithTax)', 'maxPriceWithTax');
         }
+
+        qb.addSelect('MIN(si.brandId)', 'brandId');
+        qb.addSelect('MIN(si.brandSlug)', 'brandSlug');
 
         this.applyTermAndFilters(ctx, qb, input);
 
@@ -119,11 +128,22 @@ export class PostgresSearchStrategy implements SearchStrategy {
             qb.andWhere('"si"."enabled" = :enabled', { enabled: true });
         }
 
+        qb.addSelect('jsonb_agg(si.priceVariants)', 'priceVariants');
+        qb.addSelect('jsonb_agg(si.priceVariantsWithTax)', 'priceVariantsWithTax');
+
+        if (customer) {
+            if (customer.category) {
+                qb.andWhere(":id && string_to_array(si.collectionIds, ',')", {
+                    id: customer.category.map(i => i.id),
+                });
+            }
+        }
+
         return qb
             .limit(take)
             .offset(skip)
             .getRawMany()
-            .then(res => res.map(r => mapToSearchResult(r, ctx.channel.defaultCurrencyCode)));
+            .then(res => res.map(r => mapToSearchResult(r, ctx.channel.defaultCurrencyCode, priceVariantId)));
     }
 
     async getTotalCount(ctx: RequestContext, input: SearchInput, enabledOnly: boolean): Promise<number> {
@@ -152,8 +172,16 @@ export class PostgresSearchStrategy implements SearchStrategy {
         input: SearchInput,
         forceGroup: boolean = false,
     ): SelectQueryBuilder<SearchIndexItem> {
-        const { term, facetValueFilters, facetValueIds, facetValueOperator, collectionId, collectionSlug } =
-            input;
+        const {
+            term,
+            facetValueFilters,
+            facetValueIds,
+            facetValueOperator,
+            collectionId,
+            collectionSlug,
+            brandId,
+            brandSlug,
+        } = input;
         // join multiple words with the logical AND operator
         const termLogicalAnd = term
             ? term
@@ -248,6 +276,16 @@ export class PostgresSearchStrategy implements SearchStrategy {
         if (collectionSlug) {
             qb.andWhere(":collectionSlug::varchar = ANY (string_to_array(si.collectionSlugs, ','))", {
                 collectionSlug,
+            });
+        }
+        if (brandId) {
+            qb.andWhere(':brandId::varchar = si.brandId', {
+                brandId,
+            });
+        }
+        if (brandSlug) {
+            qb.andWhere(':brandSlug::varchar = si.brandSlug', {
+                brandSlug,
             });
         }
 

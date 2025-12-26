@@ -1,0 +1,56 @@
+<vdr-page-block>
+    <vdr-action-bar>
+        <vdr-ab-left>
+            <vdr-language-selector
+                [availableLanguageCodes]="availableLanguages$ | async"
+                [currentLanguageCode]="contentLanguage$ | async"
+                (languageCodeChange)="setLanguage($event)"
+            ></vdr-language-selector>
+        </vdr-ab-left>
+        <vdr-ab-right>
+            <vdr-action-bar-items locationId="price-variant-list"></vdr-action-bar-items>
+            <a
+                class="button primary mr-1"
+                [routerLink]="['./create']"
+                *vdrIfPermissions="['CreateCatalog', 'CreateProduct']"
+            >
+                <clr-icon shape="plus"></clr-icon>
+                {{ 'catalog.add-new-variant' | translate }}
+            </a>
+        </vdr-ab-right>
+    </vdr-action-bar>
+</vdr-page-block>
+<vdr-data-table-2
+    class="mt-2"
+    id="price-variant-list"
+    [items]="items$ | async"
+    [itemsPerPage]="itemsPerPage$ | async"
+    [totalItems]="totalItems$ | async"
+    [currentPage]="currentPage$ | async"
+    [filters]="filters"
+    (pageChange)="setPageNumber($event)"
+    (itemsPerPageChange)="setItemsPerPage($event)"
+>
+    <vdr-bulk-action-menu
+        locationId="price-variant-list"
+        [hostComponent]="this"
+        [selectionManager]="selectionManager"
+    ></vdr-bulk-action-menu>
+    <vdr-dt2-search
+        [searchTermControl]="searchTermControl"
+        [searchTermPlaceholder]="'settings.search-by-price-variant-name' | translate"
+    />
+    <vdr-dt2-column [heading]="'common.id' | translate" id="id" [hiddenByDefault]="false" [sort]="sorts.get('id')">
+        <ng-template let-price_variant="item">
+            {{ price_variant.id }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column [heading]="'catalog.name' | translate" id="name" [optional]="false" [sort]="sorts.get('name')">
+        <ng-template let-price_variant="item">
+            <a class="button-ghost" [routerLink]="['./', price_variant.id]"
+                ><span>{{ price_variant.name }}</span
+                ><clr-icon shape="arrow right"
+            /></a>
+        </ng-template>
+    </vdr-dt2-column>
+</vdr-data-table-2>

@@ -1,0 +1,19 @@
+type Mutation {
+    "Send notification"
+    sendNotification(input: SendNotificationInput!): Success!
+}
+
+input SendNotificationInput {
+    notificationBody: NotificationBody!
+    customerIds: [ID!]
+    priceVariant: ID
+    categories: [ID!]
+    noOrderCustomers: Boolean
+    days: Int
+}
+
+input NotificationBody {
+    title: String
+    body: String
+    subtitle: String
+}

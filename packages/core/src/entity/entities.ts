@@ -4,6 +4,7 @@ import { Asset } from './asset/asset.entity';
 import { AuthenticationMethod } from './authentication-method/authentication-method.entity';
 import { ExternalAuthenticationMethod } from './authentication-method/external-authentication-method.entity';
 import { NativeAuthenticationMethod } from './authentication-method/native-authentication-method.entity';
+import { Brand } from './brand/brand.entity';
 import { Channel } from './channel/channel.entity';
 import { CollectionAsset } from './collection/collection-asset.entity';
 import { CollectionTranslation } from './collection/collection-translation.entity';
@@ -19,6 +20,7 @@ import { GlobalSettings } from './global-settings/global-settings.entity';
 import { CustomerHistoryEntry } from './history-entry/customer-history-entry.entity';
 import { HistoryEntry } from './history-entry/history-entry.entity';
 import { OrderHistoryEntry } from './history-entry/order-history-entry.entity';
+import { NotificationToken } from './notification-token/notification-token.entity';
 import { Order } from './order/order.entity';
 import { OrderLine } from './order-line/order-line.entity';
 import { FulfillmentLine } from './order-line-reference/fulfillment-line.entity';
@@ -37,6 +39,8 @@ import { ProductOption } from './product-option/product-option.entity';
 import { ProductOptionGroupTranslation } from './product-option-group/product-option-group-translation.entity';
 import { ProductOptionGroup } from './product-option-group/product-option-group.entity';
 import { ProductVariantAsset } from './product-variant/product-variant-asset.entity';
+import { ProductVariantPriceToPriceVariant } from './product-variant/product-variant-price-price-variant.entity';
+import { ProductVariantPriceVariant } from './product-variant/product-variant-price-variant.entity';
 import { ProductVariantPrice } from './product-variant/product-variant-price.entity';
 import { ProductVariantTranslation } from './product-variant/product-variant-translation.entity';
 import { ProductVariant } from './product-variant/product-variant.entity';
@@ -68,6 +72,9 @@ import { Tag } from './tag/tag.entity';
 import { TaxCategory } from './tax-category/tax-category.entity';
 import { TaxRate } from './tax-rate/tax-rate.entity';
 import { User } from './user/user.entity';
+import { CarousalItem } from './website/carousal-item.entity';
+import { WebLink } from './website/web-link.entity';
+import { Website } from './website/website.entity';
 import { Zone } from './zone/zone.entity';
 
 /**
@@ -81,8 +88,10 @@ export const coreEntitiesMap = {
     Asset,
     AuthenticatedSession,
     AuthenticationMethod,
+    Brand,
     Cancellation,
     Channel,
+    CarousalItem,
     Collection,
     CollectionAsset,
     CollectionTranslation,
@@ -145,4 +154,9 @@ export const coreEntitiesMap = {
     User,
     Seller,
     Zone,
+    ProductVariantPriceVariant,
+    ProductVariantPriceToPriceVariant,
+    NotificationToken,
+    Website,
+    WebLink,
 };

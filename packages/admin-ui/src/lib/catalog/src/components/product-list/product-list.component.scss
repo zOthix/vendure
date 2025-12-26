@@ -1,4 +1,4 @@
-@import "variables";
+@import 'variables';
 
 .image-col {
     width: 70px;
@@ -25,7 +25,7 @@
 }
 vdr-product-search-input {
     min-width: 300px;
-    @media screen and (max-width: $breakpoint-small){
+    @media screen and (max-width: $breakpoint-small) {
         min-width: 100px;
     }
 }
@@ -54,4 +54,25 @@ td.disabled {
 }
 .sku {
     color: var(--color-text-300);
+}
+
+#csv-preview-container {
+    margin-bottom: 10px;
+}
+
+#csv-preview-container > h4 {
+    text-align: center;
+}
+
+#csv-preview-container > .preview-btn-container {
+    display: flex;
+    justify-content: flex-end;
+    column-gap: 10px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+#product-list-preview-update {
+    max-height: 400px;
+    overflow: auto;
 }

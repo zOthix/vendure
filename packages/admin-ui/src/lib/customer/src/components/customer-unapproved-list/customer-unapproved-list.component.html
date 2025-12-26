@@ -1,0 +1,90 @@
+<vdr-data-table-2
+    class="mt-2"
+    id="customer-list"
+    [items]="items$ | async"
+    [itemsPerPage]="itemsPerPage$ | async"
+    [totalItems]="totalItems$ | async"
+    [currentPage]="currentPage$ | async"
+    [filters]="filters"
+    (pageChange)="setPageNumber($event)"
+    (itemsPerPageChange)="setItemsPerPage($event)"
+>
+    <vdr-bulk-action-menu
+        locationId="customer-list"
+        [hostComponent]="this"
+        [selectionManager]="selectionManager"
+    ></vdr-bulk-action-menu>
+    <vdr-dt2-search
+        [searchTermControl]="searchTermControl"
+        [searchTermPlaceholder]="'customer.search-customers-by-email-last-name-postal-code' | translate"
+    ></vdr-dt2-search>
+    <vdr-dt2-column [heading]="'common.id' | translate" id="id" [hiddenByDefault]="true">
+        <ng-template let-customer="item">
+            {{ customer.id }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column
+        [heading]="'common.created-at' | translate"
+        id="created-at"
+        [hiddenByDefault]="true"
+        [sort]="sorts.get('createdAt')"
+    >
+        <ng-template let-customer="item">
+            {{ customer.createdAt | localeDate: 'short' }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column
+        [heading]="'common.updated-at' | translate"
+        id="updated-at"
+        [hiddenByDefault]="true"
+        [sort]="sorts.get('updatedAt')"
+    >
+        <ng-template let-customer="item">
+            {{ customer.updatedAt | localeDate: 'short' }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column
+        [heading]="'customer.name' | translate"
+        id="name"
+        [optional]="false"
+        [sort]="sorts.get('lastName')"
+    >
+        <ng-template let-customer="item">
+            <a class="button-ghost" [routerLink]="['./', customer.id]"
+                ><span> {{ customer.title }} {{ customer.firstName }} {{ customer.lastName }} </span>
+                <clr-icon shape="arrow right"></clr-icon>
+            </a>
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column [heading]="'common.status' | translate" id="status" [optional]="false">
+        <ng-template let-customer="item">
+            <vdr-customer-status-label [customer]="customer" />
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column
+        [heading]="'customer.email-address' | translate"
+        id="email-address"
+        [sort]="sorts.get('emailAddress')"
+    >
+        <ng-template let-customer="item">
+            {{ customer.emailAddress }}
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-column
+        [heading]="'common.approve-customer' | translate"
+        id="approve-customer"
+        [optional]="false"
+    >
+        <ng-template let-customer="item">
+            <button
+                class="button-small bg-weight-150"
+                (click)="approveCustomer(customer.id, customer.firstName, customer.lastName)"
+                [disabled]="customer.user.verified === true"
+            >
+                <span>{{ 'customer.approve-customer' | translate }}</span>
+                <clr-icon shape="assign-user"></clr-icon>
+            </button>
+        </ng-template>
+    </vdr-dt2-column>
+    <vdr-dt2-custom-field-column *ngFor="let field of customFields" [customField]="field" [sorts]="sorts" />
+</vdr-data-table-2>

@@ -17,8 +17,10 @@ import { TransactionalConnection } from '../../../connection/transactional-conne
 import { Channel } from '../../../entity/channel/channel.entity';
 import { FacetValue } from '../../../entity/facet-value/facet-value.entity';
 import { Product } from '../../../entity/product/product.entity';
+import { ProductVariantPriceToPriceVariant } from '../../../entity/product-variant/product-variant-price-price-variant.entity';
 import { ProductVariant } from '../../../entity/product-variant/product-variant.entity';
 import { Job } from '../../../job-queue/job';
+import { ProductPriceVariantService } from '../../../service';
 import { EntityHydrator } from '../../../service/helpers/entity-hydrator/entity-hydrator.service';
 import { ProductPriceApplicator } from '../../../service/helpers/product-price-applicator/product-price-applicator';
 import { ProductVariantService } from '../../../service/services/product-variant.service';
@@ -46,6 +48,7 @@ export const productRelations = [
     'facetValues.facet',
     'variants',
     'channels',
+    'brand',
 ];
 export const variantRelations = [
     'translations',
@@ -61,8 +64,10 @@ export const variantRelations = [
     'product.channels',
     'product.facetValues',
     'product.facetValues.facet',
+    'product.brand',
     'collections',
     'collections.translations',
+    'productVariantPrices.productVariantPriceVariant',
 ];
 export const workerLoggerCtx = 'DefaultSearchPlugin Worker';
 
@@ -77,6 +82,7 @@ export class IndexerController {
         private configService: ConfigService,
         private requestContextCache: RequestContextCacheService,
         private productVariantService: ProductVariantService,
+        private productPriceVariantService: ProductPriceVariantService,
         @Inject(PLUGIN_INIT_OPTIONS) private options: DefaultSearchPluginInitOptions,
     ) {}
 
@@ -415,6 +421,9 @@ export class IndexerController {
                 productMap.set(variant.productId, product);
             }
             const availableLanguageCodes = unique(ctx.channel.availableLanguageCodes);
+            await this.productPriceVariantService.attachAllPriceVariantsToProductVariant(ctx, variant);
+            const priceVariants =
+                await this.productPriceVariantService.getAllPriceVariantPricesForProductVariant(ctx, variant);
             for (const languageCode of availableLanguageCodes) {
                 const productTranslation = this.getTranslation(product, languageCode);
                 const variantTranslation = this.getTranslation(variant, languageCode);
@@ -436,6 +445,11 @@ export class IndexerController {
                 for (const channel of variant.channels) {
                     ctx.setChannel(channel);
                     await this.productPriceApplicator.applyChannelPriceAndTax(variant, ctx);
+                    const { prices, pricesWithTax } = this.getPriceVariantPrices(
+                        ctx,
+                        variant,
+                        priceVariants ?? [],
+                    );
                     const item = new SearchIndexItem({
                         channelId: ctx.channelId,
                         languageCode,
@@ -465,6 +479,10 @@ export class IndexerController {
                         collectionIds: variant.collections.map(c => c.id.toString()),
                         collectionSlugs:
                             collectionTranslations.map(c => c?.slug).filter(notNullOrUndefined) ?? [],
+                        priceVariants: prices,
+                        priceVariantsWithTax: pricesWithTax,
+                        brandSlug: variant.product.brand ? variant.product.brand.slug : undefined,
+                        brandId: variant.product.brand ? String(variant.product.brand.id) : undefined,
                     });
                     if (this.options.indexStockStatus) {
                         item.inStock =
@@ -617,5 +635,33 @@ export class IndexerController {
             return description.substring(0, 2600);
         }
         return description;
+    }
+
+    private getPriceVariantPrices(
+        ctx: RequestContext,
+        productVariant: ProductVariant,
+        priceVariants: ProductVariantPriceToPriceVariant[],
+    ) {
+        const prices = priceVariants?.map(i => ({
+            name: i.productVariantPriceVariant.name,
+            id: i.productVariantPriceVariant.id,
+            price: i.price,
+        }));
+        const pricesWithTax = priceVariants?.map(i => {
+            const price = this.productPriceVariantService.getPriceWithTax(
+                ctx,
+                productVariant,
+                i.productVariantPriceVariant,
+            );
+            return {
+                name: i.productVariantPriceVariant.name,
+                id: i.productVariantPriceVariant.id,
+                price,
+            };
+        });
+        return {
+            prices,
+            pricesWithTax,
+        };
     }
 }

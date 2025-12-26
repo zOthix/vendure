@@ -65,6 +65,9 @@ export interface CustomerHistoryEntryData {
     [HistoryEntryType.CUSTOMER_NOTE]: {
         note: string;
     };
+    [HistoryEntryType.CUSTOMER_REJECTED]: {
+        reason: string;
+    };
 }
 
 export interface OrderHistoryEntryData {

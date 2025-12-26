@@ -14,6 +14,7 @@ import { ID, PaginatedList } from '@vendure/common/lib/shared-types';
 
 import { RequestContext } from '../../api/common/request-context';
 import { RelationPaths } from '../../api/decorators/relations.decorator';
+import { ListQueryOptions } from '../../common';
 import { UserInputError } from '../../common/error/errors';
 import { assertFound, idsAreEqual } from '../../common/utils';
 import { TransactionalConnection } from '../../connection/transactional-connection';
@@ -76,7 +77,7 @@ export class CustomerGroupService {
         options?: CustomerListOptions,
     ): Promise<PaginatedList<Customer>> {
         return this.listQueryBuilder
-            .build(Customer, options, { ctx })
+            .build(Customer, options as ListQueryOptions<Customer>, { ctx })
             .leftJoin('customer.groups', 'group')
             .leftJoin('customer.channels', 'channel')
             .andWhere('group.id = :groupId', { groupId: customerGroupId })
